@@ -2,9 +2,9 @@
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>skillpm 使用手册</title>
-<meta name="description" content="skillpm 命令手册与接入说明，v2.0.6">
-<meta name="skillpm-version" content="2.0.6">
-<meta name="skillpm-source" content="f606e23c9ce444a0">
+<meta name="description" content="skillpm 命令手册与接入说明，v2.0.7">
+<meta name="skillpm-version" content="2.0.7">
+<meta name="skillpm-source" content="e66e113035df91e9">
 <style>
 :root{--bg:#f7f8fa;--paper:#fff;--ink:#1f2933;--muted:#5b6673;--line:#e3e7ec;--accent:#3e6ddf;
 --accent-soft:#eaf0fd;--code-bg:#0f172a;--code-ink:#e2e8f0;--inline-bg:#eef1f5;--warn:#b05a00;--warn-soft:#fff6e5;
@@ -25,9 +25,20 @@ backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#8b5cf6);
 display:grid;place-items:center;color:#fff;font-size:14px}
 .ver{font-weight:500;font-size:12px;color:var(--muted);background:var(--inline-bg);padding:2px 8px;border-radius:99px}
-.tabs{display:flex;gap:4px;margin-left:8px}
-.tabs button{border:0;background:none;color:var(--muted);font:inherit;font-size:14px;padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
-.tabs button.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+/* 顶部三篇的切换：做成一组显眼的按钮，不然容易以为手册只有「快速上手」一页 */
+.tabs-wrap{display:flex;align-items:center;gap:8px;margin-left:8px;min-width:0}
+.tabs-hint{font-size:12px;color:var(--muted);white-space:nowrap}
+.tabs{display:flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--inline-bg)}
+.tabs button{border:0;background:none;color:var(--ink);font:inherit;font-size:14.5px;font-weight:500;padding:6px 14px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.tabs button:hover{background:var(--paper)}
+.tabs button .n{display:inline-grid;place-items:center;width:18px;height:18px;margin-right:6px;border-radius:50%;
+font-size:11px;font-weight:700;background:var(--line);color:var(--muted)}
+.tabs button.on{background:var(--accent);color:#fff;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.tabs button.on .n{background:rgba(255,255,255,.25);color:#fff}
+/* 每篇末尾：下一篇 */
+.next{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;margin-top:36px;padding:16px 20px;
+border:1px solid var(--accent);border-radius:12px;background:var(--accent-soft);color:var(--accent);font:inherit;cursor:pointer;text-align:left}
+.next:hover{filter:brightness(.97)}.next small{display:block;font-size:12px;color:var(--muted)}.next b{font-size:16px}.next .arr{font-size:22px}
 .sp{flex:1}.icon-btn{border:1px solid var(--line);background:var(--paper);color:var(--muted);border-radius:8px;
 height:32px;min-width:32px;cursor:pointer;font-size:14px}
 .menu-btn{display:none}
@@ -79,15 +90,15 @@ details[open]>summary::before{transform:rotate(90deg)}
 @media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr);padding:16px 16px 60px}
 nav.toc{position:fixed;inset:60px 0 0 0;max-height:none;background:var(--paper);z-index:15;padding:16px;
 transform:translateX(-100%);transition:transform .2s}body.menu nav.toc{transform:none}
-.menu-btn{display:inline-block}main article{padding:22px 18px;border-radius:10px}.bar{gap:8px;padding:0 12px}.tabs{margin-left:0;min-width:0;overflow-x:auto}.tabs button{padding:6px 8px;font-size:13px}.ver{display:none}
+.menu-btn{display:inline-block}main article{padding:22px 18px;border-radius:10px}.bar{gap:8px;padding:0 12px}.tabs-wrap{margin-left:0}.tabs-hint{display:none}.tabs{min-width:0;overflow-x:auto}.tabs button{padding:5px 8px;font-size:13px}.tabs button .n{display:none}.ver{display:none}
 .brand .name{display:none}h1{font-size:23px}}
 </style></head>
 <body>
 <header><div class="bar">
   <button class="icon-btn menu-btn" id="menu" aria-label="目录">☰</button>
   <div class="brand"><span class="logo">sp</span><span class="name">skillpm 使用手册</span>
-  <span class="ver">v2.0.6</span></div>
-  <div class="tabs"><button data-doc="start">快速上手</button><button data-doc="manual">完整命令手册</button><button data-doc="onboard">接入自己的仓库</button></div>
+  <span class="ver">v2.0.7</span></div>
+  <div class="tabs-wrap"><span class="tabs-hint">手册共 3 篇 →</span><div class="tabs"><button data-doc="start"><span class="n">1</span>快速上手</button><button data-doc="manual"><span class="n">2</span>完整命令手册</button><button data-doc="onboard"><span class="n">3</span>接入自己的仓库</button></div></div>
   <div class="sp"></div>
   <button class="icon-btn" id="theme" title="切换深浅色" aria-label="切换深浅色">◐</button>
 </div></header>
@@ -255,7 +266,7 @@ skillpm docs        # 在浏览器里打开这份手册
 <td>填到<a href="https://github.com/suqian-bit/skillpm/issues" target="_blank" rel="noopener">GitHub Issues</a></td>
 </tr>
 </tbody>
-</table></div></section><section class="doc" id="doc-manual"><h1 id="manual-skillpm-命令手册">skillpm 命令手册</h1>
+</table></div><button class="next" data-doc="manual"><span><small>下一篇（共 3 篇）</small><b>完整命令手册</b></span><span class="arr">→</span></button></section><section class="doc" id="doc-manual"><h1 id="manual-skillpm-命令手册">skillpm 命令手册</h1>
 <blockquote class="note">
 <p>穷举版：每一条命令、每一个参数、每一种写法，都写清楚<strong>干什么</strong>和<strong>怎么用</strong>。
 只想快速上手看 <a href="#start" data-doc="start">快速上手</a>；想理解设计取舍看 <a href="https://github.com/suqian-bit/skillpm/blob/main/docs/详细说明.md" target="_blank">详细说明</a>。</p>
@@ -1162,7 +1173,7 @@ skillpm status      # 现在装了什么
 </code></pre>
 <hr />
 <p><strong>问题、建议、踩到的坑</strong> →
-<a href="https://github.com/suqian-bit/skillpm/issues" target="_blank" rel="noopener">GitHub Issues</a></p></section><section class="doc" id="doc-onboard"><h1 id="onboard-接入自己的-skill-仓库">接入自己的 Skill 仓库</h1>
+<a href="https://github.com/suqian-bit/skillpm/issues" target="_blank" rel="noopener">GitHub Issues</a></p><button class="next" data-doc="onboard"><span><small>下一篇（共 3 篇）</small><b>接入自己的仓库</b></span><span class="arr">→</span></button></section><section class="doc" id="doc-onboard"><h1 id="onboard-接入自己的-skill-仓库">接入自己的 Skill 仓库</h1>
 <blockquote class="note">
 <p>给其他团队：想用 skillpm 装、更新<strong>你们自己的</strong> Skill，照这篇做。
 下面的 <code>gitlab.example.com/组/仓库</code> 都换成你们自己的地址。
@@ -1388,7 +1399,15 @@ skillpm repo add 我们团队 git@gitlab.example.com:组/仓库.git
 </tr>
 </tbody>
 </table></div></section></article>
-  <section class="card"><details class="changelog" id="changelog"><summary>更新日志<span class="d">共 7 个版本，点开看每一版改了什么</span></summary><details class="ver-item"><summary><b>2.0.6</b><span class="d">2026-09-21</span><span class="g">修 Windows 下 skillpm -h 底部乱码</span></summary><div class="ver-body"><ul>
+  <section class="card"><details class="changelog" id="changelog"><summary>更新日志<span class="d">共 8 个版本，点开看每一版改了什么</span></summary><details class="ver-item"><summary><b>2.0.7</b><span class="d">2026-09-21</span><span class="g">手册顶部的三篇切换更显眼</span></summary><div class="ver-body"><ul>
+<li>
+<p><strong>手册顶部的三篇切换更显眼</strong>：以前「快速上手 / 完整命令手册 / 接入自己的仓库」看着像普通文字，容易以为手册只有一页。
+  现在做成一组带边框的按钮，每篇带编号，当前篇蓝底白字，旁边写着「手册共 3 篇 →」。</p>
+</li>
+<li>
+<p>每篇末尾加了「下一篇」卡片，读完点一下就翻到下一篇。</p>
+</li>
+</ul></div></details><details class="ver-item"><summary><b>2.0.6</b><span class="d">2026-09-21</span><span class="g">修 Windows 下 skillpm -h 底部乱码</span></summary><div class="ver-body"><ul>
 <li>
 <p><strong>修 Windows 下 <code>skillpm -h</code> 底部乱码</strong>：老式 cmd 不认识超链接转义（OSC 8），会原样打成 <code>]8;;file:///…</code> 一串乱码。
   超链接转义整个去掉，只输出纯文字——反正常用终端也点不开。</p>
@@ -1464,7 +1483,7 @@ skillpm repo add 我们团队 git@gitlab.example.com:组/仓库.git
 <li><strong>图文手册随工具发</strong>：<code>skillpm docs</code> 在浏览器里打开，快速上手每一步都有真实截图。</li>
 <li><strong>零依赖</strong>：只用 Python 3.8+ 标准库；Mac / Windows / Linux 通用，安装脚本默认不碰 PyPI。</li>
 </ul></div></details></details></section>
-  <p class="foot">skillpm v2.0.6 · 生成于 2026-09-21 · 内容来自工具仓库 docs/ 下的 Markdown，改那里再重新生成</p></main>
+  <p class="foot">skillpm v2.0.7 · 生成于 2026-09-21 · 内容来自工具仓库 docs/ 下的 Markdown，改那里再重新生成</p></main>
 </div>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
@@ -1473,7 +1492,7 @@ $$('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.doc===key));
 $$('nav.toc .t').forEach(t=>t.hidden=t.dataset.doc!==key);
 try{localStorage.setItem('te-doc',key)}catch(e){}
 if(hash){const el=document.getElementById(hash);if(el){el.scrollIntoView();return}}window.scrollTo(0,0)}
-$$('.tabs button').forEach(b=>b.onclick=()=>{history.replaceState(null,'','#'+b.dataset.doc);show(b.dataset.doc)});
+$$('.tabs button,.next').forEach(b=>b.onclick=()=>{history.replaceState(null,'','#'+b.dataset.doc);show(b.dataset.doc)});
 // 目录底部「更新日志」：展开再滚过去
 function openLog(){const c=document.getElementById('changelog');if(!c)return;c.open=true;
 setTimeout(()=>c.scrollIntoView({behavior:'instant',block:'start'}),0)}

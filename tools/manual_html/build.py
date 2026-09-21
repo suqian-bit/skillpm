@@ -132,9 +132,20 @@ backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
 .logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#8b5cf6);
 display:grid;place-items:center;color:#fff;font-size:14px}
 .ver{font-weight:500;font-size:12px;color:var(--muted);background:var(--inline-bg);padding:2px 8px;border-radius:99px}
-.tabs{display:flex;gap:4px;margin-left:8px}
-.tabs button{border:0;background:none;color:var(--muted);font:inherit;font-size:14px;padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
-.tabs button.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+/* 顶部三篇的切换：做成一组显眼的按钮，不然容易以为手册只有「快速上手」一页 */
+.tabs-wrap{display:flex;align-items:center;gap:8px;margin-left:8px;min-width:0}
+.tabs-hint{font-size:12px;color:var(--muted);white-space:nowrap}
+.tabs{display:flex;gap:2px;padding:3px;border:1px solid var(--line);border-radius:10px;background:var(--inline-bg)}
+.tabs button{border:0;background:none;color:var(--ink);font:inherit;font-size:14.5px;font-weight:500;padding:6px 14px;border-radius:7px;cursor:pointer;white-space:nowrap}
+.tabs button:hover{background:var(--paper)}
+.tabs button .n{display:inline-grid;place-items:center;width:18px;height:18px;margin-right:6px;border-radius:50%;
+font-size:11px;font-weight:700;background:var(--line);color:var(--muted)}
+.tabs button.on{background:var(--accent);color:#fff;font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.15)}
+.tabs button.on .n{background:rgba(255,255,255,.25);color:#fff}
+/* 每篇末尾：下一篇 */
+.next{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;margin-top:36px;padding:16px 20px;
+border:1px solid var(--accent);border-radius:12px;background:var(--accent-soft);color:var(--accent);font:inherit;cursor:pointer;text-align:left}
+.next:hover{filter:brightness(.97)}.next small{display:block;font-size:12px;color:var(--muted)}.next b{font-size:16px}.next .arr{font-size:22px}
 .sp{flex:1}.icon-btn{border:1px solid var(--line);background:var(--paper);color:var(--muted);border-radius:8px;
 height:32px;min-width:32px;cursor:pointer;font-size:14px}
 .menu-btn{display:none}
@@ -186,7 +197,7 @@ details[open]>summary::before{transform:rotate(90deg)}
 @media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr);padding:16px 16px 60px}
 nav.toc{position:fixed;inset:60px 0 0 0;max-height:none;background:var(--paper);z-index:15;padding:16px;
 transform:translateX(-100%);transition:transform .2s}body.menu nav.toc{transform:none}
-.menu-btn{display:inline-block}main article{padding:22px 18px;border-radius:10px}.bar{gap:8px;padding:0 12px}.tabs{margin-left:0;min-width:0;overflow-x:auto}.tabs button{padding:6px 8px;font-size:13px}.ver{display:none}
+.menu-btn{display:inline-block}main article{padding:22px 18px;border-radius:10px}.bar{gap:8px;padding:0 12px}.tabs-wrap{margin-left:0}.tabs-hint{display:none}.tabs{min-width:0;overflow-x:auto}.tabs button{padding:5px 8px;font-size:13px}.tabs button .n{display:none}.ver{display:none}
 .brand .name{display:none}h1{font-size:23px}}
 """
 
@@ -197,7 +208,7 @@ $$('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.doc===key));
 $$('nav.toc .t').forEach(t=>t.hidden=t.dataset.doc!==key);
 try{localStorage.setItem('te-doc',key)}catch(e){}
 if(hash){const el=document.getElementById(hash);if(el){el.scrollIntoView();return}}window.scrollTo(0,0)}
-$$('.tabs button').forEach(b=>b.onclick=()=>{history.replaceState(null,'','#'+b.dataset.doc);show(b.dataset.doc)});
+$$('.tabs button,.next').forEach(b=>b.onclick=()=>{history.replaceState(null,'','#'+b.dataset.doc);show(b.dataset.doc)});
 // 目录底部「更新日志」：展开再滚过去
 function openLog(){const c=document.getElementById('changelog');if(!c)return;c.open=true;
 setTimeout(()=>c.scrollIntoView({behavior:'instant',block:'start'}),0)}
@@ -238,11 +249,15 @@ show(key,hit?h:null)})();
 
 def build(out):
     docs, tocs, tabs = [], [], []
-    for key, title, path in DOCS:
+    for i, (key, title, path) in enumerate(DOCS):
         body, toc = render(key, path)
+        if i + 1 < len(DOCS):      # 每篇末尾指向下一篇，读完不至于以为到头了
+            nk, nt, _ = DOCS[i + 1]
+            body += (f'<button class="next" data-doc="{nk}"><span><small>下一篇（共 {len(DOCS)} 篇）</small>'
+                     f'<b>{html.escape(nt)}</b></span><span class="arr">→</span></button>')
         docs.append(f'<section class="doc" id="doc-{key}">{body}</section>')
         tocs.append(f'<ul class="t" data-doc="{key}">{toc_html(toc)}</ul>')
-        tabs.append(f'<button data-doc="{key}">{html.escape(title)}</button>')
+        tabs.append(f'<button data-doc="{key}"><span class="n">{i + 1}</span>{html.escape(title)}</button>')
     page = f"""<!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -256,7 +271,7 @@ def build(out):
   <button class="icon-btn menu-btn" id="menu" aria-label="目录">☰</button>
   <div class="brand"><span class="logo">sp</span><span class="name">skillpm 使用手册</span>
   <span class="ver">v{__version__}</span></div>
-  <div class="tabs">{''.join(tabs)}</div>
+  <div class="tabs-wrap"><span class="tabs-hint">手册共 {len(DOCS)} 篇 →</span><div class="tabs">{''.join(tabs)}</div></div>
   <div class="sp"></div>
   <button class="icon-btn" id="theme" title="切换深浅色" aria-label="切换深浅色">◐</button>
 </div></header>
