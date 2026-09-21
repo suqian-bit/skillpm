@@ -8,6 +8,10 @@
 import sys
 from pathlib import Path
 
+for _s in (sys.stdout, sys.stderr):          # Windows 上重定向输出默认是系统代码页，中文会崩
+    if hasattr(_s, "reconfigure"):
+        _s.reconfigure(encoding="utf-8", errors="replace")
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 from skillpm import __version__                       # noqa: E402
 from skillpm.changelog import has_entry               # noqa: E402

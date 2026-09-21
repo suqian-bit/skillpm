@@ -485,3 +485,14 @@ def test_conflict_advice_names_the_skills(skillpm_home, fake_repo, host_dir,
     assert "只动这一个" in out, "得说清楚不是全覆盖"
     assert "<Skill名>" not in out
     assert (host_dir / "demo-b" / "SKILL.md").exists(), "没冲突的照装不误"
+
+
+def test_non_utf8_stdout_does_not_crash(monkeypatch, skillpm_home):
+    """Windows 英文系统上输出被重定向时编码是 cp1252，以前一打中文就 UnicodeEncodeError。"""
+    import io, sys
+    raw = io.BytesIO()
+    fake = io.TextIOWrapper(raw, encoding="cp1252")
+    monkeypatch.setattr(sys, "stdout", fake)
+    main(["host", "list"])
+    sys.stdout.flush()
+    assert "已配置".encode("utf-8") in raw.getvalue() or "本机探测".encode("utf-8") in raw.getvalue()

@@ -12,7 +12,7 @@ from skillpm.changelog import for_skill, sections_since
 from skillpm.config import (backup_dir, cache_dir, config_path, home, load_config, load_state,
                              save_config, save_state, state_path)
 from skillpm.console import (BLUE, BOLD, DIM, GREEN, PATH_C, RED, RESET, YELLOW, Abort,
-                              ask, confirm, choose, die, info, md_line, ok, remember_secret, say, warn)
+                              ask, confirm, choose, die, ensure_utf8_stdio, info, md_line, ok, remember_secret, say, warn)
 from skillpm import index, lockfile
 from skillpm.sources import locate, parse as parse_source
 from skillpm.hosts import (CATALOG, confidence, describe, detect, name_for_path, detect_project, project_capable,
@@ -1662,6 +1662,7 @@ def _resolve_install_specs(a):
 
 
 def main(argv=None):
+    ensure_utf8_stdio()
     argv = list(sys.argv[1:] if argv is None else argv)
     # 单横线的 -help / -version 也认，省得有人打错了摸不着头脑
     argv = [{"-help": "--help", "-version": "--version"}.get(x, x) for x in argv]

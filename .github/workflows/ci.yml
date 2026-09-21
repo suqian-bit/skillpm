@@ -45,7 +45,7 @@ jobs:
           skillpm --version
           skillpm host list
           ~/.skillpm-src/scripts/uninstall.sh
-          ! command -v skillpm
+          test ! -e ~/.local/bin/skillpm
       - name: 装、跑、卸（Windows PowerShell 5.1）
         if: runner.os == 'Windows'
         shell: powershell

@@ -48,7 +48,8 @@ def test_docs_without_browser_prints_path(monkeypatch, capsys):
 
 def test_docs_path_flag(capsys):
     assert main(["docs", "--path"]) == 0
-    assert capsys.readouterr().out.strip().endswith("docs/使用手册.html")
+    from pathlib import Path
+    assert Path(capsys.readouterr().out.strip()).as_posix().endswith("docs/使用手册.html")
 
 
 def test_self_update_notices_manual_change(tmp_path):

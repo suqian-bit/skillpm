@@ -2,9 +2,9 @@
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>skillpm 使用手册</title>
-<meta name="description" content="skillpm 命令手册与接入说明，v2.0.0">
-<meta name="skillpm-version" content="2.0.0">
-<meta name="skillpm-source" content="107d258a452e737a">
+<meta name="description" content="skillpm 命令手册与接入说明，v2.0.1">
+<meta name="skillpm-version" content="2.0.1">
+<meta name="skillpm-source" content="ed5c35a80915a42a">
 <style>
 :root{--bg:#f7f8fa;--paper:#fff;--ink:#1f2933;--muted:#5b6673;--line:#e3e7ec;--accent:#3e6ddf;
 --accent-soft:#eaf0fd;--code-bg:#0f172a;--code-ink:#e2e8f0;--inline-bg:#eef1f5;--warn:#b05a00;--warn-soft:#fff6e5;
@@ -86,7 +86,7 @@ transform:translateX(-100%);transition:transform .2s}body.menu nav.toc{transform
 <header><div class="bar">
   <button class="icon-btn menu-btn" id="menu" aria-label="目录">☰</button>
   <div class="brand"><span class="logo">sp</span><span class="name">skillpm 使用手册</span>
-  <span class="ver">v2.0.0</span></div>
+  <span class="ver">v2.0.1</span></div>
   <div class="tabs"><button data-doc="start">快速上手</button><button data-doc="manual">完整命令手册</button><button data-doc="onboard">接入自己的仓库</button></div>
   <div class="sp"></div>
   <button class="icon-btn" id="theme" title="切换深浅色" aria-label="切换深浅色">◐</button>
@@ -1386,7 +1386,13 @@ skillpm repo add 我们团队 git@gitlab.example.com:组/仓库.git
 </tr>
 </tbody>
 </table></div></section></article>
-  <section class="card"><details class="changelog" id="changelog"><summary>更新日志<span class="d">共 1 个版本，点开看每一版改了什么</span></summary><details class="ver-item"><summary><b>2.0.0</b><span class="d">2026-09-21</span><span class="g">首个公开版本。</span></summary><div class="ver-body"><p><strong>首个公开版本。</strong> 把放在 git 仓库里的 AI Skill 一键装到本机的各个 Agent，并跟着仓库更新。</p>
+  <section class="card"><details class="changelog" id="changelog"><summary>更新日志<span class="d">共 2 个版本，点开看每一版改了什么</span></summary><details class="ver-item"><summary><b>2.0.1</b><span class="d">2026-09-21</span><span class="g">修：Windows 上输出被重定向时，一打中文就崩。</span></summary><div class="ver-body"><p><strong>修：Windows 上输出被重定向时，一打中文就崩。</strong> 英文 Windows 的系统代码页是 cp1252，编不了中文；
+输出接管道、写文件或在 CI 里跑时，Python 就用它编码，直接 <code>UnicodeEncodeError</code>。现在启动时把输出流改成 UTF-8。
+中文 Windows 的代码页恰好能编中文，所以之前没暴露——是开源后第一次跑 Windows CI 抓到的。</p>
+<ul>
+<li><code>~</code> 统一用同一个家目录来源展开：Windows 上 Agent 目录表和自动发现以前可能看的是两个不同的家目录。</li>
+<li>CI：在 Mac / Linux / Windows 上真的跑一遍安装脚本和卸载脚本。</li>
+</ul></div></details><details class="ver-item"><summary><b>2.0.0</b><span class="d">2026-09-21</span><span class="g">首个公开版本。</span></summary><div class="ver-body"><p><strong>首个公开版本。</strong> 把放在 git 仓库里的 AI Skill 一键装到本机的各个 Agent，并跟着仓库更新。</p>
 <p><strong>和 1.x 的不兼容之处：不再内置默认的 Skill 仓库。</strong> 第一次运行 <code>skillpm install</code> 时必须填你们团队的仓库地址；
 已经配好的人不受影响。</p>
 <h3>能做什么</h3>
@@ -1416,7 +1422,7 @@ skillpm repo add 我们团队 git@gitlab.example.com:组/仓库.git
 <li><strong>图文手册随工具发</strong>：<code>skillpm docs</code> 在浏览器里打开，快速上手每一步都有真实截图。</li>
 <li><strong>零依赖</strong>：只用 Python 3.8+ 标准库；Mac / Windows / Linux 通用，安装脚本默认不碰 PyPI。</li>
 </ul></div></details></details></section>
-  <p class="foot">skillpm v2.0.0 · 生成于 2026-09-21 · 内容来自工具仓库 docs/ 下的 Markdown，改那里再重新生成</p></main>
+  <p class="foot">skillpm v2.0.1 · 生成于 2026-09-21 · 内容来自工具仓库 docs/ 下的 Markdown，改那里再重新生成</p></main>
 </div>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];

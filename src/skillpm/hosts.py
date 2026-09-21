@@ -103,6 +103,9 @@ def expand(candidate):
     s = os.path.expandvars(str(candidate))
     if "%" in s:
         return None
+    if s == "~" or s.startswith(("~/", "~\\")):
+        # 和 auto_discover 用同一个家目录来源；Windows 上 expanduser 走 USERPROFILE，两边可能对不上
+        return Path.home() / s[2:] if len(s) > 1 else Path.home()
     return Path(s).expanduser()
 
 

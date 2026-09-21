@@ -24,6 +24,21 @@ OKC = "\033[92m" if _COLOR else ""
 _SECRETS = set()
 
 
+def ensure_utf8_stdio():
+    """输出流不是 UTF-8 时改成 UTF-8。
+
+    Windows 上输出被重定向（管道、写文件、CI）时，Python 用系统代码页编码——英文系统是 cp1252，
+    一打中文就 UnicodeEncodeError 崩掉。中文系统的代码页恰好能编中文，所以平时看不出来。
+    """
+    for stream in (sys.stdout, sys.stderr):
+        enc = (getattr(stream, "encoding", "") or "").lower().replace("-", "").replace("_", "")
+        if enc != "utf8" and hasattr(stream, "reconfigure"):
+            try:
+                stream.reconfigure(encoding="utf-8", errors="replace")
+            except (ValueError, OSError):
+                pass
+
+
 def remember_secret(value):
     """记下一个不该出现在输出里的串（访问令牌之类）。"""
     if value and len(value) >= 6:
