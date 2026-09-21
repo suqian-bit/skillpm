@@ -2,7 +2,7 @@
 """发版前检查。CI 里跑，本地也可以手动跑。
 
 1. 版本号变了就必须有对应的更新日志；
-2. 随工具发的 docs/manual.html 必须是按当前 md 和版本号生成的——
+2. 随工具发的 docs/使用手册.html 必须是按当前 md 和版本号生成的——
    不然用户 skillpm docs 打开的手册和工具对不上。
 """
 import sys
@@ -25,8 +25,8 @@ from skillpm.manual import html_meta, html_path, source_hash   # noqa: E402
 
 ver, src = html_meta(html_path())
 if ver is None:
-    sys.exit("缺 docs/manual.html——跑 uvx --with markdown python tools/manual_html/build.py 生成并提交")
+    sys.exit("缺 docs/使用手册.html——跑 uvx --with markdown python tools/manual_html/build.py 生成并提交")
 if ver != __version__ or src != source_hash():
     why = f"它是按 {ver} 生成的，现在是 {__version__}" if ver != __version__ else "docs/ 下的 md 或 CHANGELOG 改过了"
-    sys.exit(f"docs/manual.html 过期了（{why}）——跑 uvx --with markdown python tools/manual_html/build.py 重新生成并提交")
+    sys.exit(f"docs/使用手册.html 过期了（{why}）——跑 uvx --with markdown python tools/manual_html/build.py 重新生成并提交")
 print(f"skillpm {__version__} 的更新日志齐了，使用手册是最新的")

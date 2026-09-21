@@ -16,7 +16,7 @@ def test_shipped_manual_is_up_to_date():
     # 和 tools/check_release.py 同一个判断：提交的手册必须按当前 md 和版本号生成
     from skillpm import __version__
     ver, src = manual.html_meta(manual.html_path())
-    assert ver == __version__, "docs/manual.html 版本号不对，重新生成：uvx --with markdown python tools/manual_html/build.py"
+    assert ver == __version__, "docs/使用手册.html 版本号不对，重新生成：uvx --with markdown python tools/manual_html/build.py"
     assert src == manual.source_hash(), "docs/ 下的 md 或 CHANGELOG 改过了，手册没重新生成"
 
 
@@ -44,13 +44,13 @@ def test_docs_without_browser_prints_path(monkeypatch, capsys):
     monkeypatch.setattr(manual.webbrowser, "open", lambda url: False)
     assert main(["docs"]) == 0
     out = capsys.readouterr().out
-    assert "没能自动打开" in out and "manual.html" in out
+    assert "没能自动打开" in out and "使用手册.html" in out
 
 
 def test_docs_path_flag(capsys):
     assert main(["docs", "--path"]) == 0
     from pathlib import Path
-    assert Path(capsys.readouterr().out.strip()).as_posix().endswith("docs/manual.html")
+    assert Path(capsys.readouterr().out.strip()).as_posix().endswith("docs/使用手册.html")
 
 
 def test_self_update_notices_manual_change(tmp_path):
@@ -76,7 +76,8 @@ def test_help_has_clickable_manual_link(capsys):
     with pytest.raises(SystemExit):
         main(["-h"])
     out = capsys.readouterr().out
-    assert "file://" in out and "manual.html" in out, "帮助里要有能 ⌘/Ctrl 点开的 file:// 链接"
+    assert "使用手册.html" in out and ("open " in out or "start " in out or "xdg-open " in out), \
+        "帮助里要有一条复制就能打开手册的命令（macOS 自带终端点不开 file:// 链接）"
 
 
 def test_link_escape_only_on_tty(monkeypatch):

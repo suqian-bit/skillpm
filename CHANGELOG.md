@@ -3,6 +3,14 @@
 版本号语义：主版本＝命令或配置不兼容；次版本＝加功能；修订号＝修 bug，行为不变。
 改了 `src/skillpm/__init__.py` 里的版本号就要在这写一条，`tools/check_release.py` 会检查。
 
+## 2.0.5 — 2026-09-21
+
+- **手册改成「复制一条命令就能打开」**：macOS 自带的「终端」点不开 `file://` 链接（⌘ 单击、双击、右键都试过），
+  所以 `skillpm -h` 底部改成给一条现成的命令——macOS `open ~/.skillpm-src/docs/使用手册.html`、Windows `start`、Linux `xdg-open`，
+  复制粘贴回车就在浏览器里打开。支持超链接的终端（iTerm2、VS Code、Windows Terminal……）里这条命令本身也能 ⌘/Ctrl 点开。
+  最省事的还是直接敲 `skillpm docs`。
+- 手册文件名改回 `docs/使用手册.html`：上一版为了让终端认出整条链接改成了英文，现在不走链接了，不需要了。
+
 ## 2.0.4 — 2026-09-21
 
 - **终端里点一下就能打开手册**：`skillpm -h` 底部和 `skillpm docs` 都给出 `file://…/manual.html` 链接，

@@ -1156,7 +1156,7 @@ def _manual_changed(src, old_head):
 
 
 def cmd_docs(a):
-    """打开随工具一起发的图文手册（docs/manual.html）。"""
+    """打开随工具一起发的图文手册（docs/使用手册.html）。"""
     from skillpm import manual
     p = manual.html_path()
     if not p.exists():
@@ -1166,12 +1166,11 @@ def cmd_docs(a):
         say(str(p))
         return 0
     _p, opened = manual.open_manual()
-    uri = manual.html_uri()
     if opened:
-        ok(f"已在浏览器里打开：{link(uri)}")
+        ok(f"已在浏览器里打开：{p}")
     else:
         warn("没能自动打开浏览器（可能是远程登录、没有图形界面）")
-        info(f"手册在这：{link(uri, str(p))}　按住 ⌘/Ctrl 点它，或者拷到有浏览器的电脑上双击")
+        info(f"手册在这：{p}　拷到有浏览器的电脑上双击就能看")
     return 0
 
 
@@ -1487,11 +1486,9 @@ class Parser(argparse.ArgumentParser):
         w2 = max(_cols(c) for c, _d in EPILOG_ROWS) + 2
         out += ["选项", "  -h, --help     显示这份帮助", "  -v, --version  显示版本号", "", "常用写法"]
         out += [f"  {c}{' ' * (w2 - _cols(c))}{d}" for c, d in EPILOG_ROWS]
-        from skillpm.manual import html_uri
-        uri = html_uri()
+        from skillpm.manual import html_uri, open_command
         out += ["", f"图文使用手册（HTML）：skillpm docs 在浏览器里打开，快速上手在第一页",
-                "　　或者按住 ⌘（Windows 按 Ctrl）点这个链接：",
-                f"　　{link(uri)}",
+                f"　　或者复制这条命令打开：{link(html_uri(), open_command())}",
                 "配置和状态放在 ~/.skillpm/（改位置用环境变量 SKILLPM_HOME）。"]
         return "\n".join(out).rstrip() + "\n"
 
