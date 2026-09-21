@@ -56,3 +56,5 @@ if ($All) {
 
 if ($removed) { Write-Host "卸载完成。" } else { Write-Host "没找到已安装的 skillpm。" }
 Write-Host "提示：已经装到各宿主目录里的 Skill 不受影响；要清它们请先跑 skillpm uninstall --yes"
+# 上面 pip show 在「不是 pip 装的」时返回 1，会被当成整个脚本的退出码——走到这里就是成功
+exit 0

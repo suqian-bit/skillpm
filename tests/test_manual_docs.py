@@ -23,7 +23,8 @@ def test_shipped_manual_is_up_to_date():
 def test_release_check_catches_stale_manual(tmp_path):
     work = tmp_path / "repo"
     shutil.copytree(ROOT, work, ignore=shutil.ignore_patterns(".git", "__pycache__", ".pytest_cache", "dist"))
-    run = lambda: subprocess.run([sys.executable, "tools/check_release.py"], cwd=work, capture_output=True, text=True)
+    run = lambda: subprocess.run([sys.executable, "tools/check_release.py"], cwd=work, capture_output=True,
+                                 text=True, encoding="utf-8", errors="replace")
     assert run().returncode == 0
     md = work / "docs" / "快速上手.md"
     md.write_text(md.read_text(encoding="utf-8") + "\n改了一句\n", encoding="utf-8")
