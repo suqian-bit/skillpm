@@ -77,7 +77,9 @@ def render(raw, cmd, max_lines=None, title="zsh"):
     raw = raw.replace("\r\n", "\n").replace("\r", "")
     import os
     home = os.environ.get("DEMO_HOME")          # 演示用的 HOME 显示成 ~（别把录制人的用户名带进截图）
+    raw = re.sub(r"\x1b\]8;[^\x07\x1b]*(?:\x07|\x1b\\)", "", raw)   # 终端超链接转义（OSC 8）
     if home:
+        raw = raw.replace("file://" + home.rstrip("/"), "file:///Users/you")   # 链接里不能写 ~
         raw = raw.replace(home.rstrip("/"), "~")
     raw = "\n".join(ln for ln in raw.split("\n") if not ln.startswith("spawn "))
     raw = raw.strip("\n")

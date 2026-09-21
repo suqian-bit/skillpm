@@ -214,6 +214,15 @@ def choose(prompt, options, preselect=None, allow_all=True, paths=None):
         info(f"没看懂「{' '.join(bad) or got}」，请填 1~{n} 之间的序号（多个用逗号隔开，范围写 2-4）{more}")
 
 
+def link(url, text=None):
+    """可以点的链接：输出到终端时加上 OSC 8 超链接转义（⌘/Ctrl + 点击打开）；
+    接管道、写文件时只输出文字，别把转义字符混进日志。"""
+    text = text or url
+    if sys.stdout.isatty():
+        return f"\033]8;;{url}\033\\{text}\033]8;;\033\\"
+    return text
+
+
 def md_line(line):
     """更新日志是 Markdown，在终端里别把 ** 和 ` 原样打出来：
     `## 版本` 标题加粗，**加粗** 变成真加粗，`代码` 去掉反引号、换成青色。"""

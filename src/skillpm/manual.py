@@ -1,4 +1,4 @@
-"""图文使用手册：随工具一起发的 docs/使用手册.html。
+"""图文使用手册：随工具一起发的 docs/manual.html。
 
 HTML 由 tools/manual_html/build.py 从几份 md 生成（要 markdown 库，只有发版的人需要）。
 生成时把「来源指纹」和版本号写进 <meta>；tools/check_release.py 用这里同一个函数重新算，
@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SOURCES = ["docs/快速上手.md", "docs/命令手册.md", "docs/接入自己的Skill仓库.md", "CHANGELOG.md"]
-HTML = "docs/使用手册.html"
+HTML = "docs/manual.html"
 
 
 def source_files(root=ROOT):
@@ -31,6 +31,11 @@ def source_hash(root=ROOT):
 
 def html_path(root=ROOT):
     return Path(root) / HTML
+
+
+def html_uri(root=ROOT):
+    """手册的 file:// 地址，终端里 ⌘/Ctrl + 点击就能打开。文件名全英文，终端才认得全。"""
+    return html_path(root).resolve().as_uri()
 
 
 def html_meta(path):

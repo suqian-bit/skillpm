@@ -16,7 +16,7 @@ def test_shipped_manual_is_up_to_date():
     # 和 tools/check_release.py 同一个判断：提交的手册必须按当前 md 和版本号生成
     from skillpm import __version__
     ver, src = manual.html_meta(manual.html_path())
-    assert ver == __version__, "docs/使用手册.html 版本号不对，重新生成：uvx --with markdown python tools/manual_html/build.py"
+    assert ver == __version__, "docs/manual.html 版本号不对，重新生成：uvx --with markdown python tools/manual_html/build.py"
     assert src == manual.source_hash(), "docs/ 下的 md 或 CHANGELOG 改过了，手册没重新生成"
 
 
@@ -44,13 +44,13 @@ def test_docs_without_browser_prints_path(monkeypatch, capsys):
     monkeypatch.setattr(manual.webbrowser, "open", lambda url: False)
     assert main(["docs"]) == 0
     out = capsys.readouterr().out
-    assert "没能自动打开" in out and "使用手册.html" in out
+    assert "没能自动打开" in out and "manual.html" in out
 
 
 def test_docs_path_flag(capsys):
     assert main(["docs", "--path"]) == 0
     from pathlib import Path
-    assert Path(capsys.readouterr().out.strip()).as_posix().endswith("docs/使用手册.html")
+    assert Path(capsys.readouterr().out.strip()).as_posix().endswith("docs/manual.html")
 
 
 def test_self_update_notices_manual_change(tmp_path):
@@ -69,3 +69,18 @@ def test_self_update_notices_manual_change(tmp_path):
     assert not _manual_changed(tmp_path, first), "手册没变不该提醒"
     (tmp_path / manual.HTML).write_text("v2", encoding="utf-8"); g("commit", "-q", "-am", "手册")
     assert _manual_changed(tmp_path, first)
+
+
+def test_help_has_clickable_manual_link(capsys):
+    import pytest
+    with pytest.raises(SystemExit):
+        main(["-h"])
+    out = capsys.readouterr().out
+    assert "file://" in out and "manual.html" in out, "帮助里要有能 ⌘/Ctrl 点开的 file:// 链接"
+
+
+def test_link_escape_only_on_tty(monkeypatch):
+    from skillpm.console import link
+    import sys
+    monkeypatch.setattr(sys.stdout, "isatty", lambda: False, raising=False)
+    assert link("file:///x/manual.html") == "file:///x/manual.html"      # 接管道时不带转义

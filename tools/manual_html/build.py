@@ -9,7 +9,7 @@
 
 用法：
     uvx --with markdown python tools/manual_html/build.py [输出路径]
-不给输出路径就生成到 docs/使用手册.html（随工具一起发，`skillpm docs` 打开的就是它，要提交）。
+不给输出路径就生成到 docs/manual.html（随工具一起发，`skillpm docs` 打开的就是它，要提交）。
 改了 docs/ 下的 md 或 CHANGELOG 就要重新生成，否则 tools/check_release.py 不让发版。
 """
 import html
@@ -276,6 +276,6 @@ def build(out):
 
 
 if __name__ == "__main__":
-    # 默认写到 docs/使用手册.html——它随工具一起发，skillpm docs 打开的就是它；要提交
+    # 默认写到 docs/manual.html——它随工具一起发，skillpm docs 打开的就是它；要提交
     out = sys.argv[1] if len(sys.argv) > 1 else str(html_path(ROOT))
     print("已生成：", build(out))

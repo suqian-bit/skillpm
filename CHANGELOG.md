@@ -3,6 +3,14 @@
 版本号语义：主版本＝命令或配置不兼容；次版本＝加功能；修订号＝修 bug，行为不变。
 改了 `src/skillpm/__init__.py` 里的版本号就要在这写一条，`tools/check_release.py` 会检查。
 
+## 2.0.4 — 2026-09-21
+
+- **终端里点一下就能打开手册**：`skillpm -h` 底部和 `skillpm docs` 都给出 `file://…/manual.html` 链接，
+  按住 ⌘（Windows 按 Ctrl）点它就在浏览器里打开。支持超链接的终端（iTerm2、VS Code、Windows Terminal……）还会带上可点的超链接转义；
+  接管道、写文件时只输出文字。
+- 手册文件改名 `docs/使用手册.html` → `docs/manual.html`：文件名全英文，终端才认得出整条链接。
+- 手册开头的黄框：源码地址一行一个，加了一句邀请大家给 GitHub 仓库点 Star。
+
 ## 2.0.3 — 2026-09-21
 
 - `skillpm -h` 底部写明图文手册是 HTML、文件在哪（`~/.skillpm-src/docs/使用手册.html`）。以前只写「图文使用手册：skillpm docs」，

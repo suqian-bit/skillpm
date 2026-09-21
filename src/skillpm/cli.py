@@ -12,7 +12,7 @@ from skillpm.changelog import for_skill, sections_since
 from skillpm.config import (backup_dir, cache_dir, config_path, home, load_config, load_state,
                              save_config, save_state, state_path)
 from skillpm.console import (BLUE, BOLD, DIM, GREEN, PATH_C, RED, RESET, YELLOW, Abort,
-                              ask, confirm, choose, die, ensure_utf8_stdio, info, md_line, ok, remember_secret, say, warn)
+                              ask, confirm, choose, die, ensure_utf8_stdio, info, link, md_line, ok, remember_secret, say, warn)
 from skillpm import index, lockfile
 from skillpm.sources import locate, parse as parse_source
 from skillpm.hosts import (CATALOG, confidence, describe, detect, name_for_path, detect_project, project_capable,
@@ -1156,7 +1156,7 @@ def _manual_changed(src, old_head):
 
 
 def cmd_docs(a):
-    """打开随工具一起发的图文手册（docs/使用手册.html）。"""
+    """打开随工具一起发的图文手册（docs/manual.html）。"""
     from skillpm import manual
     p = manual.html_path()
     if not p.exists():
@@ -1166,11 +1166,12 @@ def cmd_docs(a):
         say(str(p))
         return 0
     _p, opened = manual.open_manual()
+    uri = manual.html_uri()
     if opened:
-        ok(f"已在浏览器里打开：{p}")
+        ok(f"已在浏览器里打开：{link(uri)}")
     else:
         warn("没能自动打开浏览器（可能是远程登录、没有图形界面）")
-        info(f"手册在这：{p}　拷到有浏览器的电脑上双击就能看")
+        info(f"手册在这：{link(uri, str(p))}　按住 ⌘/Ctrl 点它，或者拷到有浏览器的电脑上双击")
     return 0
 
 
@@ -1486,12 +1487,11 @@ class Parser(argparse.ArgumentParser):
         w2 = max(_cols(c) for c, _d in EPILOG_ROWS) + 2
         out += ["选项", "  -h, --help     显示这份帮助", "  -v, --version  显示版本号", "", "常用写法"]
         out += [f"  {c}{' ' * (w2 - _cols(c))}{d}" for c, d in EPILOG_ROWS]
-        from skillpm.manual import html_path
-        doc = str(html_path())
-        home = str(Path.home())
-        doc = "~" + doc[len(home):] if doc.startswith(home) else doc
+        from skillpm.manual import html_uri
+        uri = html_uri()
         out += ["", f"图文使用手册（HTML）：skillpm docs 在浏览器里打开，快速上手在第一页",
-                f"　　文件在 {doc}",
+                "　　或者按住 ⌘（Windows 按 Ctrl）点这个链接：",
+                f"　　{link(uri)}",
                 "配置和状态放在 ~/.skillpm/（改位置用环境变量 SKILLPM_HOME）。"]
         return "\n".join(out).rstrip() + "\n"
 
