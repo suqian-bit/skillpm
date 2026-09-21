@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 825 196" width="825" height="196" role="img" aria-label="终端：skillpm repo add 运维私有 http://gitlab.example.com/ops/private.git --token glpat-demo1234">
+<rect width="825" height="196" rx="10" fill="#0f172a"/>
+<rect width="825" height="34" rx="10" fill="#1e293b"/><rect y="24" width="825" height="10" fill="#1e293b"/>
+<circle cx="20" cy="17" r="6" fill="#ff5f57"/><circle cx="40" cy="17" r="6" fill="#febc2e"/><circle cx="60" cy="17" r="6" fill="#28c840"/>
+<text x="412.5" y="22" fill="#94a3b8" font-size="12" text-anchor="middle" font-family="-apple-system,PingFang SC,Microsoft YaHei,sans-serif">zsh</text>
+<g font-family="SF Mono,Menlo,Consolas,PingFang SC,Microsoft YaHei,monospace" font-size="14">
+<text x="18.0" y="64" fill="#4ade80" font-weight="700">➜</text>
+<text x="34.8" y="64" fill="#22d3ee" font-weight="700">~</text>
+<text x="51.6 60.0 68.4 76.8 85.2 93.6 102.0" y="64" fill="#e2e8f0" font-weight="700">skillpm</text>
+<text x="118.8 127.2 135.6 144.0" y="64" fill="#e2e8f0" font-weight="700">repo</text>
+<text x="160.8 169.2 177.6" y="64" fill="#e2e8f0" font-weight="700">add</text>
+<text x="194.4 211.2 228.0 244.8" y="64" fill="#e2e8f0" font-weight="700">运维私有</text>
+<text x="270.0 278.4 286.8 295.2 303.6 312.0 320.4 328.8 337.2 345.6 354.0 362.4 370.8 379.2 387.6 396.0 404.4 412.8 421.2 429.6 438.0 446.4 454.8 463.2 471.6 480.0 488.4 496.8 505.2 513.6 522.0 530.4 538.8 547.2 555.6 564.0 572.4 580.8 589.2 597.6 606.0" y="64" fill="#e2e8f0" font-weight="700">http://gitlab.example.com/ops/private.git</text>
+<text x="622.8 631.2 639.6 648.0 656.4 664.8 673.2" y="64" fill="#e2e8f0" font-weight="700">--token</text>
+<text x="690.0 698.4 706.8 715.2 723.6 732.0 740.4 748.8 757.2 765.6 774.0 782.4 790.8 799.2" y="64" fill="#e2e8f0" font-weight="700">glpat-demo1234</text>
+<text x="34.8 51.6 68.4 85.2 102.0" y="86" fill="#7d8ba1">先试拉一次</text>
+<text x="127.2 135.6 144.0 152.4 160.8 169.2 177.6 186.0 194.4 202.8 211.2 219.6 228.0 236.4 244.8 253.2 261.6 270.0 278.4 286.8 295.2 303.6 312.0 320.4 328.8 337.2 345.6 354.0 362.4 370.8 379.2 387.6 396.0 404.4 412.8 421.2 429.6 438.0 446.4 454.8 463.2" y="86" fill="#7d8ba1">http://gitlab.example.com/ops/private.git</text>
+<text x="480.0" y="86" fill="#7d8ba1">…</text>
+<text x="18.0" y="108" fill="#4ade80">✓</text>
+<text x="34.8 51.6 68.4 85.2 102.0 118.8 135.6" y="108" fill="#e2e8f0">拉得到，里面有</text>
+<text x="160.8" y="108" fill="#e2e8f0">1</text>
+<text x="177.6" y="108" fill="#e2e8f0">个</text>
+<text x="202.8 211.2 219.6 228.0 236.4 244.8 261.6 270.0 278.4 286.8 295.2 303.6 312.0 320.4 328.8 337.2 345.6 354.0 362.4 370.8 379.2" y="108" fill="#e2e8f0">Skill：ops-secret-tool</text>
+<text x="34.8 51.6 68.4 85.2 102.0" y="130" fill="#7d8ba1">仓库里没有</text>
+<text x="127.2 135.6 144.0 152.4 160.8 169.2 177.6 186.0 194.4 202.8 211.2 219.6 228.0 236.4 253.2" y="130" fill="#7d8ba1">manifest.json，按</text>
+<text x="278.4 286.8 295.2 303.6 312.0 320.4 328.8" y="130" fill="#7d8ba1">skills/</text>
+<text x="345.6 362.4 379.2 396.0 412.8 429.6 446.4 463.2 480.0 496.8 513.6 530.4 547.2 564.0 580.8 597.6 614.4" y="130" fill="#7d8ba1">目录算的（这样就行，不用非得生成）</text>
+<text x="18.0" y="152" fill="#4ade80">✓</text>
+<text x="34.8 51.6" y="152" fill="#e2e8f0">仓库</text>
+<text x="76.8 93.6 110.4 127.2" y="152" fill="#e2e8f0">运维私有</text>
+<text x="152.4 169.2 186.0 202.8 219.6 228.0 236.4 244.8 253.2 261.6 270.0 278.4 286.8 295.2 303.6 312.0 320.4 328.8 337.2 345.6 354.0 362.4 370.8 379.2 387.6 396.0 404.4 412.8 421.2 429.6 438.0 446.4 454.8 463.2 471.6 480.0 488.4 496.8 505.2 513.6 522.0 530.4 538.8 547.2 555.6 564.0 580.8 589.2 597.6 606.0" y="152" fill="#e2e8f0">已记下：http://gitlab.example.com/ops/private.git（git）</text>
+<text x="34.8 51.6 68.4" y="174" fill="#7d8ba1">装它的</text>
+<text x="93.6 102.0 110.4 118.8 127.2 135.6 152.4 160.8 169.2 177.6 186.0 194.4 202.8" y="174" fill="#7d8ba1">Skill：skillpm</text>
+<text x="219.6 228.0 236.4 244.8 253.2 261.6 270.0" y="174" fill="#7d8ba1">install</text>
+<text x="286.8 295.2 303.6 312.0 320.4 328.8" y="174" fill="#7d8ba1">--repo</text>
+<text x="345.6 362.4 379.2 396.0" y="174" fill="#7d8ba1">运维私有</text>
+</g></svg>

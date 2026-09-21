@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "skillpm"
+dynamic = ["version"]
+description = "AI Skill 的安装与版本管理：一键装到各个 Agent 宿主并跟随更新"
+readme = "README.md"
+requires-python = ">=3.8"
+authors = [{ name = "skillpm contributors" }]
+license = { text = "MIT" }
+keywords = ["skill", "agent", "agent-skills", "installer", "claude-code", "codex"]
+dependencies = []                        # 只用标准库，装了就能跑
+
+[project.urls]
+Homepage = "https://github.com/suqian-bit/skillpm"
+Issues = "https://github.com/suqian-bit/skillpm/issues"
+
+[project.scripts]
+skillpm = "skillpm.cli:main"
+
+[project.optional-dependencies]
+dev = [
+  "pyyaml","pytest>=7"]
+
+[tool.setuptools.dynamic]
+version = { attr = "skillpm.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

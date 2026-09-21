@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 582 438" width="582" height="438" role="img" aria-label="终端：skillpm update">
+<rect width="582" height="438" rx="10" fill="#0f172a"/>
+<rect width="582" height="34" rx="10" fill="#1e293b"/><rect y="24" width="582" height="10" fill="#1e293b"/>
+<circle cx="20" cy="17" r="6" fill="#ff5f57"/><circle cx="40" cy="17" r="6" fill="#febc2e"/><circle cx="60" cy="17" r="6" fill="#28c840"/>
+<text x="291.0" y="22" fill="#94a3b8" font-size="12" text-anchor="middle" font-family="-apple-system,PingFang SC,Microsoft YaHei,sans-serif">zsh</text>
+<g font-family="SF Mono,Menlo,Consolas,PingFang SC,Microsoft YaHei,monospace" font-size="14">
+<text x="18.0" y="64" fill="#4ade80" font-weight="700">➜</text>
+<text x="34.8" y="64" fill="#22d3ee" font-weight="700">~</text>
+<text x="51.6 60.0 68.4 76.8 85.2 93.6 102.0" y="64" fill="#e2e8f0" font-weight="700">skillpm</text>
+<text x="118.8 127.2 135.6 144.0 152.4 160.8" y="64" fill="#e2e8f0" font-weight="700">update</text>
+<text x="18.0" y="86" fill="#4ade80">✓</text>
+<text x="34.8 43.2 51.6 60.0 68.4 85.2 102.0 118.8 135.6 152.4 169.2 186.0 194.4 202.8 211.2" y="86" fill="#e2e8f0">team：已拉到最新（git）</text>
+<text x="18.0" y="130" fill="#e2e8f0" font-weight="700">有</text>
+<text x="43.2" y="130" fill="#e2e8f0" font-weight="700">2</text>
+<text x="60.0 76.8 93.6 110.4 127.2" y="130" fill="#e2e8f0" font-weight="700">项可以更新</text>
+<text x="34.8 43.2 51.6 60.0 68.4 76.8 85.2 93.6 102.0 110.4 118.8" y="152" fill="#22d3ee">code-review</text>
+<text x="144.0 152.4 160.8 169.2 177.6" y="152" fill="#e2e8f0">1.0.0</text>
+<text x="194.4" y="152" fill="#e2e8f0">→</text>
+<text x="211.2 219.6 228.0 236.4 244.8" y="152" fill="#e2e8f0" font-weight="700">1.1.0</text>
+<text x="278.4 295.2 303.6 312.0 320.4 328.8 337.2" y="152" fill="#7d8ba1">（Claude</text>
+<text x="354.0 362.4 370.8 379.2 387.6" y="152" fill="#7d8ba1">Code）</text>
+<text x="34.8 43.2 51.6 60.0 68.4 76.8 85.2 93.6 102.0 110.4 118.8" y="174" fill="#22d3ee">code-review</text>
+<text x="144.0 152.4 160.8 169.2 177.6" y="174" fill="#e2e8f0">1.0.0</text>
+<text x="194.4" y="174" fill="#e2e8f0">→</text>
+<text x="211.2 219.6 228.0 236.4 244.8" y="174" fill="#e2e8f0" font-weight="700">1.1.0</text>
+<text x="278.4 295.2 303.6 312.0 320.4 328.8 337.2" y="174" fill="#7d8ba1">（Codex）</text>
+<text x="18.0 34.8 51.6 68.4 85.2" y="218" fill="#e2e8f0">确认更新？</text>
+<text x="110.4 118.8 127.2 135.6 144.0 152.4" y="218" fill="#e2e8f0">[Y/n]:</text>
+<text x="18.0 34.8 51.6 68.4 85.2 102.0" y="262" fill="#4ade80" font-weight="700">更新成功：1</text>
+<text x="118.8" y="262" fill="#4ade80" font-weight="700">个</text>
+<text x="144.0 152.4 160.8 169.2 177.6 186.0 202.8 219.6" y="262" fill="#4ade80" font-weight="700">Skill（涉及</text>
+<text x="244.8" y="262" fill="#4ade80" font-weight="700">2</text>
+<text x="261.6 278.4 295.2 312.0" y="262" fill="#4ade80" font-weight="700">处安装）</text>
+<text x="18.0 26.4 34.8 43.2 51.6 60.0 68.4 76.8 85.2 93.6 102.0" y="306" fill="#22d3ee" font-weight="700">code-review</text>
+<text x="127.2 135.6 144.0 152.4 160.8" y="306" fill="#e2e8f0">1.0.0</text>
+<text x="177.6" y="306" fill="#e2e8f0">→</text>
+<text x="194.4 202.8 211.2 219.6 228.0" y="306" fill="#e2e8f0" font-weight="700">1.1.0</text>
+<text x="261.6 270.0 278.4 286.8 295.2 303.6" y="306" fill="#7d8ba1">Claude</text>
+<text x="320.4 328.8 337.2 345.6 354.0 370.8 379.2 387.6 396.0 404.4" y="306" fill="#7d8ba1">Code、Codex</text>
+<text x="34.8 43.2 51.6 60.0 68.4" y="328" fill="#e2e8f0" font-weight="700">1.1.0</text>
+<text x="85.2" y="328" fill="#e2e8f0" font-weight="700">—</text>
+<text x="102.0 110.4 118.8 127.2 135.6 144.0 152.4 160.8 169.2 177.6" y="328" fill="#e2e8f0" font-weight="700">2026-09-21</text>
+<text x="34.8 51.6 68.4 85.2 102.0 118.8" y="350" fill="#e2e8f0" font-weight="700">新增安全检查</text>
+<text x="135.6 152.4 169.2 186.0 202.8 219.6 236.4 253.2 270.0 286.8 303.6 320.4 337.2 354.0 370.8 387.6 404.4 421.2" y="350" fill="#e2e8f0">：发现硬编码的密码、密钥时单独列出。</text>
+<text x="34.8" y="372" fill="#e2e8f0">-</text>
+<text x="51.6 68.4 85.2 102.0 118.8 135.6 152.4 169.2 186.0 202.8 219.6 236.4 253.2 270.0 286.8 303.6 320.4 337.2 354.0" y="372" fill="#e2e8f0">评审意见按严重程度排序，先看必须改的。</text>
+<text x="34.8 51.6 68.4 85.2 102.0 118.8 127.2 135.6 144.0 152.4 160.8 169.2 177.6 186.0 194.4 202.8 211.2 219.6 228.0 236.4 244.8 253.2 261.6 270.0 278.4 286.8 295.2 303.6 312.0 320.4 328.8 337.2 345.6 354.0 362.4 370.8 379.2 387.6 396.0 404.4 412.8 421.2 429.6 438.0 446.4 454.8 463.2 471.6 480.0 488.4 496.8 505.2 513.6 522.0 530.4 538.8" y="394" fill="#7d8ba1">旧版备份：~/.skillpm/backup/code-review/1.0.0-20260921-200919</text>
+<text x="34.8 51.6 68.4 85.2 102.0 118.8 127.2 135.6 144.0 152.4 160.8 169.2 177.6 186.0 194.4 202.8 211.2 219.6 228.0 236.4 244.8 253.2 261.6 270.0 278.4 286.8 295.2 303.6 312.0 320.4 328.8 337.2 345.6 354.0 362.4 370.8 379.2 387.6 396.0 404.4 412.8 421.2 429.6 438.0 446.4 454.8 463.2 471.6 480.0 488.4 496.8 505.2 513.6 522.0 530.4 538.8 547.2 555.6" y="416" fill="#7d8ba1">旧版备份：~/.skillpm/backup/code-review/1.0.0-20260921-200919-2</text>
+</g></svg>

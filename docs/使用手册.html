@@ -1,0 +1,1464 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>skillpm 使用手册</title>
+<meta name="description" content="skillpm 命令手册与接入说明，v2.0.0">
+<meta name="skillpm-version" content="2.0.0">
+<meta name="skillpm-source" content="440a886b63e6e9ba">
+<style>
+:root{--bg:#f7f8fa;--paper:#fff;--ink:#1f2933;--muted:#5b6673;--line:#e3e7ec;--accent:#3e6ddf;
+--accent-soft:#eaf0fd;--code-bg:#0f172a;--code-ink:#e2e8f0;--inline-bg:#eef1f5;--warn:#b05a00;--warn-soft:#fff6e5;
+--shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.08)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0d1117;--paper:#151b23;--ink:#e6edf3;
+--muted:#9aa5b1;--line:#2a3340;--accent:#7aa2ff;--accent-soft:#1c2740;--code-bg:#0a0f1a;--code-ink:#dbe4ef;
+--inline-bg:#222c38;--warn:#f0a44b;--warn-soft:#2b2214;--shadow:none}}
+:root[data-theme="dark"]{--bg:#0d1117;--paper:#151b23;--ink:#e6edf3;--muted:#9aa5b1;--line:#2a3340;--accent:#7aa2ff;
+--accent-soft:#1c2740;--code-bg:#0a0f1a;--code-ink:#dbe4ef;--inline-bg:#222c38;--warn:#f0a44b;--warn-soft:#2b2214;--shadow:none}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:76px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.75 -apple-system,BlinkMacSystemFont,"PingFang SC",
+"Microsoft YaHei","Hiragino Sans GB","Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}a:hover{text-decoration:underline}
+header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--paper) 88%,transparent);
+backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+.bar{max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:0 20px;height:60px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:16px;white-space:nowrap}
+.logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent),#8b5cf6);
+display:grid;place-items:center;color:#fff;font-size:14px}
+.ver{font-weight:500;font-size:12px;color:var(--muted);background:var(--inline-bg);padding:2px 8px;border-radius:99px}
+.tabs{display:flex;gap:4px;margin-left:8px}
+.tabs button{border:0;background:none;color:var(--muted);font:inherit;font-size:14px;padding:6px 12px;border-radius:8px;cursor:pointer;white-space:nowrap}
+.tabs button.on{background:var(--accent-soft);color:var(--accent);font-weight:600}
+.sp{flex:1}.icon-btn{border:1px solid var(--line);background:var(--paper);color:var(--muted);border-radius:8px;
+height:32px;min-width:32px;cursor:pointer;font-size:14px}
+.menu-btn{display:none}
+.wrap{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:268px minmax(0,1fr);gap:32px;padding:24px 20px 80px}
+nav.toc{position:sticky;top:84px;align-self:start;max-height:calc(100vh - 100px);overflow:auto;padding-right:6px}
+.search{width:100%;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:8px;
+padding:8px 10px;font:inherit;font-size:13px;margin-bottom:12px}
+nav.toc ul{list-style:none;margin:0;padding:0}nav.toc li.l2>a{display:block;padding:5px 10px;border-radius:6px;
+color:var(--ink);font-size:13.5px;font-weight:600}nav.toc li.l3>a{display:block;padding:3px 10px 3px 22px;
+color:var(--muted);font-size:13px}nav.toc a:hover{background:var(--inline-bg);text-decoration:none}
+nav.toc a.cur{color:var(--accent);background:var(--accent-soft)}
+nav.toc .t-all{margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+main{min-width:0}p code,li code{overflow-wrap:anywhere}main article{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:36px 44px;box-shadow:var(--shadow)}
+.doc{display:none}.doc.on{display:block}
+h1{font-size:28px;line-height:1.3;margin:0 0 8px}h2{font-size:21px;margin:44px 0 14px;padding-top:6px;
+border-top:1px solid var(--line)}h2:first-of-type{border-top:0}h3{font-size:17px;margin:30px 0 10px}
+h1+p,h1+blockquote{color:var(--muted)}p{margin:10px 0}ul,ol{padding-left:22px}li{margin:3px 0}
+code{font-family:"SF Mono",Menlo,Consolas,"Microsoft YaHei",monospace;font-size:.88em;background:var(--inline-bg);
+padding:1px 6px;border-radius:5px}
+pre{position:relative;background:var(--code-bg);color:var(--code-ink);border-radius:10px;padding:16px 18px;
+overflow:auto;font-size:13px;line-height:1.65;margin:14px 0}pre code{background:none;padding:0;color:inherit;font-size:inherit}
+pre .c{color:#7d8ba1}
+.copy{position:absolute;top:8px;right:8px;opacity:0;transition:.15s;border:1px solid rgba(255,255,255,.18);
+background:rgba(255,255,255,.08);color:#dbe4ef;border-radius:6px;font-size:12px;padding:2px 8px;cursor:pointer}
+pre:hover .copy,.copy:focus{opacity:1}
+.tw{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:10px}
+table{border-collapse:collapse;width:100%;font-size:14px}th,td{text-align:left;padding:9px 14px;
+border-bottom:1px solid var(--line);vertical-align:top}th{background:var(--inline-bg);font-weight:600;white-space:nowrap}
+tr:last-child td{border-bottom:0}td code{white-space:nowrap}
+blockquote.note{margin:16px 0;padding:10px 16px;border-left:4px solid var(--warn);background:var(--warn-soft);
+border-radius:0 10px 10px 0}blockquote.note p{margin:4px 0}
+hr{border:0;border-top:1px solid var(--line);margin:32px 0}
+img.shot{display:block;max-width:100%;height:auto;margin:12px 0 18px;border-radius:10px;
+box-shadow:0 8px 24px rgba(15,23,42,.18),0 1px 3px rgba(15,23,42,.12)}
+.foot{color:var(--muted);font-size:12.5px;text-align:center;margin-top:28px}
+.card{margin-top:20px;background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:6px 24px;box-shadow:var(--shadow)}
+details>summary{cursor:pointer;list-style:none;display:flex;align-items:baseline;gap:12px;padding:14px 0}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"›";display:inline-block;width:12px;color:var(--muted);transition:transform .15s}
+details[open]>summary::before{transform:rotate(90deg)}
+.changelog>summary{font-size:17px;font-weight:700}.changelog .d,.ver-item .d{color:var(--muted);font-size:13px;font-weight:400}
+.ver-item{border-top:1px solid var(--line)}.ver-item>summary{padding:10px 0;font-size:14px}
+.ver-item .g{color:var(--ink);flex:1;min-width:0}.ver-item b{min-width:52px}
+.ver-body{padding:0 0 14px 24px;font-size:14px}.ver-body h3{font-size:15px;margin:16px 0 6px}
+#doc-start h2{border-top:0;margin-top:34px}
+#doc-start .tw td:first-child{white-space:nowrap}
+#doc-start ol>li{margin:8px 0}
+.hit{background:#ffe58f;color:#1f2933;border-radius:3px}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr);padding:16px 16px 60px}
+nav.toc{position:fixed;inset:60px 0 0 0;max-height:none;background:var(--paper);z-index:15;padding:16px;
+transform:translateX(-100%);transition:transform .2s}body.menu nav.toc{transform:none}
+.menu-btn{display:inline-block}main article{padding:22px 18px;border-radius:10px}.bar{gap:8px;padding:0 12px}.tabs{margin-left:0;min-width:0;overflow-x:auto}.tabs button{padding:6px 8px;font-size:13px}.ver{display:none}
+.brand .name{display:none}h1{font-size:23px}}
+</style></head>
+<body>
+<header><div class="bar">
+  <button class="icon-btn menu-btn" id="menu" aria-label="目录">☰</button>
+  <div class="brand"><span class="logo">sp</span><span class="name">skillpm 使用手册</span>
+  <span class="ver">v2.0.0</span></div>
+  <div class="tabs"><button data-doc="start">快速上手</button><button data-doc="manual">完整命令手册</button><button data-doc="onboard">接入自己的仓库</button></div>
+  <div class="sp"></div>
+  <button class="icon-btn" id="theme" title="切换深浅色" aria-label="切换深浅色">◐</button>
+</div></header>
+<div class="wrap">
+  <nav class="toc"><input class="search" placeholder="搜目录…" aria-label="搜目录"><ul class="t" data-doc="start"><li class="l2"><a href="#start-1-装工具-只做一次">1. 装工具（只做一次）</a></li><li class="l2"><a href="#start-2-第一次配置-装-skill">2. 第一次配置 + 装 Skill</a></li><li class="l2"><a href="#start-3-看装了什么">3. 看装了什么</a></li><li class="l2"><a href="#start-4-更新">4. 更新</a></li><li class="l2"><a href="#start-5-卸载">5. 卸载</a></li><li class="l2"><a href="#start-6-忘了命令">6. 忘了命令</a></li><li class="l2"><a href="#start-常用命令速查">常用命令速查</a></li><li class="l2"><a href="#start-必须知道的-3-件事">必须知道的 3 件事</a></li><li class="l2"><a href="#start-出问题了">出问题了</a></li></ul><ul class="t" data-doc="manual"><li class="l2"><a href="#manual-一-速查表">一、速查表</a></li><li class="l2"><a href="#manual-二-装-skill-skillpm-install">二、装 Skill：skillpm install</a><ul><li class="l3"><a href="#manual-2-1-全部参数">2.1 全部参数</a></li><li class="l3"><a href="#manual-2-1-1-交互选择时怎么填">2.1.1 交互选择时怎么填</a></li><li class="l3"><a href="#manual-2-2-穷举各种装法">2.2 穷举各种装法</a></li></ul></li><li class="l2"><a href="#manual-三-看现状-三条各看一层">三、看现状：三条各看一层</a><ul><li class="l3"><a href="#manual-3-1-skillpm-status">3.1 skillpm status</a></li><li class="l3"><a href="#manual-3-2-skillpm-check">3.2 skillpm check</a></li><li class="l3"><a href="#manual-3-3-skillpm-host-list">3.3 skillpm host list</a></li><li class="l3"><a href="#manual-3-4-skillpm-repo-list">3.4 skillpm repo list</a></li></ul></li><li class="l2"><a href="#manual-四-更新">四、更新</a><ul><li class="l3"><a href="#manual-4-1-skillpm-update-更新-skill">4.1 skillpm update —— 更新 Skill</a></li><li class="l3"><a href="#manual-4-2-skillpm-self-update-更新工具自己">4.2 skillpm self-update —— 更新工具自己</a></li><li class="l3"><a href="#manual-4-3-skillpm-sync-重建索引">4.3 skillpm sync —— 重建索引</a></li></ul></li><li class="l2"><a href="#manual-五-删除-两个-别搞混">五、删除（两个，别搞混）</a><ul><li class="l3"><a href="#manual-5-1-skillpm-uninstall-删-skill">5.1 skillpm uninstall —— 删 Skill</a></li><li class="l3"><a href="#manual-5-2-scripts-uninstall-sh-ps1-删工具本身">5.2 scripts/uninstall.sh / .ps1 —— 删工具本身</a></li><li class="l3"><a href="#manual-5-3-完整清理-三步-顺序别反">5.3 完整清理（三步，顺序别反）</a></li></ul></li><li class="l2"><a href="#manual-六-管仓库-skillpm-repo">六、管仓库：skillpm repo</a><ul><li class="l3"><a href="#manual-多个仓库-同名-skill-规则就两条">多个仓库、同名 Skill：规则就两条</a></li></ul></li><li class="l2"><a href="#manual-六-五-检查自己的仓库-skillpm-manifest">六·五、检查自己的仓库：skillpm manifest</a></li><li class="l2"><a href="#manual-七-管宿主-skillpm-host">七、管宿主：skillpm host</a></li><li class="l2"><a href="#manual-八-锁版本-skillpm-freeze-install-from">八、锁版本：skillpm freeze + install --from</a></li><li class="l2"><a href="#manual-九-装-更新工具本身的脚本参数">九、装/更新工具本身的脚本参数</a></li><li class="l2"><a href="#manual-十-环境变量">十、环境变量</a></li><li class="l2"><a href="#manual-十一-退出码">十一、退出码</a></li><li class="l2"><a href="#manual-十二-文件都放在哪">十二、文件都放在哪</a></li><li class="l2"><a href="#manual-附录-一条命令合集">附录：一条命令合集</a></li></ul><ul class="t" data-doc="onboard"><li class="l2"><a href="#onboard-第一步-仓库长这样">第一步：仓库长这样</a><ul><li class="l3"><a href="#onboard-skill-md-格式">SKILL.md 格式</a></li><li class="l3"><a href="#onboard-changelog-md-格式-建议">CHANGELOG.md 格式（建议）</a></li></ul></li><li class="l2"><a href="#onboard-第二步-可选-自检">第二步（可选）：自检</a></li><li class="l2"><a href="#onboard-第三步-每个人把仓库加进来">第三步：每个人把仓库加进来</a><ul><li class="l3"><a href="#onboard-第一次用-skillpm-的人">第一次用 skillpm 的人</a></li><li class="l3"><a href="#onboard-私有仓库">私有仓库</a></li><li class="l3"><a href="#onboard-不是-main-分支">不是 main 分支</a></li><li class="l3"><a href="#onboard-和别的仓库有同名的-skill">和别的仓库有同名的 Skill</a></li></ul></li><li class="l2"><a href="#onboard-加不上的时候">加不上的时候</a></li><li class="l2"><a href="#onboard-常用命令速查">常用命令速查</a></li></ul>
+  <ul class="t-all"><li class="l2"><a href="#changelog" id="toc-changelog">更新日志</a></li></ul></nav>
+  <main><article><section class="doc" id="doc-start"><h1 id="start-快速上手">快速上手</h1>
+<p>skillpm 把 AI Skill 一键装到你用的各个 Agent（WorkBuddy、Claude Code、Codex、Cursor……），并跟着仓库更新。
+下面按顺序走一遍：<strong>装工具 → 第一次配置 → 看状态 → 更新 → 卸载</strong>。每一步的截图都是真实运行的输出。</p>
+<h2 id="start-1-装工具-只做一次">1. 装工具（只做一次）</h2>
+<p><strong>Mac / Linux</strong> 在终端里粘贴：</p>
+<pre><code class="language-bash">git clone https://github.com/suqian-bit/skillpm.git ~/.skillpm-src 2&gt;/dev/null; ~/.skillpm-src/scripts/install.sh
+</code></pre>
+<p><strong>Windows</strong> 在 PowerShell 里粘贴：</p>
+<pre><code class="language-powershell">if (-not (Test-Path $env:USERPROFILE\.skillpm-src)) { git clone https://github.com/suqian-bit/skillpm.git $env:USERPROFILE\.skillpm-src }; Set-ExecutionPolicy -Scope Process Bypass -Force; &amp; &quot;$env:USERPROFILE\.skillpm-src\scripts\install.ps1&quot;
+</code></pre>
+<p>装完敲 <code>skillpm -v</code> 能看到版本号就行；提示找不到命令的话，新开一个终端。</p>
+<h2 id="start-2-第一次配置-装-skill">2. 第一次配置 + 装 Skill</h2>
+<pre><code class="language-bash">skillpm install
+</code></pre>
+<p>第一次会依次问四件事，<strong>只有第一个要填</strong>，后面三个直接回车就行：</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>问什么</th>
+<th>怎么答</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>仓库地址</td>
+<td><strong>必填</strong>：你们团队放 Skill 的 git 仓库地址，找维护的人要；仓库怎么准备见<a href="#onboard" data-doc="onboard">接入自己的仓库</a></td>
+</tr>
+<tr>
+<td>仓库名</td>
+<td>回车</td>
+</tr>
+<tr>
+<td>装到哪几个 Agent</td>
+<td>回车＝本机找到的全装；只要某几个就填序号，比如 <code>1,3</code></td>
+</tr>
+<tr>
+<td>装哪些 Skill</td>
+<td>回车＝全装；只要某几个就填序号，比如 <code>5,7,8</code> 或 <code>2-4</code></td>
+</tr>
+</tbody>
+</table></div>
+<p><img alt="第一次 skillpm install" class="shot" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MjUgMTE0MiIgd2lkdGg9IjgyNSIgaGVpZ2h0PSIxMTQyIiByb2xlPSJpbWciIGFyaWEtbGFiZWw9Iue7iOerr++8mnNraWxscG0gaW5zdGFsbCI+CjxyZWN0IHdpZHRoPSI4MjUiIGhlaWdodD0iMTE0MiIgcng9IjEwIiBmaWxsPSIjMGYxNzJhIi8+CjxyZWN0IHdpZHRoPSI4MjUiIGhlaWdodD0iMzQiIHJ4PSIxMCIgZmlsbD0iIzFlMjkzYiIvPjxyZWN0IHk9IjI0IiB3aWR0aD0iODI1IiBoZWlnaHQ9IjEwIiBmaWxsPSIjMWUyOTNiIi8+CjxjaXJjbGUgY3g9IjIwIiBjeT0iMTciIHI9IjYiIGZpbGw9IiNmZjVmNTciLz48Y2lyY2xlIGN4PSI0MCIgY3k9IjE3IiByPSI2IiBmaWxsPSIjZmViYzJlIi8+PGNpcmNsZSBjeD0iNjAiIGN5PSIxNyIgcj0iNiIgZmlsbD0iIzI4Yzg0MCIvPgo8dGV4dCB4PSI0MTIuNSIgeT0iMjIiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iMTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSItYXBwbGUtc3lzdGVtLFBpbmdGYW5nIFNDLE1pY3Jvc29mdCBZYUhlaSxzYW5zLXNlcmlmIj56c2g8L3RleHQ+CjxnIGZvbnQtZmFtaWx5PSJTRiBNb25vLE1lbmxvLENvbnNvbGFzLFBpbmdGYW5nIFNDLE1pY3Jvc29mdCBZYUhlaSxtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTQiPgo8dGV4dCB4PSIxOC4wIiB5PSI2NCIgZmlsbD0iIzRhZGU4MCIgZm9udC13ZWlnaHQ9IjcwMCI+4p6cPC90ZXh0Pgo8dGV4dCB4PSIzNC44IiB5PSI2NCIgZmlsbD0iIzIyZDNlZSIgZm9udC13ZWlnaHQ9IjcwMCI+fjwvdGV4dD4KPHRleHQgeD0iNTEuNiA2MC4wIDY4LjQgNzYuOCA4NS4yIDkzLjYgMTAyLjAiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5za2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSIxMTguOCAxMjcuMiAxMzUuNiAxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiIgeT0iNjQiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPmluc3RhbGw8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAgMjYuNCAzNC44IDQzLjIgNTEuNiA2MC4wIDY4LjQiIHk9Ijg2IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5za2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSI4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjgiIHk9Ijg2IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj4yLjAuMDwvdGV4dD4KPHRleHQgeD0iMTQ0LjAgMTUyLjQiIHk9Ijg2IiBmaWxsPSIjN2Q4YmExIj5BSTwvdGV4dD4KPHRleHQgeD0iMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjgiIHk9Ijg2IiBmaWxsPSIjN2Q4YmExIj5Ta2lsbDwvdGV4dD4KPHRleHQgeD0iMjE5LjYgMjM2LjQgMjUzLjIgMjcwLjAgMjg2LjggMzAzLjYgMzIwLjQgMzM3LjIiIHk9Ijg2IiBmaWxsPSIjN2Q4YmExIj7nmoTlronoo4XkuI7niYjmnKznrqHnkIY8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjggMTM1LjYgMTUyLjQiIHk9IjEwOCIgZmlsbD0iIzdkOGJhMSI+56ys5LiA5qyh55So77yM6YWN5LiA5LiLPC90ZXh0Pgo8dGV4dCB4PSIxNzcuNiAxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiIgeT0iMTA4IiBmaWxsPSIjN2Q4YmExIj5Ta2lsbDwvdGV4dD4KPHRleHQgeD0iMjI4LjAgMjQ0LjggMjYxLjYgMjc4LjQgMjk1LjIgMzEyLjAgMzI4LjggMzQ1LjYgMzYyLjQgMzc5LjIgMzk2LjAgNDEyLjggNDI5LjYgNDQ2LjQiIHk9IjEwOCIgZmlsbD0iIzdkOGJhMSI+5LuO5ZOq5p2l44CC5pyJ6buY6K6k5YC855qE55u05o6l5Zue6L2m44CCPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIDI2LjQgMzQuOCIgeT0iMTUyIiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj4xLzI8L3RleHQ+Cjx0ZXh0IHg9IjYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiIgeT0iMTUyIiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5Ta2lsbDwvdGV4dD4KPHRleHQgeD0iMTEwLjQgMTI3LjIiIHk9IjE1MiIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+5LuT5bqTPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjguNCA4NS4yIDEwMi4wIDExOC44IiB5PSIxNzQiIGZpbGw9IiM3ZDhiYTEiPuWhq+S9oOS7rOWboumYn+aUvjwvdGV4dD4KPHRleHQgeD0iMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYiIHk9IjE3NCIgZmlsbD0iIzdkOGJhMSI+U2tpbGw8L3RleHQ+Cjx0ZXh0IHg9IjE5NC40IiB5PSIxNzQiIGZpbGw9IiM3ZDhiYTEiPueahDwvdGV4dD4KPHRleHQgeD0iMjE5LjYgMjI4LjAgMjM2LjQiIHk9IjE3NCIgZmlsbD0iIzdkOGJhMSI+Z2l0PC90ZXh0Pgo8dGV4dCB4PSIyNTMuMiAyNzAuMCAyODYuOCAzMDMuNiAzMjAuNCAzMzcuMiAzNDUuNiAzNTQuMCAzNjIuNCAzNzAuOCAzNzkuMiAzODcuNiAzOTYuMCA0MDQuNCA0MTIuOCA0MjEuMiA0MjkuNiA0MzguMCA0NTQuOCA0NjMuMiA0ODAuMCA0OTYuOCA1MDUuMiA1MTMuNiA1MjIuMCIgeT0iMTc0IiBmaWxsPSIjN2Q4YmExIj7ku5PlupPlnLDlnYDvvJpodHRwKHMpOi8v4oCmL+e7hC/ku5PlupMuZ2l0PC90ZXh0Pgo8dGV4dCB4PSI1MzguOCIgeT0iMTc0IiBmaWxsPSIjN2Q4YmExIj7miJY8L3RleHQ+Cjx0ZXh0IHg9IjU2NC4wIDU3Mi40IDU4MC44IDU4OS4yIDU5Ny42IDYxNC40IDYzMS4yIDYzOS42IDY1Ni40IDY2NC44IDY4MS42IDY5OC40IDcwNi44IDcxNS4yIDcyMy42IiB5PSIxNzQiIGZpbGw9IiM3ZDhiYTEiPmdpdEDkuLvmnLo657uEL+S7k+W6ky5naXQ8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjggMTM1LjYgMTUyLjQgMTY5LjIgMTg2LjAgMjAyLjggMjE5LjYgMjM2LjQgMjUzLjIgMjcwLjAgMjg2LjggMzAzLjYgMzIwLjQgMzM3LjIgMzU0LjAgMzcwLjggMzg3LjYgNDA0LjQgNDIxLjIgNDM4LjAiIHk9IjE5NiIgZmlsbD0iIzdkOGJhMSI+5YWs5byA5LuT5bqT55u05o6l6IO95ouJ77yb56eB5pyJ5LuT5bqT5b6F5Lya5YS/5Lya6Zeu5L2g6KaB6K6/6Zeu5Luk54mM44CCPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjguNCA4NS4yIDEwMi4wIiB5PSIyMTgiIGZpbGw9IiNlMmU4ZjAiPuS7k+W6k+WcsOWdgDo8L3RleHQ+Cjx0ZXh0IHg9IjExOC44IDEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IDE4Ni4wIDE5NC40IDIwMi44IDIxMS4yIDIxOS42IDIyOC4wIDIzNi40IDI0NC44IDI1My4yIDI2MS42IDI3MC4wIDI3OC40IDI4Ni44IDI5NS4yIDMwMy42IDMxMi4wIDMyMC40IDMyOC44IDMzNy4yIDM0NS42IDM1NC4wIDM2Mi40IDM3MC44IDM3OS4yIDM4Ny42IDM5Ni4wIDQwNC40IDQxMi44IDQyMS4yIDQyOS42IDQzOC4wIDQ0Ni40IDQ1NC44IiB5PSIyMTgiIGZpbGw9IiNlMmU4ZjAiPmh0dHA6Ly9naXRsYWIuZXhhbXBsZS5jb20vdGVhbS9za2lsbHMuZ2l0PC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjguNCA4NS4yIDEwMi4wIDExOC44IDEzNS42IDE1Mi40IDE2OS4yIiB5PSIyNDAiIGZpbGw9IiM3ZDhiYTEiPue7meWug+i1t+S4quWQjeWtl++8jOS7peWQjjwvdGV4dD4KPHRleHQgeD0iMTk0LjQgMjAyLjggMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQiIHk9IjI0MCIgZmlsbD0iIzdkOGJhMSI+LS1yZXBvPC90ZXh0Pgo8dGV4dCB4PSIyNTMuMiAyNzAuMCAyODYuOCAzMDMuNiAzMjAuNCAzMzcuMiAzNTQuMCAzNzAuOCAzODcuNiA0MDQuNCA0MjEuMiA0MzguMCA0NTQuOCA0NzEuNiA0ODguNCIgeT0iMjQwIiBmaWxsPSIjN2Q4YmExIj7nlKjlroPmjIfov5nkuKrku5PlupPvvIjlu7rorq7nlKjlm6LpmJ/lkI3vvIk8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IiB5PSIyNjIiIGZpbGw9IiNlMmU4ZjAiPuS7k+W6k+WQjTwvdGV4dD4KPHRleHQgeD0iOTMuNiAxMDIuMCAxMTAuNCAxMTguOCAxMjcuMiAxMzUuNiIgeT0iMjYyIiBmaWxsPSIjN2Q4YmExIj5bdGVhbV08L3RleHQ+Cjx0ZXh0IHg9IjE0NC4wIiB5PSIyNjIiIGZpbGw9IiNlMmU4ZjAiPjo8L3RleHQ+Cjx0ZXh0IHg9IjUxLjYgNjguNCA4NS4yIDEwMi4wIDExOC44IiB5PSIyODQiIGZpbGw9IiM3ZDhiYTEiPuWFiOivleaLieS4gOasoTwvdGV4dD4KPHRleHQgeD0iMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjggMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQgMjQ0LjggMjUzLjIgMjYxLjYgMjcwLjAgMjc4LjQgMjg2LjggMjk1LjIgMzAzLjYgMzEyLjAgMzIwLjQgMzI4LjggMzM3LjIgMzQ1LjYgMzU0LjAgMzYyLjQgMzcwLjggMzc5LjIgMzg3LjYgMzk2LjAgNDA0LjQgNDEyLjggNDIxLjIgNDI5LjYgNDM4LjAgNDQ2LjQgNDU0LjggNDYzLjIgNDcxLjYgNDgwLjAiIHk9IjI4NCIgZmlsbD0iIzdkOGJhMSI+aHR0cDovL2dpdGxhYi5leGFtcGxlLmNvbS90ZWFtL3NraWxscy5naXQ8L3RleHQ+Cjx0ZXh0IHg9IjQ5Ni44IiB5PSIyODQiIGZpbGw9IiM3ZDhiYTEiPuKApjwvdGV4dD4KPHRleHQgeD0iMTguMCIgeT0iMzA2IiBmaWxsPSIjNGFkZTgwIj7inJM8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjggMTM1LjYiIHk9IjMwNiIgZmlsbD0iI2UyZThmMCI+5ouJ5b6X5Yiw77yM6YeM6Z2i5pyJPC90ZXh0Pgo8dGV4dCB4PSIxNjAuOCIgeT0iMzA2IiBmaWxsPSIjZTJlOGYwIj40PC90ZXh0Pgo8dGV4dCB4PSIxNzcuNiIgeT0iMzA2IiBmaWxsPSIjZTJlOGYwIj7kuKo8L3RleHQ+Cjx0ZXh0IHg9IjIwMi44IDIxMS4yIDIxOS42IDIyOC4wIDIzNi40IDI0NC44IDI2MS42IDI3MC4wIDI3OC40IDI4Ni44IDI5NS4yIDMwMy42IDMxMi4wIDMyMC40IDMyOC44IDMzNy4yIDM0NS42IDM1NC4wIDM3MC44IDM3OS4yIDM4Ny42IDM5Ni4wIDQwNC40IDQxMi44IDQyMS4yIDQyOS42IDQzOC4wIDQ0Ni40IDQ1NC44IDQ3MS42IDQ4MC4wIDQ4OC40IDQ5Ni44IDUwNS4yIDUxMy42IDUyMi4wIDUzMC40IDUzOC44IDU0Ny4yIDU2NC4wIDU3Mi40IDU4MC44IDU4OS4yIDU5Ny42IDYwNi4wIDYxNC40IDYyMi44IDYzMS4yIDYzOS42IDY0OC4wIDY1Ni40IDY2NC44IiB5PSIzMDYiIGZpbGw9IiNlMmU4ZjAiPlNraWxs77yaY29kZS1yZXZpZXfjgIFkb2Mtd3JpdGVy44CBcGRmLXRvb2xz44CBd2Vla2x5LXJlcG9ydDwvdGV4dD4KPHRleHQgeD0iMTguMCAyNi40IDM0LjgiIHk9IjM1MCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+Mi8yPC90ZXh0Pgo8dGV4dCB4PSI2MC4wIDc2LjggOTMuNiIgeT0iMzUwIiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj7oo4XliLDlk6o8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAiIHk9IjM3MiIgZmlsbD0iIzRhZGU4MCI+4pyTPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYiIHk9IjM3MiIgZmlsbD0iI2UyZThmMCI+5om+5YiwPC90ZXh0Pgo8dGV4dCB4PSI3Ni44IDg1LjIgOTMuNiAxMDIuMCAxMTAuNCAxMTguOCIgeT0iMzcyIiBmaWxsPSIjZTJlOGYwIj5DbGF1ZGU8L3RleHQ+Cjx0ZXh0IHg9IjEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE4Ni4wIDE5NC40IDIwMi44IDIxMS4yIDIxOS42IDIyOC4wIDIzNi40IDI0NC44IDI1My4yIDI2MS42IDI3MC4wIDI3OC40IDI4Ni44IDI5NS4yIDMwMy42IDMxMi4wIiB5PSIzNzIiIGZpbGw9IiNlMmU4ZjAiPkNvZGXvvJp+Ly5jbGF1ZGUvc2tpbGxzPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIiB5PSIzOTQiIGZpbGw9IiM0YWRlODAiPuKckzwvdGV4dD4KPHRleHQgeD0iMzQuOCA1MS42IiB5PSIzOTQiIGZpbGw9IiNlMmU4ZjAiPuaJvuWIsDwvdGV4dD4KPHRleHQgeD0iNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjggMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjggMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQgMjQ0LjggMjUzLjIiIHk9IjM5NCIgZmlsbD0iI2UyZThmMCI+Q29kZXjvvJp+Ly5jb2RleC9za2lsbHM8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjggMTM1LjYgMTUyLjQgMTY5LjIgMTg2LjAgMjAyLjggMjE5LjYgMjM2LjQgMjUzLjIiIHk9IjQxNiIgZmlsbD0iIzdkOGJhMSI+5LiL5LiA5q2l5Lya6K6p5L2g5Yu+6YCJ6KOF5Yiw5ZOq5Yeg5Liq44CCPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIiB5PSI0NjAiIGZpbGw9IiM0YWRlODAiPuKckzwvdGV4dD4KPHRleHQgeD0iMzQuOCA1MS42IDY4LjQgODUuMiAxMDIuMCAxMTguOCAxMzUuNiAxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiAxNzcuNiAxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCAyNzguNCAyODYuOCAyOTUuMiAzMDMuNiAzMTIuMCIgeT0iNDYwIiBmaWxsPSIjZTJlOGYwIj7phY3nva7lrZjlpb3kuobvvJp+Ly5za2lsbHBtL2NvbmZpZy5qc29uPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjguNCA4NS4yIDEwMi4wIiB5PSI0ODIiIGZpbGw9IiM3ZDhiYTEiPuS7peWQjuWKoOWIq+eahDwvdGV4dD4KPHRleHQgeD0iMTI3LjIgMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjgiIHk9IjQ4MiIgZmlsbD0iIzdkOGJhMSI+U2tpbGw8L3RleHQ+Cjx0ZXh0IHg9IjE3Ny42IDE5NC40IDIxMS4yIDIyOC4wIDIzNi40IDI0NC44IDI1My4yIDI2MS42IDI3MC4wIDI3OC40IiB5PSI0ODIiIGZpbGw9IiM3ZDhiYTEiPuS7k+W6k++8mnNraWxscG08L3RleHQ+Cjx0ZXh0IHg9IjI5NS4yIDMwMy42IDMxMi4wIDMyMC40IiB5PSI0ODIiIGZpbGw9IiM3ZDhiYTEiPnJlcG88L3RleHQ+Cjx0ZXh0IHg9IjMzNy4yIDM0NS42IDM1NC4wIiB5PSI0ODIiIGZpbGw9IiM3ZDhiYTEiPmFkZDwvdGV4dD4KPHRleHQgeD0iMzcwLjggMzc5LjIgMzk2LjAgNDEyLjgiIHk9IjQ4MiIgZmlsbD0iIzdkOGJhMSI+Jmx0O+WQjeWtlyZndDs8L3RleHQ+Cjx0ZXh0IHg9IjQyOS42IDQzOC4wIDQ1NC44IDQ3MS42IiB5PSI0ODIiIGZpbGw9IiM3ZDhiYTEiPiZsdDvlnLDlnYAmZ3Q7PC90ZXh0Pgo8dGV4dCB4PSIxOC4wIiB5PSI1MDQiIGZpbGw9IiM0YWRlODAiPuKckzwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYgNjAuMCA2OC40IDg1LjIgMTAyLjAgMTE4LjggMTM1LjYgMTUyLjQgMTY5LjIgMTg2LjAgMTk0LjQgMjAyLjggMjExLjIiIHk9IjUwNCIgZmlsbD0iI2UyZThmMCI+dGVhbe+8muW3suaLieWIsOacgOaWsO+8iGdpdO+8iTwvdGV4dD4KPHRleHQgeD0iMTguMCAzNC44IDUxLjYgNjguNCA4NS4yIDEwMi4wIDExOC44IiB5PSI1NDgiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPuaOoua1i+WIsOi/meS6m+Wuv+S4uzwvdGV4dD4KPHRleHQgeD0iMTguMCAzNC44IDUxLjYgNjguNCA4NS4yIDEwMi4wIDExOC44IiB5PSI1NzAiIGZpbGw9IiNlMmU4ZjAiPuimgeijheWIsOWTquWHoOS4qu+8nzwvdGV4dD4KPHRleHQgeD0iMzQuOCIgeT0iNTkyIiBmaWxsPSIjZTJlOGYwIj4qPC90ZXh0Pgo8dGV4dCB4PSI1MS42IDYwLjAiIHk9IjU5MiIgZmlsbD0iI2UyZThmMCI+MS48L3RleHQ+Cjx0ZXh0IHg9Ijc2LjggODUuMiA5My42IDEwMi4wIDExMC40IDExOC44IiB5PSI1OTIiIGZpbGw9IiNlMmU4ZjAiPkNsYXVkZTwvdGV4dD4KPHRleHQgeD0iMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjgiIHk9IjU5MiIgZmlsbD0iI2UyZThmMCI+Q29kZTwvdGV4dD4KPHRleHQgeD0iMTg2LjAgMTk0LjQgMjAyLjggMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQgMjQ0LjggMjUzLjIgMjYxLjYgMjcwLjAgMjc4LjQgMjg2LjggMjk1LjIgMzAzLjYgMzEyLjAiIHk9IjU5MiIgZmlsbD0iIzdkOGJhMSI+fi8uY2xhdWRlL3NraWxsczwvdGV4dD4KPHRleHQgeD0iMzQuOCIgeT0iNjE0IiBmaWxsPSIjZTJlOGYwIj4qPC90ZXh0Pgo8dGV4dCB4PSI1MS42IDYwLjAiIHk9IjYxNCIgZmlsbD0iI2UyZThmMCI+Mi48L3RleHQ+Cjx0ZXh0IHg9Ijc2LjggODUuMiA5My42IDEwMi4wIDExMC40IiB5PSI2MTQiIGZpbGw9IiNlMmU4ZjAiPkNvZGV4PC90ZXh0Pgo8dGV4dCB4PSIxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCAyNzguNCAyODYuOCAyOTUuMiAzMDMuNiIgeT0iNjE0IiBmaWxsPSIjN2Q4YmExIj5+Ly5jb2RleC9za2lsbHM8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAgMzQuOCA1MS42IDY4LjQgODUuMiIgeT0iNjM2IiBmaWxsPSIjN2Q4YmExIj7lm57ovabvvJ3lhajpg6g8L3RleHQ+Cjx0ZXh0IHg9IjExMC40IiB5PSI2MzYiIGZpbGw9IiM3ZDhiYTEiPjI8L3RleHQ+Cjx0ZXh0IHg9IjEyNy4yIDE0NC4wIDE2MC44IDE3Ny42IDE5NC40IDIxMS4yIDIyOC4wIDI0NC44IDI2MS42IDI3OC40IDI5NS4yIDMxMi4wIDMyOC44IDM0NS42IDM1NC4wIDM2Mi40IDM3MC44IDM3OS4yIiB5PSI2MzYiIGZpbGw9IiM3ZDhiYTEiPuS4qu+8m+WPquimgeWFtuS4reWHoOS4quWwseWhq+W6j+WPt++8iDEsMyw1PC90ZXh0Pgo8dGV4dCB4PSIzOTYuMCIgeT0iNjM2IiBmaWxsPSIjN2Q4YmExIj7miJY8L3RleHQ+Cjx0ZXh0IHg9IjQyMS4yIDQyOS42IDQzOC4wIDQ0Ni40IDQ2My4yIDQ4MC4wIDQ5Ni44IDUxMy42IDUzMC40IDU0Ny4yIDU2NC4wIDU4MC44IDU5Ny42IDYxNC40IDYzMS4yIDY0OC4wIDY2NC44IDY4MS42IDY5OC40IDcxNS4yIDcyMy42IDc0MC40IDc1Ny4yIDc3NC4wIiB5PSI2MzYiIGZpbGw9IiM3ZDhiYTEiPjItNO+8ie+8m+WIl+ihqOmHjOayoeacieWwseebtOaOpeWhq+ebruW9lei3r+W+hO+8mzDvvJ3pg73kuI3opoE8L3RleHQ+Cjx0ZXh0IHg9Ijc5MC44IiB5PSI2MzYiIGZpbGw9IiNlMmU4ZjAiPjo8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjggMTM1LjYgMTUyLjQgMTY5LjIgMTg2LjAgMjAyLjggMjE5LjYgMjM2LjQgMjUzLjIgMjcwLjAgMjg2LjggMzAzLjYgMzIwLjQgMzM3LjIgMzU0LjAgMzcwLjggMzg3LjYgNDA0LjQgNDIxLjIgNDM4LjAgNDU0LjggNDcxLjYiIHk9IjY4MCIgZmlsbD0iIzdkOGJhMSI+5YWo5bGA5a6J6KOF77ya6KOF5Yiw55So5oi357qn55uu5b2V77yM5a+55L2g5omA5pyJ6aG555uu55Sf5pWI77yM5LiN5YaZ6ZSB5paH5Lu2PC90ZXh0Pgo8dGV4dCB4PSIxOC4wIDM0LjggNTEuNiA2OC40IiB5PSI3MjQiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPuimgeijheWTquS6mzwvdGV4dD4KPHRleHQgeD0iOTMuNiAxMDIuMCAxMTAuNCAxMTguOCAxMjcuMiAxMzUuNiIgeT0iNzI0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5Ta2lsbO+8nzwvdGV4dD4KPHRleHQgeD0iMzQuOCIgeT0iNzQ2IiBmaWxsPSIjZTJlOGYwIj4qPC90ZXh0Pgo8dGV4dCB4PSI1MS42IDYwLjAiIHk9Ijc0NiIgZmlsbD0iI2UyZThmMCI+MS48L3RleHQ+Cjx0ZXh0IHg9Ijc2LjggODUuMiA5My42IDEwMi4wIDExMC40IDExOC44IDEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IiB5PSI3NDYiIGZpbGw9IiNlMmU4ZjAiPmNvZGUtcmV2aWV3PC90ZXh0Pgo8dGV4dCB4PSIyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCIgeT0iNzQ2IiBmaWxsPSIjN2Q4YmExIj4xLjAuMDwvdGV4dD4KPHRleHQgeD0iMzQuOCIgeT0iNzY4IiBmaWxsPSIjZTJlOGYwIj4qPC90ZXh0Pgo8dGV4dCB4PSI1MS42IDYwLjAiIHk9Ijc2OCIgZmlsbD0iI2UyZThmMCI+Mi48L3RleHQ+Cjx0ZXh0IHg9Ijc2LjggODUuMiA5My42IDEwMi4wIDExMC40IDExOC44IDEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IiB5PSI3NjgiIGZpbGw9IiNlMmU4ZjAiPmRvYy13cml0ZXI8L3RleHQ+Cjx0ZXh0IHg9IjIwMi44IDIxMS4yIDIxOS42IDIyOC4wIDIzNi40IiB5PSI3NjgiIGZpbGw9IiM3ZDhiYTEiPjAuOS4wPC90ZXh0Pgo8dGV4dCB4PSIzNC44IiB5PSI3OTAiIGZpbGw9IiNlMmU4ZjAiPio8L3RleHQ+Cjx0ZXh0IHg9IjUxLjYgNjAuMCIgeT0iNzkwIiBmaWxsPSIjZTJlOGYwIj4zLjwvdGV4dD4KPHRleHQgeD0iNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAiIHk9Ijc5MCIgZmlsbD0iI2UyZThmMCI+cGRmLXRvb2xzPC90ZXh0Pgo8dGV4dCB4PSIyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCIgeT0iNzkwIiBmaWxsPSIjN2Q4YmExIj4yLjEuMDwvdGV4dD4KPHRleHQgeD0iMzQuOCIgeT0iODEyIiBmaWxsPSIjZTJlOGYwIj4qPC90ZXh0Pgo8dGV4dCB4PSI1MS42IDYwLjAiIHk9IjgxMiIgZmlsbD0iI2UyZThmMCI+NC48L3RleHQ+Cjx0ZXh0IHg9Ijc2LjggODUuMiA5My42IDEwMi4wIDExMC40IDExOC44IDEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IiB5PSI4MTIiIGZpbGw9IiNlMmU4ZjAiPndlZWtseS1yZXBvcnQ8L3RleHQ+Cjx0ZXh0IHg9IjIwMi44IDIxMS4yIDIxOS42IDIyOC4wIDIzNi40IiB5PSI4MTIiIGZpbGw9IiM3ZDhiYTEiPjEuMy4wPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIDM0LjggNTEuNiA2OC40IDg1LjIiIHk9IjgzNCIgZmlsbD0iIzdkOGJhMSI+5Zue6L2m77yd5YWo6YOoPC90ZXh0Pgo8dGV4dCB4PSIxMTAuNCIgeT0iODM0IiBmaWxsPSIjN2Q4YmExIj40PC90ZXh0Pgo8dGV4dCB4PSIxMjcuMiAxNDQuMCAxNjAuOCAxNzcuNiAxOTQuNCAyMTEuMiAyMjguMCAyNDQuOCAyNjEuNiAyNzguNCAyOTUuMiAzMTIuMCAzMjguOCAzNDUuNiAzNTQuMCAzNjIuNCAzNzAuOCAzNzkuMiIgeT0iODM0IiBmaWxsPSIjN2Q4YmExIj7kuKrvvJvlj6ropoHlhbbkuK3lh6DkuKrlsLHloavluo/lj7fvvIgxLDMsNTwvdGV4dD4KPHRleHQgeD0iMzk2LjAiIHk9IjgzNCIgZmlsbD0iIzdkOGJhMSI+5oiWPC90ZXh0Pgo8dGV4dCB4PSI0MjEuMiA0MjkuNiA0MzguMCA0NDYuNCA0NjMuMiA0ODAuMCA0ODguNCA1MDUuMiA1MjIuMCA1MzguOCIgeT0iODM0IiBmaWxsPSIjN2Q4YmExIj4yLTTvvInvvJsw77yd6YO95LiN6KaBPC90ZXh0Pgo8dGV4dCB4PSI1NTUuNiIgeT0iODM0IiBmaWxsPSIjZTJlOGYwIj46PC90ZXh0Pgo8dGV4dCB4PSI1NzIuNCA1ODAuOCA1ODkuMiIgeT0iODM0IiBmaWxsPSIjZTJlOGYwIj4xLTM8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAiIHk9Ijg3OCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+4oaSPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDQzLjIgNTEuNiA2MC4wIDY4LjQgNzYuOCIgeT0iODc4IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5DbGF1ZGU8L3RleHQ+Cjx0ZXh0IHg9IjkzLjYgMTAyLjAgMTEwLjQgMTE4LjgiIHk9Ijg3OCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+Q29kZTwvdGV4dD4KPHRleHQgeD0iMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjggMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQgMjQ0LjggMjUzLjIgMjYxLjYgMjcwLjAiIHk9Ijg3OCIgZmlsbD0iIzYwYTVmYSI+fi8uY2xhdWRlL3NraWxsczwvdGV4dD4KPHRleHQgeD0iMTguMCIgeT0iOTAwIiBmaWxsPSIjNGFkZTgwIj7inJM8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCAxMTAuNCAxMTguOCIgeT0iOTAwIiBmaWxsPSIjZTJlOGYwIj5jb2RlLXJldmlldzwvdGV4dD4KPHRleHQgeD0iMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYiIHk9IjkwMCIgZmlsbD0iI2UyZThmMCI+MS4wLjA8L3RleHQ+Cjx0ZXh0IHg9IjIxMS4yIDIxOS42IDIyOC4wIDIzNi40IiB5PSI5MDAiIGZpbGw9IiM3ZDhiYTEiPnRlYW08L3RleHQ+Cjx0ZXh0IHg9IjE4LjAiIHk9IjkyMiIgZmlsbD0iIzRhZGU4MCI+4pyTPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDQzLjIgNTEuNiA2MC4wIDY4LjQgNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQiIHk9IjkyMiIgZmlsbD0iI2UyZThmMCI+ZG9jLXdyaXRlcjwvdGV4dD4KPHRleHQgeD0iMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIiIHk9IjkyMiIgZmlsbD0iI2UyZThmMCI+MC45LjA8L3RleHQ+Cjx0ZXh0IHg9IjIwMi44IDIxMS4yIDIxOS42IDIyOC4wIiB5PSI5MjIiIGZpbGw9IiM3ZDhiYTEiPnRlYW08L3RleHQ+Cjx0ZXh0IHg9IjE4LjAiIHk9Ijk0NCIgZmlsbD0iIzRhZGU4MCI+4pyTPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDQzLjIgNTEuNiA2MC4wIDY4LjQgNzYuOCA4NS4yIDkzLjYgMTAyLjAiIHk9Ijk0NCIgZmlsbD0iI2UyZThmMCI+cGRmLXRvb2xzPC90ZXh0Pgo8dGV4dCB4PSIxMjcuMiAxMzUuNiAxNDQuMCAxNTIuNCAxNjAuOCIgeT0iOTQ0IiBmaWxsPSIjZTJlOGYwIj4yLjEuMDwvdGV4dD4KPHRleHQgeD0iMTk0LjQgMjAyLjggMjExLjIgMjE5LjYiIHk9Ijk0NCIgZmlsbD0iIzdkOGJhMSI+dGVhbTwvdGV4dD4KPHRleHQgeD0iMTguMCIgeT0iOTg4IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj7ihpI8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCIgeT0iOTg4IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5Db2RleDwvdGV4dD4KPHRleHQgeD0iOTMuNiAxMDIuMCAxMTAuNCAxMTguOCAxMjcuMiAxMzUuNiAxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiAxNzcuNiAxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiIgeT0iOTg4IiBmaWxsPSIjNjBhNWZhIj5+Ly5jb2RleC9za2lsbHM8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAiIHk9IjEwMTAiIGZpbGw9IiM0YWRlODAiPuKckzwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYgNjAuMCA2OC40IDc2LjggODUuMiA5My42IDEwMi4wIDExMC40IDExOC44IiB5PSIxMDEwIiBmaWxsPSIjZTJlOGYwIj5jb2RlLXJldmlldzwvdGV4dD4KPHRleHQgeD0iMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYiIHk9IjEwMTAiIGZpbGw9IiNlMmU4ZjAiPjEuMC4wPC90ZXh0Pgo8dGV4dCB4PSIyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCIgeT0iMTAxMCIgZmlsbD0iIzdkOGJhMSI+dGVhbTwvdGV4dD4KPHRleHQgeD0iMTguMCIgeT0iMTAzMiIgZmlsbD0iIzRhZGU4MCI+4pyTPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDQzLjIgNTEuNiA2MC4wIDY4LjQgNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQiIHk9IjEwMzIiIGZpbGw9IiNlMmU4ZjAiPmRvYy13cml0ZXI8L3RleHQ+Cjx0ZXh0IHg9IjEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIiB5PSIxMDMyIiBmaWxsPSIjZTJlOGYwIj4wLjkuMDwvdGV4dD4KPHRleHQgeD0iMjAyLjggMjExLjIgMjE5LjYgMjI4LjAiIHk9IjEwMzIiIGZpbGw9IiM3ZDhiYTEiPnRlYW08L3RleHQ+Cjx0ZXh0IHg9IjE4LjAiIHk9IjEwNTQiIGZpbGw9IiM0YWRlODAiPuKckzwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYgNjAuMCA2OC40IDc2LjggODUuMiA5My42IDEwMi4wIiB5PSIxMDU0IiBmaWxsPSIjZTJlOGYwIj5wZGYtdG9vbHM8L3RleHQ+Cjx0ZXh0IHg9IjEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IiB5PSIxMDU0IiBmaWxsPSIjZTJlOGYwIj4yLjEuMDwvdGV4dD4KPHRleHQgeD0iMTk0LjQgMjAyLjggMjExLjIgMjE5LjYiIHk9IjEwNTQiIGZpbGw9IiM3ZDhiYTEiPnRlYW08L3RleHQ+Cjx0ZXh0IHg9IjE4LjAiIHk9IjEwOTgiIGZpbGw9IiM0YWRlODAiPuKckzwvdGV4dD4KPHRleHQgeD0iMzQuOCA1MS42IDY4LjQgODUuMiIgeT0iMTA5OCIgZmlsbD0iI2UyZThmMCI+6KOF5a6M5LqG44CCPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjguNCA4NS4yIDEwMi4wIDExOC44IDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IDE4Ni4wIiB5PSIxMTIwIiBmaWxsPSIjN2Q4YmExIj7nnIvoo4Xkuobku4DkuYjvvJpza2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSIyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCAyNTMuMiAyNzAuMCAyODYuOCAzMDMuNiAzMjAuNCAzMzcuMiAzNTQuMCAzNjIuNCAzNzAuOCAzNzkuMiAzODcuNiAzOTYuMCA0MDQuNCIgeT0iMTEyMCIgZmlsbD0iIzdkOGJhMSI+c3RhdHVz77yb6Lef5LiK5pu05paw77yac2tpbGxwbTwvdGV4dD4KPHRleHQgeD0iNDIxLjIgNDI5LjYgNDM4LjAgNDQ2LjQgNDU0LjggNDYzLjIiIHk9IjExMjAiIGZpbGw9IiM3ZDhiYTEiPnVwZGF0ZTwvdGV4dD4KPC9nPjwvc3ZnPg==" /></p>
+<p>填的仓库地址会当场试拉一次，拉不到会说原因、让你重填。以后再跑 <code>skillpm install</code> 就不问仓库了，只问装到哪、装哪些。</p>
+<h2 id="start-3-看装了什么">3. 看装了什么</h2>
+<pre><code class="language-bash">skillpm status
+</code></pre>
+<p>每个 Agent 下装了哪些 Skill、什么版本、是不是最新、有没有被人改过：</p>
+<p><img alt="skillpm status" class="shot" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NDAgMzUwIiB3aWR0aD0iNTQwIiBoZWlnaHQ9IjM1MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSLnu4jnq6/vvJpza2lsbHBtIHN0YXR1cyI+CjxyZWN0IHdpZHRoPSI1NDAiIGhlaWdodD0iMzUwIiByeD0iMTAiIGZpbGw9IiMwZjE3MmEiLz4KPHJlY3Qgd2lkdGg9IjU0MCIgaGVpZ2h0PSIzNCIgcng9IjEwIiBmaWxsPSIjMWUyOTNiIi8+PHJlY3QgeT0iMjQiIHdpZHRoPSI1NDAiIGhlaWdodD0iMTAiIGZpbGw9IiMxZTI5M2IiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNyIgcj0iNiIgZmlsbD0iI2ZmNWY1NyIvPjxjaXJjbGUgY3g9IjQwIiBjeT0iMTciIHI9IjYiIGZpbGw9IiNmZWJjMmUiLz48Y2lyY2xlIGN4PSI2MCIgY3k9IjE3IiByPSI2IiBmaWxsPSIjMjhjODQwIi8+Cjx0ZXh0IHg9IjI3MC4wIiB5PSIyMiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSIxMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Ii1hcHBsZS1zeXN0ZW0sUGluZ0ZhbmcgU0MsTWljcm9zb2Z0IFlhSGVpLHNhbnMtc2VyaWYiPnpzaDwvdGV4dD4KPGcgZm9udC1mYW1pbHk9IlNGIE1vbm8sTWVubG8sQ29uc29sYXMsUGluZ0ZhbmcgU0MsTWljcm9zb2Z0IFlhSGVpLG1vbm9zcGFjZSIgZm9udC1zaXplPSIxNCI+Cjx0ZXh0IHg9IjE4LjAiIHk9IjY0IiBmaWxsPSIjNGFkZTgwIiBmb250LXdlaWdodD0iNzAwIj7inpw8L3RleHQ+Cjx0ZXh0IHg9IjM0LjgiIHk9IjY0IiBmaWxsPSIjMjJkM2VlIiBmb250LXdlaWdodD0iNzAwIj5+PC90ZXh0Pgo8dGV4dCB4PSI1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCIgeT0iNjQiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPnNraWxscG08L3RleHQ+Cjx0ZXh0IHg9IjExOC44IDEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+c3RhdHVzPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIDM0LjgiIHk9Ijg2IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj7lt6Xlhbc8L3RleHQ+Cjx0ZXh0IHg9IjY4LjQgNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjgiIHk9Ijg2IiBmaWxsPSIjZTJlOGYwIj5za2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSIxMzUuNiAxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiIgeT0iODYiIGZpbGw9IiNlMmU4ZjAiPjIuMC4wPC90ZXh0Pgo8dGV4dCB4PSIyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCAyNzguNCIgeT0iODYiIGZpbGw9IiM3ZDhiYTEiPn4vLnNraWxscG08L3RleHQ+Cjx0ZXh0IHg9IjE4LjAgMzQuOCIgeT0iMTA4IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj7ku5PlupM8L3RleHQ+Cjx0ZXh0IHg9IjY4LjQgNzYuOCA4NS4yIDkzLjYiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+dGVhbTwvdGV4dD4KPHRleHQgeD0iMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjggMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQgMjQ0LjggMjUzLjIgMjYxLjYgMjcwLjAgMjc4LjQgMjg2LjggMjk1LjIgMzAzLjYgMzEyLjAgMzIwLjQgMzI4LjggMzM3LjIgMzQ1LjYgMzU0LjAgMzYyLjQgMzcwLjggMzc5LjIgMzg3LjYgMzk2LjAgNDA0LjQgNDEyLjggNDIxLjIgNDI5LjYgNDM4LjAgNDQ2LjQgNDU0LjgiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+aHR0cDovL2dpdGxhYi5leGFtcGxlLmNvbS90ZWFtL3NraWxscy5naXQ8L3RleHQ+Cjx0ZXh0IHg9IjQ4OC40IDQ5Ni44IDUwNS4yIiB5PSIxMDgiIGZpbGw9IiM3ZDhiYTEiPmdpdDwvdGV4dD4KPHRleHQgeD0iMTguMCAyNi40IDM0LjggNDMuMiA1MS42IDYwLjAiIHk9IjE1MiIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+Q2xhdWRlPC90ZXh0Pgo8dGV4dCB4PSI3Ni44IDg1LjIgOTMuNiAxMDIuMCIgeT0iMTUyIiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5Db2RlPC90ZXh0Pgo8dGV4dCB4PSIxMjcuMiAxNDQuMCAxNjAuOCIgeT0iMTUyIiBmaWxsPSIjN2Q4YmExIj7nlKjmiLfnuqc8L3RleHQ+Cjx0ZXh0IHg9IjE5NC40IDIwMi44IDIxMS4yIDIxOS42IDIyOC4wIDIzNi40IDI0NC44IDI1My4yIDI2MS42IDI3MC4wIDI3OC40IDI4Ni44IDI5NS4yIDMwMy42IDMxMi4wIDMyMC40IiB5PSIxNTIiIGZpbGw9IiM2MGE1ZmEiPn4vLmNsYXVkZS9za2lsbHM8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCAxMTAuNCAxMTguOCIgeT0iMTc0IiBmaWxsPSIjZTJlOGYwIj5jb2RlLXJldmlldzwvdGV4dD4KPHRleHQgeD0iMzEyLjAgMzIwLjQgMzI4LjggMzM3LjIgMzQ1LjYiIHk9IjE3NCIgZmlsbD0iI2UyZThmMCI+MS4wLjA8L3RleHQ+Cjx0ZXh0IHg9IjM5Ni4wIDQxMi44IiB5PSIxNzQiIGZpbGw9IiM0YWRlODAiPuacgOaWsDwvdGV4dD4KPHRleHQgeD0iNDU0LjggNDYzLjIgNDcxLjYgNDgwLjAiIHk9IjE3NCIgZmlsbD0iIzdkOGJhMSI+dGVhbTwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYgNjAuMCA2OC40IDc2LjggODUuMiA5My42IDEwMi4wIDExMC40IiB5PSIxOTYiIGZpbGw9IiNlMmU4ZjAiPmRvYy13cml0ZXI8L3RleHQ+Cjx0ZXh0IHg9IjMxMi4wIDMyMC40IDMyOC44IDMzNy4yIDM0NS42IiB5PSIxOTYiIGZpbGw9IiNlMmU4ZjAiPjAuOS4wPC90ZXh0Pgo8dGV4dCB4PSIzOTYuMCA0MTIuOCIgeT0iMTk2IiBmaWxsPSIjNGFkZTgwIj7mnIDmlrA8L3RleHQ+Cjx0ZXh0IHg9IjQ1NC44IDQ2My4yIDQ3MS42IDQ4MC4wIiB5PSIxOTYiIGZpbGw9IiM3ZDhiYTEiPnRlYW08L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCIgeT0iMjE4IiBmaWxsPSIjZTJlOGYwIj5wZGYtdG9vbHM8L3RleHQ+Cjx0ZXh0IHg9IjMxMi4wIDMyMC40IDMyOC44IDMzNy4yIDM0NS42IiB5PSIyMTgiIGZpbGw9IiNlMmU4ZjAiPjIuMS4wPC90ZXh0Pgo8dGV4dCB4PSIzOTYuMCA0MTIuOCIgeT0iMjE4IiBmaWxsPSIjNGFkZTgwIj7mnIDmlrA8L3RleHQ+Cjx0ZXh0IHg9IjQ1NC44IDQ2My4yIDQ3MS42IDQ4MC4wIiB5PSIyMTgiIGZpbGw9IiM3ZDhiYTEiPnRlYW08L3RleHQ+Cjx0ZXh0IHg9IjE4LjAgMjYuNCAzNC44IDQzLjIgNTEuNiIgeT0iMjYyIiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5Db2RleDwvdGV4dD4KPHRleHQgeD0iNzYuOCA5My42IDExMC40IiB5PSIyNjIiIGZpbGw9IiM3ZDhiYTEiPueUqOaIt+e6pzwvdGV4dD4KPHRleHQgeD0iMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjggMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQgMjQ0LjggMjUzLjIgMjYxLjYiIHk9IjI2MiIgZmlsbD0iIzYwYTVmYSI+fi8uY29kZXgvc2tpbGxzPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDQzLjIgNTEuNiA2MC4wIDY4LjQgNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjgiIHk9IjI4NCIgZmlsbD0iI2UyZThmMCI+Y29kZS1yZXZpZXc8L3RleHQ+Cjx0ZXh0IHg9IjMxMi4wIDMyMC40IDMyOC44IDMzNy4yIDM0NS42IiB5PSIyODQiIGZpbGw9IiNlMmU4ZjAiPjEuMC4wPC90ZXh0Pgo8dGV4dCB4PSIzOTYuMCA0MTIuOCIgeT0iMjg0IiBmaWxsPSIjNGFkZTgwIj7mnIDmlrA8L3RleHQ+Cjx0ZXh0IHg9IjQ1NC44IDQ2My4yIDQ3MS42IDQ4MC4wIiB5PSIyODQiIGZpbGw9IiM3ZDhiYTEiPnRlYW08L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCAxMTAuNCIgeT0iMzA2IiBmaWxsPSIjZTJlOGYwIj5kb2Mtd3JpdGVyPC90ZXh0Pgo8dGV4dCB4PSIzMTIuMCAzMjAuNCAzMjguOCAzMzcuMiAzNDUuNiIgeT0iMzA2IiBmaWxsPSIjZTJlOGYwIj4wLjkuMDwvdGV4dD4KPHRleHQgeD0iMzk2LjAgNDEyLjgiIHk9IjMwNiIgZmlsbD0iIzRhZGU4MCI+5pyA5pawPC90ZXh0Pgo8dGV4dCB4PSI0NTQuOCA0NjMuMiA0NzEuNiA0ODAuMCIgeT0iMzA2IiBmaWxsPSIjN2Q4YmExIj50ZWFtPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDQzLjIgNTEuNiA2MC4wIDY4LjQgNzYuOCA4NS4yIDkzLjYgMTAyLjAiIHk9IjMyOCIgZmlsbD0iI2UyZThmMCI+cGRmLXRvb2xzPC90ZXh0Pgo8dGV4dCB4PSIzMTIuMCAzMjAuNCAzMjguOCAzMzcuMiAzNDUuNiIgeT0iMzI4IiBmaWxsPSIjZTJlOGYwIj4yLjEuMDwvdGV4dD4KPHRleHQgeD0iMzk2LjAgNDEyLjgiIHk9IjMyOCIgZmlsbD0iIzRhZGU4MCI+5pyA5pawPC90ZXh0Pgo8dGV4dCB4PSI0NTQuOCA0NjMuMiA0NzEuNiA0ODAuMCIgeT0iMzI4IiBmaWxsPSIjN2Q4YmExIj50ZWFtPC90ZXh0Pgo8L2c+PC9zdmc+" /></p>
+<h2 id="start-4-更新">4. 更新</h2>
+<pre><code class="language-bash">skillpm update
+</code></pre>
+<p>它会先列出哪些有新版本，回车确认后更新，<strong>再把每个 Skill 改了什么念给你</strong>，旧版自动备份：</p>
+<p><img alt="skillpm update" class="shot" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1ODIgNDM4IiB3aWR0aD0iNTgyIiBoZWlnaHQ9IjQzOCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSLnu4jnq6/vvJpza2lsbHBtIHVwZGF0ZSI+CjxyZWN0IHdpZHRoPSI1ODIiIGhlaWdodD0iNDM4IiByeD0iMTAiIGZpbGw9IiMwZjE3MmEiLz4KPHJlY3Qgd2lkdGg9IjU4MiIgaGVpZ2h0PSIzNCIgcng9IjEwIiBmaWxsPSIjMWUyOTNiIi8+PHJlY3QgeT0iMjQiIHdpZHRoPSI1ODIiIGhlaWdodD0iMTAiIGZpbGw9IiMxZTI5M2IiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNyIgcj0iNiIgZmlsbD0iI2ZmNWY1NyIvPjxjaXJjbGUgY3g9IjQwIiBjeT0iMTciIHI9IjYiIGZpbGw9IiNmZWJjMmUiLz48Y2lyY2xlIGN4PSI2MCIgY3k9IjE3IiByPSI2IiBmaWxsPSIjMjhjODQwIi8+Cjx0ZXh0IHg9IjI5MS4wIiB5PSIyMiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSIxMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Ii1hcHBsZS1zeXN0ZW0sUGluZ0ZhbmcgU0MsTWljcm9zb2Z0IFlhSGVpLHNhbnMtc2VyaWYiPnpzaDwvdGV4dD4KPGcgZm9udC1mYW1pbHk9IlNGIE1vbm8sTWVubG8sQ29uc29sYXMsUGluZ0ZhbmcgU0MsTWljcm9zb2Z0IFlhSGVpLG1vbm9zcGFjZSIgZm9udC1zaXplPSIxNCI+Cjx0ZXh0IHg9IjE4LjAiIHk9IjY0IiBmaWxsPSIjNGFkZTgwIiBmb250LXdlaWdodD0iNzAwIj7inpw8L3RleHQ+Cjx0ZXh0IHg9IjM0LjgiIHk9IjY0IiBmaWxsPSIjMjJkM2VlIiBmb250LXdlaWdodD0iNzAwIj5+PC90ZXh0Pgo8dGV4dCB4PSI1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCIgeT0iNjQiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPnNraWxscG08L3RleHQ+Cjx0ZXh0IHg9IjExOC44IDEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+dXBkYXRlPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIiB5PSI4NiIgZmlsbD0iIzRhZGU4MCI+4pyTPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDQzLjIgNTEuNiA2MC4wIDY4LjQgODUuMiAxMDIuMCAxMTguOCAxMzUuNiAxNTIuNCAxNjkuMiAxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiIgeT0iODYiIGZpbGw9IiNlMmU4ZjAiPnRlYW3vvJrlt7Lmi4nliLDmnIDmlrDvvIhnaXTvvIk8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAiIHk9IjEzMCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+5pyJPC90ZXh0Pgo8dGV4dCB4PSI0My4yIiB5PSIxMzAiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPjI8L3RleHQ+Cjx0ZXh0IHg9IjYwLjAgNzYuOCA5My42IDExMC40IDEyNy4yIiB5PSIxMzAiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPumhueWPr+S7peabtOaWsDwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYgNjAuMCA2OC40IDc2LjggODUuMiA5My42IDEwMi4wIDExMC40IDExOC44IiB5PSIxNTIiIGZpbGw9IiMyMmQzZWUiPmNvZGUtcmV2aWV3PC90ZXh0Pgo8dGV4dCB4PSIxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiAxNzcuNiIgeT0iMTUyIiBmaWxsPSIjZTJlOGYwIj4xLjAuMDwvdGV4dD4KPHRleHQgeD0iMTk0LjQiIHk9IjE1MiIgZmlsbD0iI2UyZThmMCI+4oaSPC90ZXh0Pgo8dGV4dCB4PSIyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCIgeT0iMTUyIiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj4xLjEuMDwvdGV4dD4KPHRleHQgeD0iMjc4LjQgMjk1LjIgMzAzLjYgMzEyLjAgMzIwLjQgMzI4LjggMzM3LjIiIHk9IjE1MiIgZmlsbD0iIzdkOGJhMSI+77yIQ2xhdWRlPC90ZXh0Pgo8dGV4dCB4PSIzNTQuMCAzNjIuNCAzNzAuOCAzNzkuMiAzODcuNiIgeT0iMTUyIiBmaWxsPSIjN2Q4YmExIj5Db2Rl77yJPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDQzLjIgNTEuNiA2MC4wIDY4LjQgNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjgiIHk9IjE3NCIgZmlsbD0iIzIyZDNlZSI+Y29kZS1yZXZpZXc8L3RleHQ+Cjx0ZXh0IHg9IjE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IiB5PSIxNzQiIGZpbGw9IiNlMmU4ZjAiPjEuMC4wPC90ZXh0Pgo8dGV4dCB4PSIxOTQuNCIgeT0iMTc0IiBmaWxsPSIjZTJlOGYwIj7ihpI8L3RleHQ+Cjx0ZXh0IHg9IjIxMS4yIDIxOS42IDIyOC4wIDIzNi40IDI0NC44IiB5PSIxNzQiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPjEuMS4wPC90ZXh0Pgo8dGV4dCB4PSIyNzguNCAyOTUuMiAzMDMuNiAzMTIuMCAzMjAuNCAzMjguOCAzMzcuMiIgeT0iMTc0IiBmaWxsPSIjN2Q4YmExIj7vvIhDb2RleO+8iTwvdGV4dD4KPHRleHQgeD0iMTguMCAzNC44IDUxLjYgNjguNCA4NS4yIiB5PSIyMTgiIGZpbGw9IiNlMmU4ZjAiPuehruiupOabtOaWsO+8nzwvdGV4dD4KPHRleHQgeD0iMTEwLjQgMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAgMTUyLjQiIHk9IjIxOCIgZmlsbD0iI2UyZThmMCI+W1kvbl06PC90ZXh0Pgo8dGV4dCB4PSIxOC4wIDM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAiIHk9IjI2MiIgZmlsbD0iIzRhZGU4MCIgZm9udC13ZWlnaHQ9IjcwMCI+5pu05paw5oiQ5Yqf77yaMTwvdGV4dD4KPHRleHQgeD0iMTE4LjgiIHk9IjI2MiIgZmlsbD0iIzRhZGU4MCIgZm9udC13ZWlnaHQ9IjcwMCI+5LiqPC90ZXh0Pgo8dGV4dCB4PSIxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiAxNzcuNiAxODYuMCAyMDIuOCAyMTkuNiIgeT0iMjYyIiBmaWxsPSIjNGFkZTgwIiBmb250LXdlaWdodD0iNzAwIj5Ta2lsbO+8iOa2ieWPijwvdGV4dD4KPHRleHQgeD0iMjQ0LjgiIHk9IjI2MiIgZmlsbD0iIzRhZGU4MCIgZm9udC13ZWlnaHQ9IjcwMCI+MjwvdGV4dD4KPHRleHQgeD0iMjYxLjYgMjc4LjQgMjk1LjIgMzEyLjAiIHk9IjI2MiIgZmlsbD0iIzRhZGU4MCIgZm9udC13ZWlnaHQ9IjcwMCI+5aSE5a6J6KOF77yJPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIDI2LjQgMzQuOCA0My4yIDUxLjYgNjAuMCA2OC40IDc2LjggODUuMiA5My42IDEwMi4wIiB5PSIzMDYiIGZpbGw9IiMyMmQzZWUiIGZvbnQtd2VpZ2h0PSI3MDAiPmNvZGUtcmV2aWV3PC90ZXh0Pgo8dGV4dCB4PSIxMjcuMiAxMzUuNiAxNDQuMCAxNTIuNCAxNjAuOCIgeT0iMzA2IiBmaWxsPSIjZTJlOGYwIj4xLjAuMDwvdGV4dD4KPHRleHQgeD0iMTc3LjYiIHk9IjMwNiIgZmlsbD0iI2UyZThmMCI+4oaSPC90ZXh0Pgo8dGV4dCB4PSIxOTQuNCAyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCIgeT0iMzA2IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj4xLjEuMDwvdGV4dD4KPHRleHQgeD0iMjYxLjYgMjcwLjAgMjc4LjQgMjg2LjggMjk1LjIgMzAzLjYiIHk9IjMwNiIgZmlsbD0iIzdkOGJhMSI+Q2xhdWRlPC90ZXh0Pgo8dGV4dCB4PSIzMjAuNCAzMjguOCAzMzcuMiAzNDUuNiAzNTQuMCAzNzAuOCAzNzkuMiAzODcuNiAzOTYuMCA0MDQuNCIgeT0iMzA2IiBmaWxsPSIjN2Q4YmExIj5Db2Rl44CBQ29kZXg8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCIgeT0iMzI4IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj4xLjEuMDwvdGV4dD4KPHRleHQgeD0iODUuMiIgeT0iMzI4IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj7igJQ8L3RleHQ+Cjx0ZXh0IHg9IjEwMi4wIDExMC40IDExOC44IDEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IiB5PSIzMjgiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPjIwMjYtMDktMjE8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjgiIHk9IjM1MCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+5paw5aKe5a6J5YWo5qOA5p+lPC90ZXh0Pgo8dGV4dCB4PSIxMzUuNiAxNTIuNCAxNjkuMiAxODYuMCAyMDIuOCAyMTkuNiAyMzYuNCAyNTMuMiAyNzAuMCAyODYuOCAzMDMuNiAzMjAuNCAzMzcuMiAzNTQuMCAzNzAuOCAzODcuNiA0MDQuNCA0MjEuMiIgeT0iMzUwIiBmaWxsPSIjZTJlOGYwIj7vvJrlj5HnjrDnoaznvJbnoIHnmoTlr4bnoIHjgIHlr4bpkqXml7bljZXni6zliJflh7rjgII8L3RleHQ+Cjx0ZXh0IHg9IjM0LjgiIHk9IjM3MiIgZmlsbD0iI2UyZThmMCI+LTwvdGV4dD4KPHRleHQgeD0iNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjggMTM1LjYgMTUyLjQgMTY5LjIgMTg2LjAgMjAyLjggMjE5LjYgMjM2LjQgMjUzLjIgMjcwLjAgMjg2LjggMzAzLjYgMzIwLjQgMzM3LjIgMzU0LjAiIHk9IjM3MiIgZmlsbD0iI2UyZThmMCI+6K+E5a6h5oSP6KeB5oyJ5Lil6YeN56iL5bqm5o6S5bqP77yM5YWI55yL5b+F6aG75pS555qE44CCPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjguNCA4NS4yIDEwMi4wIDExOC44IDEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IDE4Ni4wIDE5NC40IDIwMi44IDIxMS4yIDIxOS42IDIyOC4wIDIzNi40IDI0NC44IDI1My4yIDI2MS42IDI3MC4wIDI3OC40IDI4Ni44IDI5NS4yIDMwMy42IDMxMi4wIDMyMC40IDMyOC44IDMzNy4yIDM0NS42IDM1NC4wIDM2Mi40IDM3MC44IDM3OS4yIDM4Ny42IDM5Ni4wIDQwNC40IDQxMi44IDQyMS4yIDQyOS42IDQzOC4wIDQ0Ni40IDQ1NC44IDQ2My4yIDQ3MS42IDQ4MC4wIDQ4OC40IDQ5Ni44IDUwNS4yIDUxMy42IDUyMi4wIDUzMC40IDUzOC44IiB5PSIzOTQiIGZpbGw9IiM3ZDhiYTEiPuaXp+eJiOWkh+S7ve+8mn4vLnNraWxscG0vYmFja3VwL2NvZGUtcmV2aWV3LzEuMC4wLTIwMjYwOTIxLTIwMDkxOTwvdGV4dD4KPHRleHQgeD0iMzQuOCA1MS42IDY4LjQgODUuMiAxMDIuMCAxMTguOCAxMjcuMiAxMzUuNiAxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiAxNzcuNiAxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCAyNzguNCAyODYuOCAyOTUuMiAzMDMuNiAzMTIuMCAzMjAuNCAzMjguOCAzMzcuMiAzNDUuNiAzNTQuMCAzNjIuNCAzNzAuOCAzNzkuMiAzODcuNiAzOTYuMCA0MDQuNCA0MTIuOCA0MjEuMiA0MjkuNiA0MzguMCA0NDYuNCA0NTQuOCA0NjMuMiA0NzEuNiA0ODAuMCA0ODguNCA0OTYuOCA1MDUuMiA1MTMuNiA1MjIuMCA1MzAuNCA1MzguOCA1NDcuMiA1NTUuNiIgeT0iNDE2IiBmaWxsPSIjN2Q4YmExIj7ml6fniYjlpIfku73vvJp+Ly5za2lsbHBtL2JhY2t1cC9jb2RlLXJldmlldy8xLjAuMC0yMDI2MDkyMS0yMDA5MTktMjwvdGV4dD4KPC9nPjwvc3ZnPg==" /></p>
+<p>只想看看有没有新版本、先不动：<code>skillpm check</code></p>
+<p><img alt="skillpm check" class="shot" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NjUgMTk2IiB3aWR0aD0iNTY1IiBoZWlnaHQ9IjE5NiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSLnu4jnq6/vvJpza2lsbHBtIGNoZWNrIj4KPHJlY3Qgd2lkdGg9IjU2NSIgaGVpZ2h0PSIxOTYiIHJ4PSIxMCIgZmlsbD0iIzBmMTcyYSIvPgo8cmVjdCB3aWR0aD0iNTY1IiBoZWlnaHQ9IjM0IiByeD0iMTAiIGZpbGw9IiMxZTI5M2IiLz48cmVjdCB5PSIyNCIgd2lkdGg9IjU2NSIgaGVpZ2h0PSIxMCIgZmlsbD0iIzFlMjkzYiIvPgo8Y2lyY2xlIGN4PSIyMCIgY3k9IjE3IiByPSI2IiBmaWxsPSIjZmY1ZjU3Ii8+PGNpcmNsZSBjeD0iNDAiIGN5PSIxNyIgcj0iNiIgZmlsbD0iI2ZlYmMyZSIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iMTciIHI9IjYiIGZpbGw9IiMyOGM4NDAiLz4KPHRleHQgeD0iMjgyLjUiIHk9IjIyIiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjEyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxQaW5nRmFuZyBTQyxNaWNyb3NvZnQgWWFIZWksc2Fucy1zZXJpZiI+enNoPC90ZXh0Pgo8ZyBmb250LWZhbWlseT0iU0YgTW9ubyxNZW5sbyxDb25zb2xhcyxQaW5nRmFuZyBTQyxNaWNyb3NvZnQgWWFIZWksbW9ub3NwYWNlIiBmb250LXNpemU9IjE0Ij4KPHRleHQgeD0iMTguMCIgeT0iNjQiIGZpbGw9IiM0YWRlODAiIGZvbnQtd2VpZ2h0PSI3MDAiPuKenDwvdGV4dD4KPHRleHQgeD0iMzQuOCIgeT0iNjQiIGZpbGw9IiMyMmQzZWUiIGZvbnQtd2VpZ2h0PSI3MDAiPn48L3RleHQ+Cjx0ZXh0IHg9IjUxLjYgNjAuMCA2OC40IDc2LjggODUuMiA5My42IDEwMi4wIiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+c2tpbGxwbTwvdGV4dD4KPHRleHQgeD0iMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAgMTUyLjQiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5jaGVjazwvdGV4dD4KPHRleHQgeD0iMTguMCAzNC44IDUxLjYgNjguNCA4NS4yIDEwMi4wIDExOC44IiB5PSI4NiIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+5Y+v5Lul5pu05paw55qE77yIMjwvdGV4dD4KPHRleHQgeD0iMTM1LjYgMTUyLjQiIHk9Ijg2IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj7pobnvvIk8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCAxMTAuNCAxMTguOCIgeT0iMTA4IiBmaWxsPSIjMjJkM2VlIj5jb2RlLXJldmlldzwvdGV4dD4KPHRleHQgeD0iMzIwLjQgMzI4LjggMzM3LjIgMzQ1LjYgMzU0LjAiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+MS4wLjA8L3RleHQ+Cjx0ZXh0IHg9IjM3MC44IiB5PSIxMDgiIGZpbGw9IiNlMmU4ZjAiPuKGkjwvdGV4dD4KPHRleHQgeD0iMzg3LjYgMzk2LjAgNDA0LjQgNDEyLjggNDIxLjIiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+MS4xLjA8L3RleHQ+Cjx0ZXh0IHg9IjQ1NC44IDQ2My4yIDQ3MS42IDQ4MC4wIDQ4OC40IDQ5Ni44IiB5PSIxMDgiIGZpbGw9IiM3ZDhiYTEiPkNsYXVkZTwvdGV4dD4KPHRleHQgeD0iNTEzLjYgNTIyLjAgNTMwLjQgNTM4LjgiIHk9IjEwOCIgZmlsbD0iIzdkOGJhMSI+Q29kZTwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYgNjAuMCA2OC40IDc2LjggODUuMiA5My42IDEwMi4wIDExMC40IDExOC44IiB5PSIxMzAiIGZpbGw9IiMyMmQzZWUiPmNvZGUtcmV2aWV3PC90ZXh0Pgo8dGV4dCB4PSIzMjAuNCAzMjguOCAzMzcuMiAzNDUuNiAzNTQuMCIgeT0iMTMwIiBmaWxsPSIjZTJlOGYwIj4xLjAuMDwvdGV4dD4KPHRleHQgeD0iMzcwLjgiIHk9IjEzMCIgZmlsbD0iI2UyZThmMCI+4oaSPC90ZXh0Pgo8dGV4dCB4PSIzODcuNiAzOTYuMCA0MDQuNCA0MTIuOCA0MjEuMiIgeT0iMTMwIiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj4xLjEuMDwvdGV4dD4KPHRleHQgeD0iNDU0LjggNDYzLjIgNDcxLjYgNDgwLjAgNDg4LjQiIHk9IjEzMCIgZmlsbD0iIzdkOGJhMSI+Q29kZXg8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAgMTEwLjQgMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAgMTUyLjQiIHk9IjE3NCIgZmlsbD0iIzdkOGJhMSI+6KaB5pu05paw77yac2tpbGxwbTwvdGV4dD4KPHRleHQgeD0iMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjggMjExLjIiIHk9IjE3NCIgZmlsbD0iIzdkOGJhMSI+dXBkYXRlPC90ZXh0Pgo8L2c+PC9zdmc+" /></p>
+<p><strong>更新工具本身</strong>（不是 Skill）：<code>skillpm self-update</code>。有新版本时会念更新日志，手册有更新也会提醒你：</p>
+<p><img alt="skillpm self-update" class="shot" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1NDAgMTMwIiB3aWR0aD0iNTQwIiBoZWlnaHQ9IjEzMCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSLnu4jnq6/vvJpza2lsbHBtIHNlbGYtdXBkYXRlIj4KPHJlY3Qgd2lkdGg9IjU0MCIgaGVpZ2h0PSIxMzAiIHJ4PSIxMCIgZmlsbD0iIzBmMTcyYSIvPgo8cmVjdCB3aWR0aD0iNTQwIiBoZWlnaHQ9IjM0IiByeD0iMTAiIGZpbGw9IiMxZTI5M2IiLz48cmVjdCB5PSIyNCIgd2lkdGg9IjU0MCIgaGVpZ2h0PSIxMCIgZmlsbD0iIzFlMjkzYiIvPgo8Y2lyY2xlIGN4PSIyMCIgY3k9IjE3IiByPSI2IiBmaWxsPSIjZmY1ZjU3Ii8+PGNpcmNsZSBjeD0iNDAiIGN5PSIxNyIgcj0iNiIgZmlsbD0iI2ZlYmMyZSIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iMTciIHI9IjYiIGZpbGw9IiMyOGM4NDAiLz4KPHRleHQgeD0iMjcwLjAiIHk9IjIyIiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjEyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxQaW5nRmFuZyBTQyxNaWNyb3NvZnQgWWFIZWksc2Fucy1zZXJpZiI+enNoPC90ZXh0Pgo8ZyBmb250LWZhbWlseT0iU0YgTW9ubyxNZW5sbyxDb25zb2xhcyxQaW5nRmFuZyBTQyxNaWNyb3NvZnQgWWFIZWksbW9ub3NwYWNlIiBmb250LXNpemU9IjE0Ij4KPHRleHQgeD0iMTguMCIgeT0iNjQiIGZpbGw9IiM0YWRlODAiIGZvbnQtd2VpZ2h0PSI3MDAiPuKenDwvdGV4dD4KPHRleHQgeD0iMzQuOCIgeT0iNjQiIGZpbGw9IiMyMmQzZWUiIGZvbnQtd2VpZ2h0PSI3MDAiPn48L3RleHQ+Cjx0ZXh0IHg9IjUxLjYgNjAuMCA2OC40IDc2LjggODUuMiA5My42IDEwMi4wIiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+c2tpbGxwbTwvdGV4dD4KPHRleHQgeD0iMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjgiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5zZWxmLXVwZGF0ZTwvdGV4dD4KPHRleHQgeD0iMTguMCAzNC44IDUxLjYiIHk9Ijg2IiBmaWxsPSIjZTJlOGYwIj7mupDnoIHvvJo8L3RleHQ+Cjx0ZXh0IHg9IjY4LjQgNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYiIHk9Ijg2IiBmaWxsPSIjNjBhNWZhIj5+Ly5za2lsbHBtLXNyYzwvdGV4dD4KPHRleHQgeD0iMTguMCIgeT0iMTA4IiBmaWxsPSIjNGFkZTgwIj7inJM8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjggMTM1LjYgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+5bey57uP5piv5pyA5paw55qE77yIMi4wLjDvvIk8L3RleHQ+CjwvZz48L3N2Zz4=" /></p>
+<h2 id="start-5-卸载">5. 卸载</h2>
+<p><strong>删 Skill</strong>：不写名字会列出来让你挑，确认后才删：</p>
+<pre><code class="language-bash">skillpm uninstall
+</code></pre>
+<p><img alt="skillpm uninstall" class="shot" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2MjQgMzk0IiB3aWR0aD0iNjI0IiBoZWlnaHQ9IjM5NCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSLnu4jnq6/vvJpza2lsbHBtIHVuaW5zdGFsbCI+CjxyZWN0IHdpZHRoPSI2MjQiIGhlaWdodD0iMzk0IiByeD0iMTAiIGZpbGw9IiMwZjE3MmEiLz4KPHJlY3Qgd2lkdGg9IjYyNCIgaGVpZ2h0PSIzNCIgcng9IjEwIiBmaWxsPSIjMWUyOTNiIi8+PHJlY3QgeT0iMjQiIHdpZHRoPSI2MjQiIGhlaWdodD0iMTAiIGZpbGw9IiMxZTI5M2IiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNyIgcj0iNiIgZmlsbD0iI2ZmNWY1NyIvPjxjaXJjbGUgY3g9IjQwIiBjeT0iMTciIHI9IjYiIGZpbGw9IiNmZWJjMmUiLz48Y2lyY2xlIGN4PSI2MCIgY3k9IjE3IiByPSI2IiBmaWxsPSIjMjhjODQwIi8+Cjx0ZXh0IHg9IjMxMi4wIiB5PSIyMiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSIxMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Ii1hcHBsZS1zeXN0ZW0sUGluZ0ZhbmcgU0MsTWljcm9zb2Z0IFlhSGVpLHNhbnMtc2VyaWYiPnpzaDwvdGV4dD4KPGcgZm9udC1mYW1pbHk9IlNGIE1vbm8sTWVubG8sQ29uc29sYXMsUGluZ0ZhbmcgU0MsTWljcm9zb2Z0IFlhSGVpLG1vbm9zcGFjZSIgZm9udC1zaXplPSIxNCI+Cjx0ZXh0IHg9IjE4LjAiIHk9IjY0IiBmaWxsPSIjNGFkZTgwIiBmb250LXdlaWdodD0iNzAwIj7inpw8L3RleHQ+Cjx0ZXh0IHg9IjM0LjgiIHk9IjY0IiBmaWxsPSIjMjJkM2VlIiBmb250LXdlaWdodD0iNzAwIj5+PC90ZXh0Pgo8dGV4dCB4PSI1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCIgeT0iNjQiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPnNraWxscG08L3RleHQ+Cjx0ZXh0IHg9IjExOC44IDEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IDE4Ni4wIiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+dW5pbnN0YWxsPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIDM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAiIHk9Ijg2IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj7opoHnp7vpmaTlk6rkupvvvJ88L3RleHQ+Cjx0ZXh0IHg9IjUxLjYgNjAuMCIgeT0iMTA4IiBmaWxsPSIjZTJlOGYwIj4xLjwvdGV4dD4KPHRleHQgeD0iNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjgiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+Y29kZS1yZXZpZXc8L3RleHQ+Cjx0ZXh0IHg9IjE4Ni4wIDE5NC40IDIwMi44IDIxMS4yIDIxOS42IiB5PSIxMDgiIGZpbGw9IiM3ZDhiYTEiPjEuMS4wPC90ZXh0Pgo8dGV4dCB4PSIyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCAyNzguNCAyODYuOCIgeT0iMTA4IiBmaWxsPSIjN2Q4YmExIj5DbGF1ZGU8L3RleHQ+Cjx0ZXh0IHg9IjMwMy42IDMxMi4wIDMyMC40IDMyOC44IiB5PSIxMDgiIGZpbGw9IiM3ZDhiYTEiPkNvZGU8L3RleHQ+Cjx0ZXh0IHg9IjUxLjYgNjAuMCIgeT0iMTMwIiBmaWxsPSIjZTJlOGYwIj4yLjwvdGV4dD4KPHRleHQgeD0iNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAgMTUyLjQiIHk9IjEzMCIgZmlsbD0iI2UyZThmMCI+ZG9jLXdyaXRlcjwvdGV4dD4KPHRleHQgeD0iMTg2LjAgMTk0LjQgMjAyLjggMjExLjIgMjE5LjYiIHk9IjEzMCIgZmlsbD0iIzdkOGJhMSI+MC45LjA8L3RleHQ+Cjx0ZXh0IHg9IjI0NC44IDI1My4yIDI2MS42IDI3MC4wIDI3OC40IDI4Ni44IiB5PSIxMzAiIGZpbGw9IiM3ZDhiYTEiPkNsYXVkZTwvdGV4dD4KPHRleHQgeD0iMzAzLjYgMzEyLjAgMzIwLjQgMzI4LjgiIHk9IjEzMCIgZmlsbD0iIzdkOGJhMSI+Q29kZTwvdGV4dD4KPHRleHQgeD0iNTEuNiA2MC4wIiB5PSIxNTIiIGZpbGw9IiNlMmU4ZjAiPjMuPC90ZXh0Pgo8dGV4dCB4PSI3Ni44IDg1LjIgOTMuNiAxMDIuMCAxMTAuNCAxMTguOCAxMjcuMiAxMzUuNiAxNDQuMCIgeT0iMTUyIiBmaWxsPSIjZTJlOGYwIj5wZGYtdG9vbHM8L3RleHQ+Cjx0ZXh0IHg9IjE4Ni4wIDE5NC40IDIwMi44IDIxMS4yIDIxOS42IiB5PSIxNTIiIGZpbGw9IiM3ZDhiYTEiPjIuMS4wPC90ZXh0Pgo8dGV4dCB4PSIyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCAyNzguNCAyODYuOCIgeT0iMTUyIiBmaWxsPSIjN2Q4YmExIj5DbGF1ZGU8L3RleHQ+Cjx0ZXh0IHg9IjMwMy42IDMxMi4wIDMyMC40IDMyOC44IiB5PSIxNTIiIGZpbGw9IiM3ZDhiYTEiPkNvZGU8L3RleHQ+Cjx0ZXh0IHg9IjUxLjYgNjAuMCIgeT0iMTc0IiBmaWxsPSIjZTJlOGYwIj40LjwvdGV4dD4KPHRleHQgeD0iNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjgiIHk9IjE3NCIgZmlsbD0iI2UyZThmMCI+Y29kZS1yZXZpZXc8L3RleHQ+Cjx0ZXh0IHg9IjE4Ni4wIDE5NC40IDIwMi44IDIxMS4yIDIxOS42IiB5PSIxNzQiIGZpbGw9IiM3ZDhiYTEiPjEuMS4wPC90ZXh0Pgo8dGV4dCB4PSIyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCAyNzguNCIgeT0iMTc0IiBmaWxsPSIjN2Q4YmExIj5Db2RleDwvdGV4dD4KPHRleHQgeD0iNTEuNiA2MC4wIiB5PSIxOTYiIGZpbGw9IiNlMmU4ZjAiPjUuPC90ZXh0Pgo8dGV4dCB4PSI3Ni44IDg1LjIgOTMuNiAxMDIuMCAxMTAuNCAxMTguOCAxMjcuMiAxMzUuNiAxNDQuMCAxNTIuNCIgeT0iMTk2IiBmaWxsPSIjZTJlOGYwIj5kb2Mtd3JpdGVyPC90ZXh0Pgo8dGV4dCB4PSIxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiAyMTkuNiIgeT0iMTk2IiBmaWxsPSIjN2Q4YmExIj4wLjkuMDwvdGV4dD4KPHRleHQgeD0iMjQ0LjggMjUzLjIgMjYxLjYgMjcwLjAgMjc4LjQiIHk9IjE5NiIgZmlsbD0iIzdkOGJhMSI+Q29kZXg8L3RleHQ+Cjx0ZXh0IHg9IjUxLjYgNjAuMCIgeT0iMjE4IiBmaWxsPSIjZTJlOGYwIj42LjwvdGV4dD4KPHRleHQgeD0iNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAiIHk9IjIxOCIgZmlsbD0iI2UyZThmMCI+cGRmLXRvb2xzPC90ZXh0Pgo8dGV4dCB4PSIxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiAyMTkuNiIgeT0iMjE4IiBmaWxsPSIjN2Q4YmExIj4yLjEuMDwvdGV4dD4KPHRleHQgeD0iMjQ0LjggMjUzLjIgMjYxLjYgMjcwLjAgMjc4LjQiIHk9IjIxOCIgZmlsbD0iIzdkOGJhMSI+Q29kZXg8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAgMzQuOCA1MS42IDY4LjQgODUuMiAxMDIuMCAxMTguOCAxMzUuNiAxNTIuNCAxNjkuMiAxODYuMCAyMDIuOCAyMTkuNiAyMzYuNCAyNTMuMiAyNzAuMCAyODYuOCAzMDMuNiAzMjAuNCAzMzcuMiAzNTQuMCAzNjIuNCAzNzAuOCAzNzkuMiAzODcuNiIgeT0iMjQwIiBmaWxsPSIjN2Q4YmExIj7lm57ovabvvJ3kuIDkuKrpg73kuI3pgInvvJvlj6ropoHlhbbkuK3lh6DkuKrlsLHloavluo/lj7fvvIgxLDMsNTwvdGV4dD4KPHRleHQgeD0iNDA0LjQiIHk9IjI0MCIgZmlsbD0iIzdkOGJhMSI+5oiWPC90ZXh0Pgo8dGV4dCB4PSI0MjkuNiA0MzguMCA0NDYuNCA0NTQuOCA0NzEuNiA0ODguNCA0OTYuOCA1MTMuNiA1MzAuNCA1NDcuMiIgeT0iMjQwIiBmaWxsPSIjN2Q4YmExIj4yLTTvvInvvJsw77yd6YO95LiN6KaBPC90ZXh0Pgo8dGV4dCB4PSI1NjQuMCIgeT0iMjQwIiBmaWxsPSIjZTJlOGYwIj46PC90ZXh0Pgo8dGV4dCB4PSI1ODAuOCA1ODkuMiA1OTcuNiIgeT0iMjQwIiBmaWxsPSIjZTJlOGYwIj4zLDY8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAgMzQuOCA1MS42IDY4LjQgODUuMiAxMDIuMCAxMTguOCAxMzUuNiAxNTIuNCAxNjkuMiAxODYuMCAyMDIuOCAyMTkuNiAyMzYuNCAyNTMuMiAyNzAuMCAyODYuOCAzMDMuNiAzMjAuNCAzMzcuMiAzNTQuMCIgeT0iMjYyIiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj7opoHnp7vpmaTov5nkupvvvIjlj6rliqjmnKzlt6Xlhbfoo4XnmoTvvIzliKvkurrmlL7nmoTkuI3norDvvIk8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCIgeT0iMjg0IiBmaWxsPSIjMjJkM2VlIj5wZGYtdG9vbHM8L3RleHQ+Cjx0ZXh0IHg9IjEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIiB5PSIyODQiIGZpbGw9IiM3ZDhiYTEiPkNsYXVkZTwvdGV4dD4KPHRleHQgeD0iMTg2LjAgMTk0LjQgMjAyLjggMjExLjIiIHk9IjI4NCIgZmlsbD0iIzdkOGJhMSI+Q29kZTwvdGV4dD4KPHRleHQgeD0iMjM2LjQgMjQ0LjggMjUzLjIgMjYxLjYgMjcwLjAgMjc4LjQgMjg2LjggMjk1LjIgMzAzLjYgMzEyLjAgMzIwLjQgMzI4LjggMzM3LjIgMzQ1LjYgMzU0LjAgMzYyLjQgMzcwLjggMzc5LjIgMzg3LjYgMzk2LjAgNDA0LjQgNDEyLjggNDIxLjIgNDI5LjYgNDM4LjAgNDQ2LjQiIHk9IjI4NCIgZmlsbD0iIzYwYTVmYSI+fi8uY2xhdWRlL3NraWxscy9wZGYtdG9vbHM8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCIgeT0iMzA2IiBmaWxsPSIjMjJkM2VlIj5wZGYtdG9vbHM8L3RleHQ+Cjx0ZXh0IHg9IjEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IiB5PSIzMDYiIGZpbGw9IiM3ZDhiYTEiPkNvZGV4PC90ZXh0Pgo8dGV4dCB4PSIyMzYuNCAyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCAyNzguNCAyODYuOCAyOTUuMiAzMDMuNiAzMTIuMCAzMjAuNCAzMjguOCAzMzcuMiAzNDUuNiAzNTQuMCAzNjIuNCAzNzAuOCAzNzkuMiAzODcuNiAzOTYuMCA0MDQuNCA0MTIuOCA0MjEuMiA0MjkuNiA0MzguMCIgeT0iMzA2IiBmaWxsPSIjNjBhNWZhIj5+Ly5jb2RleC9za2lsbHMvcGRmLXRvb2xzPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIDM0LjggNTEuNiA2OC40IDg1LjIiIHk9IjMyOCIgZmlsbD0iI2UyZThmMCI+56Gu6K6k56e76Zmk6L+ZPC90ZXh0Pgo8dGV4dCB4PSIxMTAuNCIgeT0iMzI4IiBmaWxsPSIjZTJlOGYwIj4yPC90ZXh0Pgo8dGV4dCB4PSIxMjcuMiAxNDQuMCIgeT0iMzI4IiBmaWxsPSIjZTJlOGYwIj7pobnvvJ88L3RleHQ+Cjx0ZXh0IHg9IjE2OS4yIDE3Ny42IDE4Ni4wIDE5NC40IDIwMi44IDIxMS4yIiB5PSIzMjgiIGZpbGw9IiNlMmU4ZjAiPlt5L05dOjwvdGV4dD4KPHRleHQgeD0iMjI4LjAiIHk9IjMyOCIgZmlsbD0iI2UyZThmMCI+eTwvdGV4dD4KPHRleHQgeD0iMTguMCIgeT0iMzUwIiBmaWxsPSIjNGFkZTgwIj7inJM8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCA3Ni44IiB5PSIzNTAiIGZpbGw9IiNlMmU4ZjAiPkNsYXVkZTwvdGV4dD4KPHRleHQgeD0iOTMuNiAxMDIuMCAxMTAuNCAxMTguOCIgeT0iMzUwIiBmaWxsPSIjZTJlOGYwIj5Db2RlPC90ZXh0Pgo8dGV4dCB4PSIxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiAxNzcuNiAxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiIgeT0iMzUwIiBmaWxsPSIjZTJlOGYwIj5wZGYtdG9vbHM8L3RleHQ+Cjx0ZXh0IHg9IjIyOC4wIDI0NC44IDI2MS42IiB5PSIzNTAiIGZpbGw9IiNlMmU4ZjAiPuW3suenu+mZpDwvdGV4dD4KPHRleHQgeD0iMTguMCIgeT0iMzcyIiBmaWxsPSIjNGFkZTgwIj7inJM8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCIgeT0iMzcyIiBmaWxsPSIjZTJlOGYwIj5Db2RleDwvdGV4dD4KPHRleHQgeD0iOTMuNiAxMDIuMCAxMTAuNCAxMTguOCAxMjcuMiAxMzUuNiAxNDQuMCAxNTIuNCAxNjAuOCIgeT0iMzcyIiBmaWxsPSIjZTJlOGYwIj5wZGYtdG9vbHM8L3RleHQ+Cjx0ZXh0IHg9IjE3Ny42IDE5NC40IDIxMS4yIiB5PSIzNzIiIGZpbGw9IiNlMmU4ZjAiPuW3suenu+mZpDwvdGV4dD4KPC9nPjwvc3ZnPg==" /></p>
+<p><strong>删 skillpm 工具本身</strong>：已经装进 Agent 的 Skill 不受影响；要全清干净就<strong>先删 Skill 再删工具</strong>。</p>
+<pre><code class="language-bash">~/.skillpm-src/scripts/uninstall.sh
+</code></pre>
+<p><img alt="卸载工具" class="shot" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MzMgMTc0IiB3aWR0aD0iNzMzIiBoZWlnaHQ9IjE3NCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSLnu4jnq6/vvJp+Ly5za2lsbHBtLXNyYy9zY3JpcHRzL3VuaW5zdGFsbC5zaCI+CjxyZWN0IHdpZHRoPSI3MzMiIGhlaWdodD0iMTc0IiByeD0iMTAiIGZpbGw9IiMwZjE3MmEiLz4KPHJlY3Qgd2lkdGg9IjczMyIgaGVpZ2h0PSIzNCIgcng9IjEwIiBmaWxsPSIjMWUyOTNiIi8+PHJlY3QgeT0iMjQiIHdpZHRoPSI3MzMiIGhlaWdodD0iMTAiIGZpbGw9IiMxZTI5M2IiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNyIgcj0iNiIgZmlsbD0iI2ZmNWY1NyIvPjxjaXJjbGUgY3g9IjQwIiBjeT0iMTciIHI9IjYiIGZpbGw9IiNmZWJjMmUiLz48Y2lyY2xlIGN4PSI2MCIgY3k9IjE3IiByPSI2IiBmaWxsPSIjMjhjODQwIi8+Cjx0ZXh0IHg9IjM2Ni41IiB5PSIyMiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSIxMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Ii1hcHBsZS1zeXN0ZW0sUGluZ0ZhbmcgU0MsTWljcm9zb2Z0IFlhSGVpLHNhbnMtc2VyaWYiPnpzaDwvdGV4dD4KPGcgZm9udC1mYW1pbHk9IlNGIE1vbm8sTWVubG8sQ29uc29sYXMsUGluZ0ZhbmcgU0MsTWljcm9zb2Z0IFlhSGVpLG1vbm9zcGFjZSIgZm9udC1zaXplPSIxNCI+Cjx0ZXh0IHg9IjE4LjAiIHk9IjY0IiBmaWxsPSIjNGFkZTgwIiBmb250LXdlaWdodD0iNzAwIj7inpw8L3RleHQ+Cjx0ZXh0IHg9IjM0LjgiIHk9IjY0IiBmaWxsPSIjMjJkM2VlIiBmb250LXdlaWdodD0iNzAwIj5+PC90ZXh0Pgo8dGV4dCB4PSI1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCAxMTAuNCAxMTguOCAxMjcuMiAxMzUuNiAxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiAxNzcuNiAxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCAyNzguNCAyODYuOCAyOTUuMiAzMDMuNiAzMTIuMCAzMjAuNCAzMjguOCAzMzcuMiIgeT0iNjQiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPn4vLnNraWxscG0tc3JjL3NjcmlwdHMvdW5pbnN0YWxsLnNoPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIDM0LjggNTEuNiA2OC40IDg1LjIiIHk9Ijg2IiBmaWxsPSIjZTJlOGYwIj7liKDmjonlkK/liqjlmag8L3RleHQ+Cjx0ZXh0IHg9IjExMC40IDExOC44IDEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IDE4Ni4wIDE5NC40IDIwMi44IDIxMS4yIDIxOS42IDIyOC4wIDIzNi40IDI0NC44IDI1My4yIDI2MS42IDI3MC4wIiB5PSI4NiIgZmlsbD0iI2UyZThmMCI+fi8ubG9jYWwvYmluL3NraWxscG08L3RleHQ+Cjx0ZXh0IHg9IjE4LjAgMzQuOCA1MS42IiB5PSIxMDgiIGZpbGw9IiNlMmU4ZjAiPuS/neeVmeS6hjwvdGV4dD4KPHRleHQgeD0iNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjggMTc3LjYgMTk0LjQgMjExLjIgMjI4LjAgMjQ0LjggMjYxLjYgMjc4LjQgMjk1LjIgMzEyLjAgMzI4LjggMzQ1LjYgMzYyLjQgMzc5LjIgMzk2LjAiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+fi8uc2tpbGxwbe+8iOmFjee9ruWSjOWuieijheiusOW9le+8ie+8m+imgeS4gOi1t+WIoOWKoDwvdGV4dD4KPHRleHQgeD0iNDIxLjIgNDI5LjYgNDM4LjAgNDQ2LjQgNDU0LjgiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+LS1hbGw8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAgMzQuOCA1MS42IDY4LjQgODUuMiIgeT0iMTMwIiBmaWxsPSIjZTJlOGYwIj7ljbjovb3lrozmiJDjgII8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAgMzQuOCA1MS42IDY4LjQgODUuMiAxMDIuMCAxMTguOCAxMzUuNiAxNTIuNCAxNjkuMiAxODYuMCAyMDIuOCAyMTkuNiAyMzYuNCIgeT0iMTUyIiBmaWxsPSIjZTJlOGYwIj7mj5DnpLrvvJrlt7Lnu4/oo4XliLDlkITlrr/kuLvnm67lvZXph4znmoQ8L3RleHQ+Cjx0ZXh0IHg9IjI2MS42IDI3MC4wIDI3OC40IDI4Ni44IDI5NS4yIiB5PSIxNTIiIGZpbGw9IiNlMmU4ZjAiPlNraWxsPC90ZXh0Pgo8dGV4dCB4PSIzMTIuMCAzMjguOCAzNDUuNiAzNjIuNCAzNzkuMiAzOTYuMCA0MTIuOCA0MjkuNiA0NDYuNCA0NjMuMiA0ODAuMCA0OTYuOCIgeT0iMTUyIiBmaWxsPSIjZTJlOGYwIj7kuI3lj5flvbHlk43vvJvopoHmuIXlroPku6zor7flhYjot5E8L3RleHQ+Cjx0ZXh0IHg9IjUyMi4wIDUzMC40IDUzOC44IDU0Ny4yIDU1NS42IDU2NC4wIDU3Mi40IiB5PSIxNTIiIGZpbGw9IiNlMmU4ZjAiPnNraWxscG08L3RleHQ+Cjx0ZXh0IHg9IjU4OS4yIDU5Ny42IDYwNi4wIDYxNC40IDYyMi44IDYzMS4yIDYzOS42IDY0OC4wIDY1Ni40IiB5PSIxNTIiIGZpbGw9IiNlMmU4ZjAiPnVuaW5zdGFsbDwvdGV4dD4KPHRleHQgeD0iNjczLjIgNjgxLjYgNjkwLjAgNjk4LjQgNzA2LjgiIHk9IjE1MiIgZmlsbD0iI2UyZThmMCI+LS15ZXM8L3RleHQ+CjwvZz48L3N2Zz4=" /></p>
+<h2 id="start-6-忘了命令">6. 忘了命令</h2>
+<pre><code class="language-bash">skillpm -h          # 所有命令，按日常 / 配置 / 维护分好组
+skillpm docs        # 在浏览器里打开这份手册
+</code></pre>
+<p><img alt="skillpm -h" class="shot" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3MDggODM0IiB3aWR0aD0iNzA4IiBoZWlnaHQ9IjgzNCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSLnu4jnq6/vvJpza2lsbHBtIC1oIj4KPHJlY3Qgd2lkdGg9IjcwOCIgaGVpZ2h0PSI4MzQiIHJ4PSIxMCIgZmlsbD0iIzBmMTcyYSIvPgo8cmVjdCB3aWR0aD0iNzA4IiBoZWlnaHQ9IjM0IiByeD0iMTAiIGZpbGw9IiMxZTI5M2IiLz48cmVjdCB5PSIyNCIgd2lkdGg9IjcwOCIgaGVpZ2h0PSIxMCIgZmlsbD0iIzFlMjkzYiIvPgo8Y2lyY2xlIGN4PSIyMCIgY3k9IjE3IiByPSI2IiBmaWxsPSIjZmY1ZjU3Ii8+PGNpcmNsZSBjeD0iNDAiIGN5PSIxNyIgcj0iNiIgZmlsbD0iI2ZlYmMyZSIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iMTciIHI9IjYiIGZpbGw9IiMyOGM4NDAiLz4KPHRleHQgeD0iMzU0LjAiIHk9IjIyIiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjEyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxQaW5nRmFuZyBTQyxNaWNyb3NvZnQgWWFIZWksc2Fucy1zZXJpZiI+enNoPC90ZXh0Pgo8ZyBmb250LWZhbWlseT0iU0YgTW9ubyxNZW5sbyxDb25zb2xhcyxQaW5nRmFuZyBTQyxNaWNyb3NvZnQgWWFIZWksbW9ub3NwYWNlIiBmb250LXNpemU9IjE0Ij4KPHRleHQgeD0iMTguMCIgeT0iNjQiIGZpbGw9IiM0YWRlODAiIGZvbnQtd2VpZ2h0PSI3MDAiPuKenDwvdGV4dD4KPHRleHQgeD0iMzQuOCIgeT0iNjQiIGZpbGw9IiMyMmQzZWUiIGZvbnQtd2VpZ2h0PSI3MDAiPn48L3RleHQ+Cjx0ZXh0IHg9IjUxLjYgNjAuMCA2OC40IDc2LjggODUuMiA5My42IDEwMi4wIiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+c2tpbGxwbTwvdGV4dD4KPHRleHQgeD0iMTE4LjggMTI3LjIiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj4taDwvdGV4dD4KPHRleHQgeD0iMTguMCAzNC44IDUxLjYgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCAxMTAuNCAxMTguOCIgeT0iODYiIGZpbGw9IiNlMmU4ZjAiPueUqOazle+8mnNraWxscG08L3RleHQ+Cjx0ZXh0IHg9IjEzNS42IDE0NC4wIDE2MC44IDE3Ny42IiB5PSI4NiIgZmlsbD0iI2UyZThmMCI+Jmx0O+WRveS7pCZndDs8L3RleHQ+Cjx0ZXh0IHg9IjE5NC40IDIwMi44IDIxOS42IDIzNi40IiB5PSI4NiIgZmlsbD0iI2UyZThmMCI+W+WPguaVsF08L3RleHQ+Cjx0ZXh0IHg9IjI5NS4yIDMwMy42IDMxMi4wIDMyMC40IDMyOC44IDMzNy4yIDM0NS42IiB5PSI4NiIgZmlsbD0iI2UyZThmMCI+c2tpbGxwbTwvdGV4dD4KPHRleHQgeD0iMzYyLjQgMzcwLjggMzg3LjYgNDA0LjQiIHk9Ijg2IiBmaWxsPSIjZTJlOGYwIj4mbHQ75ZG95LukJmd0OzwvdGV4dD4KPHRleHQgeD0iNDIxLjIgNDI5LjYiIHk9Ijg2IiBmaWxsPSIjZTJlOGYwIj4taDwvdGV4dD4KPHRleHQgeD0iNDQ2LjQgNDYzLjIgNDgwLjAgNDk2LjggNTEzLjYgNTMwLjQgNTQ3LjIgNTY0LjAgNTgwLjggNTk3LjYiIHk9Ijg2IiBmaWxsPSIjZTJlOGYwIj7nnIvov5nmnaHlkb3ku6TnmoTlhajpg6jlj4LmlbA8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAgMjYuNCIgeT0iMTMwIiBmaWxsPSIjZTJlOGYwIj5BSTwvdGV4dD4KPHRleHQgeD0iNDMuMiA1MS42IDYwLjAgNjguNCA3Ni44IiB5PSIxMzAiIGZpbGw9IiNlMmU4ZjAiPlNraWxsPC90ZXh0Pgo8dGV4dCB4PSI5My42IDExMC40IDEyNy4yIDE0NC4wIDE2MC44IDE3Ny42IDE5NC40IDIxMS4yIiB5PSIxMzAiIGZpbGw9IiNlMmU4ZjAiPueahOWuieijheS4jueJiOacrOeuoeeQhjwvdGV4dD4KPHRleHQgeD0iMTguMCAzNC44IiB5PSIxNzQiIGZpbGw9IiNlMmU4ZjAiPuaXpeW4uDwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYgNjAuMCA2OC40IDc2LjggODUuMiIgeT0iMTk2IiBmaWxsPSIjZTJlOGYwIj5pbnN0YWxsPC90ZXh0Pgo8dGV4dCB4PSIxNDQuMCIgeT0iMTk2IiBmaWxsPSIjZTJlOGYwIj7oo4U8L3RleHQ+Cjx0ZXh0IHg9IjE2OS4yIDE3Ny42IDE4Ni4wIDE5NC40IDIwMi44IDIxMS4yIDIyOC4wIDI0NC44IDI2MS42IDI3OC40IDI5NS4yIDMxMi4wIDMyOC44IDM0NS42IDM2Mi40IDM3OS4yIDM5Ni4wIDQxMi44IiB5PSIxOTYiIGZpbGw9IiNlMmU4ZjAiPlNraWxs77yI56ys5LiA5qyh5Lya5byV5a+85L2g6YWN5aW95LuT5bqT77yJPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDQzLjIgNTEuNiA2MC4wIDY4LjQgNzYuOCIgeT0iMjE4IiBmaWxsPSIjZTJlOGYwIj51cGRhdGU8L3RleHQ+Cjx0ZXh0IHg9IjE0NC4wIDE2MC44IDE3Ny42IDE5NC40IDIxMS4yIDIyOC4wIDI0NC44IDI2MS42IDI3OC40IDI5NS4yIDMxMi4wIiB5PSIyMTgiIGZpbGw9IiNlMmU4ZjAiPui3n+S4iuacgOaWsO+8jOW5tuWRiuivieS9oOavj+S4qjwvdGV4dD4KPHRleHQgeD0iMzM3LjIgMzQ1LjYgMzU0LjAgMzYyLjQgMzcwLjgiIHk9IjIxOCIgZmlsbD0iI2UyZThmMCI+U2tpbGw8L3RleHQ+Cjx0ZXh0IHg9IjM4Ny42IDQwNC40IDQyMS4yIDQzOC4wIiB5PSIyMTgiIGZpbGw9IiNlMmU4ZjAiPuaUueS6huS7gOS5iDwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYgNjAuMCA2OC40IDc2LjgiIHk9IjI0MCIgZmlsbD0iI2UyZThmMCI+c3RhdHVzPC90ZXh0Pgo8dGV4dCB4PSIxNDQuMCAxNjAuOCAxNzcuNiAxOTQuNCAyMTEuMiAyMjguMCAyNDQuOCAyNjEuNiAyNzguNCAyOTUuMiAzMTIuMCAzMjguOCAzNDUuNiAzNjIuNCAzNzkuMiAzOTYuMCA0MTIuOCA0MjkuNiA0NDYuNCA0NjMuMiA0ODAuMCA0OTYuOCA1MTMuNiIgeT0iMjQwIiBmaWxsPSIjZTJlOGYwIj7nnIvoo4Xkuobku4DkuYjjgIHku4DkuYjniYjmnKzjgIHmnInmsqHmnInooqvmlLnov4fjgIHog73kuI3og73mm7TmlrA8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCIgeT0iMjYyIiBmaWxsPSIjZTJlOGYwIj51bmluc3RhbGw8L3RleHQ+Cjx0ZXh0IHg9IjE0NC4wIiB5PSIyNjIiIGZpbGw9IiNlMmU4ZjAiPuWIoDwvdGV4dD4KPHRleHQgeD0iMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjggMjExLjIgMjI4LjAgMjQ0LjggMjYxLjYgMjc4LjQgMjk1LjIgMzEyLjAgMzI4LjggMzQ1LjYgMzYyLjQgMzc5LjIgMzk2LjAgNDEyLjgiIHk9IjI2MiIgZmlsbD0iI2UyZThmMCI+U2tpbGzvvIjkuI3lhpnlkI3lrZfkvJrliJflh7rmnaXorqnkvaDmjJHvvIk8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCIgeT0iMjg0IiBmaWxsPSIjZTJlOGYwIj5jaGVjazwvdGV4dD4KPHRleHQgeD0iMTQ0LjAgMTYwLjggMTc3LjYgMTk0LjQgMjExLjIgMjI4LjAgMjQ0LjggMjYxLjYgMjc4LjQgMjk1LjIgMzEyLjAgMzI4LjggMzQ1LjYgMzYyLjQiIHk9IjI4NCIgZmlsbD0iI2UyZThmMCI+5Y+q55yL5pyJ5rKh5pyJ5paw54mI5pys77yM5LuA5LmI6YO95LiN5YqoPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDQzLjIgNTEuNiA2MC4wIiB5PSIzMDYiIGZpbGw9IiNlMmU4ZjAiPmRvY3M8L3RleHQ+Cjx0ZXh0IHg9IjE0NC4wIDE2MC44IDE3Ny42IDE5NC40IDIxMS4yIDIyOC4wIDI0NC44IDI2MS42IDI3OC40IDI5NS4yIDMxMi4wIDMyOC44IDM0NS42IiB5PSIzMDYiIGZpbGw9IiNlMmU4ZjAiPuWcqOa1j+iniOWZqOmHjOaJk+W8gOWbvuaWh+S9v+eUqOaJi+WGjDwvdGV4dD4KPHRleHQgeD0iMTguMCAzNC44IiB5PSIzNTAiIGZpbGw9IiNlMmU4ZjAiPumFjee9rjwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYgNjAuMCIgeT0iMzcyIiBmaWxsPSIjZTJlOGYwIj5yZXBvPC90ZXh0Pgo8dGV4dCB4PSIxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiAxNzcuNiIgeT0iMzcyIiBmaWxsPSIjZTJlOGYwIj5Ta2lsbDwvdGV4dD4KPHRleHQgeD0iMTk0LjQgMjExLjIgMjI4LjAgMjQ0LjgiIHk9IjM3MiIgZmlsbD0iI2UyZThmMCI+5LuT5bqT77ya5YqgPC90ZXh0Pgo8dGV4dCB4PSIyNzAuMCIgeT0iMzcyIiBmaWxsPSIjZTJlOGYwIj4vPC90ZXh0Pgo8dGV4dCB4PSIyODYuOCIgeT0iMzcyIiBmaWxsPSIjZTJlOGYwIj7nnIs8L3RleHQ+Cjx0ZXh0IHg9IjMxMi4wIiB5PSIzNzIiIGZpbGw9IiNlMmU4ZjAiPi88L3RleHQ+Cjx0ZXh0IHg9IjMyOC44IDM0NS42IDM2Mi40IDM3OS4yIDM5Ni4wIDQxMi44IDQyOS42IiB5PSIzNzIiIGZpbGw9IiNlMmU4ZjAiPuWIoO+8jOWPr+S7pemFjeWkmuS4qjwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYgNjAuMCIgeT0iMzk0IiBmaWxsPSIjZTJlOGYwIj5ob3N0PC90ZXh0Pgo8dGV4dCB4PSIxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiAxNzcuNiIgeT0iMzk0IiBmaWxsPSIjZTJlOGYwIj5BZ2VudDwvdGV4dD4KPHRleHQgeD0iMTk0LjQgMjExLjIgMjI4LjAgMjQ0LjgiIHk9IjM5NCIgZmlsbD0iI2UyZThmMCI+55uu5b2V77ya5YqgPC90ZXh0Pgo8dGV4dCB4PSIyNzAuMCIgeT0iMzk0IiBmaWxsPSIjZTJlOGYwIj4vPC90ZXh0Pgo8dGV4dCB4PSIyODYuOCIgeT0iMzk0IiBmaWxsPSIjZTJlOGYwIj7nnIs8L3RleHQ+Cjx0ZXh0IHg9IjMxMi4wIiB5PSIzOTQiIGZpbGw9IiNlMmU4ZjAiPi88L3RleHQ+Cjx0ZXh0IHg9IjMyOC44IDM0NS42IDM2Mi40IDM3OS4yIDM5Ni4wIDQxMi44IDQyOS42IDQ0Ni40IiB5PSIzOTQiIGZpbGw9IiNlMmU4ZjAiPuWIoO+8jOS4gOiIrOiHquWKqOaOouWIsDwvdGV4dD4KPHRleHQgeD0iMTguMCAzNC44IiB5PSI0MzgiIGZpbGw9IiNlMmU4ZjAiPue7tOaKpDwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYgNjAuMCA2OC40IDc2LjggODUuMiA5My42IiB5PSI0NjAiIGZpbGw9IiNlMmU4ZjAiPm1hbmlmZXN0PC90ZXh0Pgo8dGV4dCB4PSIxNDQuMCAxNjAuOCAxNzcuNiAxOTQuNCAyMTEuMiIgeT0iNDYwIiBmaWxsPSIjZTJlOGYwIj7mo4Dmn6Xoh6rlt7HnmoQ8L3RleHQ+Cjx0ZXh0IHg9IjIzNi40IDI0NC44IDI1My4yIDI2MS42IDI3MC4wIiB5PSI0NjAiIGZpbGw9IiNlMmU4ZjAiPlNraWxsPC90ZXh0Pgo8dGV4dCB4PSIyODYuOCAzMDMuNiAzMjAuNCAzMzcuMiAzNTQuMCAzNzAuOCAzODcuNiA0MDQuNCA0MjEuMiA0MzguMCA0NTQuOCA0NzEuNiIgeT0iNDYwIiBmaWxsPSIjZTJlOGYwIj7ku5PlupPmmK/lkKblkIjmoLzvvIjlj6/pgInvvJrnlJ/miJA8L3RleHQ+Cjx0ZXh0IHg9IjQ5Ni44IDUwNS4yIDUxMy42IDUyMi4wIDUzMC40IDUzOC44IDU0Ny4yIDU1NS42IDU2NC4wIDU3Mi40IDU4MC44IDU4OS4yIDU5Ny42IDYwNi4wIiB5PSI0NjAiIGZpbGw9IiNlMmU4ZjAiPm1hbmlmZXN0Lmpzb27vvIk8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCA3Ni44IiB5PSI0ODIiIGZpbGw9IiNlMmU4ZjAiPmZyZWV6ZTwvdGV4dD4KPHRleHQgeD0iMTQ0LjAgMTYwLjggMTc3LjYgMTk0LjQgMjExLjIgMjI4LjAgMjQ0LjggMjYxLjYgMjc4LjQgMjk1LjIgMzEyLjAgMzI4LjggMzQ1LjYgMzYyLjQgMzc5LjIgMzk2LjAgNDEyLjggNDI5LjYiIHk9IjQ4MiIgZmlsbD0iI2UyZThmMCI+5a+85Ye66ZSB5paH5Lu277yM6K6p5YWo57uE6KOF5Yiw5a6M5YWo5LiA5qC355qE54mI5pysPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDQzLjIgNTEuNiA2MC4wIiB5PSI1MDQiIGZpbGw9IiNlMmU4ZjAiPnN5bmM8L3RleHQ+Cjx0ZXh0IHg9IjE0NC4wIDE2MC44IDE3Ny42IDE5NC40IDIxMS4yIiB5PSI1MDQiIGZpbGw9IiNlMmU4ZjAiPumHjeaWsOeUn+aIkOWQhDwvdGV4dD4KPHRleHQgeD0iMjM2LjQgMjQ0LjggMjUzLjIgMjYxLjYgMjcwLjAiIHk9IjUwNCIgZmlsbD0iI2UyZThmMCI+QWdlbnQ8L3RleHQ+Cjx0ZXh0IHg9IjI4Ni44IDMwMy42IDMyMC40IDMzNy4yIiB5PSI1MDQiIGZpbGw9IiNlMmU4ZjAiPuebruW9leS4i+eahDwvdGV4dD4KPHRleHQgeD0iMzYyLjQgMzcwLjggMzc5LjIgMzg3LjYgMzk2LjAgNDA0LjQgNDEyLjggNDIxLjIgNDI5LjYiIHk9IjUwNCIgZmlsbD0iI2UyZThmMCI+QUdFTlRTLm1kPC90ZXh0Pgo8dGV4dCB4PSI0NDYuNCA0NjMuMiIgeT0iNTA0IiBmaWxsPSIjZTJlOGYwIj7ntKLlvJU8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCAxMTAuNCAxMTguOCIgeT0iNTI2IiBmaWxsPSIjZTJlOGYwIj5zZWxmLXVwZGF0ZTwvdGV4dD4KPHRleHQgeD0iMTQ0LjAgMTYwLjgiIHk9IjUyNiIgZmlsbD0iI2UyZThmMCI+5pu05pawPC90ZXh0Pgo8dGV4dCB4PSIxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCIgeT0iNTI2IiBmaWxsPSIjZTJlOGYwIj5za2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSIyNTMuMiAyNzAuMCAyODYuOCAzMDMuNiIgeT0iNTI2IiBmaWxsPSIjZTJlOGYwIj7lt6XlhbfmnKzouqs8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAgMzQuOCIgeT0iNTcwIiBmaWxsPSIjZTJlOGYwIj7pgInpobk8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IiB5PSI1OTIiIGZpbGw9IiNlMmU4ZjAiPi1oLDwvdGV4dD4KPHRleHQgeD0iNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCAxMTAuNCIgeT0iNTkyIiBmaWxsPSIjZTJlOGYwIj4tLWhlbHA8L3RleHQ+Cjx0ZXh0IHg9IjE2MC44IDE3Ny42IDE5NC40IDIxMS4yIDIyOC4wIDI0NC44IiB5PSI1OTIiIGZpbGw9IiNlMmU4ZjAiPuaYvuekuui/meS7veW4ruWKqTwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYiIHk9IjYxNCIgZmlsbD0iI2UyZThmMCI+LXYsPC90ZXh0Pgo8dGV4dCB4PSI2OC40IDc2LjggODUuMiA5My42IDEwMi4wIDExMC40IDExOC44IDEyNy4yIDEzNS42IiB5PSI2MTQiIGZpbGw9IiNlMmU4ZjAiPi0tdmVyc2lvbjwvdGV4dD4KPHRleHQgeD0iMTYwLjggMTc3LjYgMTk0LjQgMjExLjIgMjI4LjAiIHk9IjYxNCIgZmlsbD0iI2UyZThmMCI+5pi+56S654mI5pys5Y+3PC90ZXh0Pgo8dGV4dCB4PSIxOC4wIDM0LjggNTEuNiA2OC40IiB5PSI2NTgiIGZpbGw9IiNlMmU4ZjAiPuW4uOeUqOWGmeazlTwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYgNjAuMCA2OC40IDc2LjggODUuMiIgeT0iNjgwIiBmaWxsPSIjZTJlOGYwIj5za2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSIxMDIuMCAxMTAuNCAxMTguOCAxMjcuMiAxMzUuNiAxNDQuMCAxNTIuNCIgeT0iNjgwIiBmaWxsPSIjZTJlOGYwIj5pbnN0YWxsPC90ZXh0Pgo8dGV4dCB4PSIzMzcuMiAzNTQuMCAzNzAuOCAzODcuNiA0MDQuNCA0MjEuMiA0MzguMCA0NTQuOCA0NzEuNiA0ODguNCIgeT0iNjgwIiBmaWxsPSIjZTJlOGYwIj7nrKzkuIDmrKHnlKjvvJrphY3ku5PlupPjgIHpgIk8L3RleHQ+Cjx0ZXh0IHg9IjUxMy42IDUyMi4wIDUzMC40IDUzOC44IDU0Ny4yIDU1NS42IDU3Mi40IiB5PSI2ODAiIGZpbGw9IiNlMmU4ZjAiPkFnZW5044CB6YCJPC90ZXh0Pgo8dGV4dCB4PSI1OTcuNiA2MDYuMCA2MTQuNCA2MjIuOCA2MzEuMiIgeT0iNjgwIiBmaWxsPSIjZTJlOGYwIj5Ta2lsbDwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYgNjAuMCA2OC40IDc2LjggODUuMiIgeT0iNzAyIiBmaWxsPSIjZTJlOGYwIj5za2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSIxMDIuMCAxMTAuNCAxMTguOCAxMjcuMiAxMzUuNiAxNDQuMCIgeT0iNzAyIiBmaWxsPSIjZTJlOGYwIj51cGRhdGU8L3RleHQ+Cjx0ZXh0IHg9IjMzNy4yIDM1NC4wIDM3MC44IDM4Ny42IiB5PSI3MDIiIGZpbGw9IiNlMmU4ZjAiPui3n+S4iuacgOaWsDwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYgNjAuMCA2OC40IDc2LjggODUuMiIgeT0iNzI0IiBmaWxsPSIjZTJlOGYwIj5za2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSIxMDIuMCAxMTAuNCAxMTguOCAxMjcuMiIgeT0iNzI0IiBmaWxsPSIjZTJlOGYwIj5yZXBvPC90ZXh0Pgo8dGV4dCB4PSIxNDQuMCAxNTIuNCAxNjAuOCIgeT0iNzI0IiBmaWxsPSIjZTJlOGYwIj5hZGQ8L3RleHQ+Cjx0ZXh0IHg9IjE3Ny42IDE5NC40IDIxMS4yIiB5PSI3MjQiIGZpbGw9IiNlMmU4ZjAiPui/kOe7tOe7hDwvdGV4dD4KPHRleHQgeD0iMjM2LjQgMjQ0LjggMjYxLjYgMjc4LjQgMjk1LjIgMzEyLjAiIHk9IjcyNCIgZmlsbD0iI2UyZThmMCI+Jmx0O+S7k+W6k+WcsOWdgCZndDs8L3RleHQ+Cjx0ZXh0IHg9IjMzNy4yIDM1NC4wIDM3MC44IDM4Ny42IDQwNC40IDQyMS4yIDQzOC4wIDQ1NC44IDQ3MS42IDQ4OC40IDUwNS4yIDUyMi4wIDUzOC44IDU1NS42IDU3Mi40IDU4OS4yIDYwNi4wIDYyMi44IDYzOS42IDY1Ni40IDY3My4yIiB5PSI3MjQiIGZpbGw9IiNlMmU4ZjAiPuWKoOS4gOS4quWIq+eahOS7k+W6k++8iOWQjeWtl+iHquW3sei1t++8jOW7uuiurueUqOWboumYn+WQje+8iTwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYgNjAuMCA2OC40IDc2LjggODUuMiIgeT0iNzQ2IiBmaWxsPSIjZTJlOGYwIj5za2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSIxMDIuMCAxMTAuNCAxMTguOCAxMjcuMiAxMzUuNiAxNDQuMCAxNTIuNCIgeT0iNzQ2IiBmaWxsPSIjZTJlOGYwIj5pbnN0YWxsPC90ZXh0Pgo8dGV4dCB4PSIxNjkuMiAxNzcuNiAxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiIgeT0iNzQ2IiBmaWxsPSIjZTJlOGYwIj4tLXJlcG88L3RleHQ+Cjx0ZXh0IHg9IjIyOC4wIDI0NC44IDI2MS42IiB5PSI3NDYiIGZpbGw9IiNlMmU4ZjAiPui/kOe7tOe7hDwvdGV4dD4KPHRleHQgeD0iMzM3LjIgMzU0LjAgMzcwLjggMzg3LjYgNDA0LjQgNDIxLjIgNDM4LjAgNDU0LjgiIHk9Ijc0NiIgZmlsbD0iI2UyZThmMCI+5Y+q6KOF6L+Z5Liq5LuT5bqT6YeM55qEPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIDM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjggMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAiIHk9Ijc5MCIgZmlsbD0iI2UyZThmMCI+5Zu+5paH5L2/55So5omL5YaM77yac2tpbGxwbTwvdGV4dD4KPHRleHQgeD0iMjAyLjggMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQgMjUzLjIgMjcwLjAgMjg2LjggMzAzLjYgMzIwLjQgMzM3LjIgMzU0LjAgMzcwLjggMzg3LjYgNDA0LjQgNDIxLjIgNDM4LjAgNDU0LjggNDcxLjYgNDg4LjQiIHk9Ijc5MCIgZmlsbD0iI2UyZThmMCI+ZG9jc++8iOa1j+iniOWZqOaJk+W8gO+8jOW/q+mAn+S4iuaJi+WcqOesrOS4gOmhte+8iTwvdGV4dD4KPHRleHQgeD0iMTguMCAzNC44IDUxLjYgNjguNCA4NS4yIDEwMi4wIDExOC44IiB5PSI4MTIiIGZpbGw9IiNlMmU4ZjAiPumFjee9ruWSjOeKtuaAgeaUvuWcqDwvdGV4dD4KPHRleHQgeD0iMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjggMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQgMjUzLjIgMjcwLjAgMjg2LjggMzAzLjYgMzIwLjQgMzM3LjIgMzU0LjAgMzcwLjgiIHk9IjgxMiIgZmlsbD0iI2UyZThmMCI+fi8uc2tpbGxwbS/vvIjmlLnkvY3nva7nlKjnjq/looPlj5jph488L3RleHQ+Cjx0ZXh0IHg9IjM5Ni4wIDQwNC40IDQxMi44IDQyMS4yIDQyOS42IDQzOC4wIDQ0Ni40IDQ1NC44IDQ2My4yIDQ3MS42IDQ4MC4wIDQ4OC40IDQ5Ni44IDUxMy42IiB5PSI4MTIiIGZpbGw9IiNlMmU4ZjAiPlNLSUxMUE1fSE9NRe+8ieOAgjwvdGV4dD4KPC9nPjwvc3ZnPg==" /></p>
+<p>任何命令后面加 <code>-h</code> 看它的全部参数；写错了会猜你想写什么，并列出常用写法。</p>
+<hr />
+<h2 id="start-常用命令速查">常用命令速查</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>我想</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>装 / 补装 Skill</td>
+<td><code>skillpm install</code></td>
+</tr>
+<tr>
+<td>全装，不问装哪些</td>
+<td><code>skillpm install --all</code></td>
+</tr>
+<tr>
+<td>只装某几个</td>
+<td><code>skillpm install code-review pdf-tools</code></td>
+</tr>
+<tr>
+<td>装到当前项目（只对这个仓库生效）</td>
+<td><code>skillpm install -p</code></td>
+</tr>
+<tr>
+<td>看装了什么</td>
+<td><code>skillpm status</code></td>
+</tr>
+<tr>
+<td>更新 / 不问直接更新</td>
+<td><code>skillpm update</code> / <code>skillpm update --yes</code></td>
+</tr>
+<tr>
+<td>删某个 Skill</td>
+<td><code>skillpm uninstall code-review</code></td>
+</tr>
+<tr>
+<td>加一个别的仓库</td>
+<td><code>skillpm repo add &lt;名字&gt; &lt;地址&gt;</code></td>
+</tr>
+<tr>
+<td>让全组装到完全一样的版本</td>
+<td><code>skillpm freeze</code>，别人 <code>skillpm install --from &lt;锁文件&gt;</code></td>
+</tr>
+<tr>
+<td>更新工具本身</td>
+<td><code>skillpm self-update</code></td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="start-必须知道的-3-件事">必须知道的 3 件事</h2>
+<ol>
+<li><strong>别人的东西不会被覆盖。</strong> 你本地改过的、或者不是本工具装的 Skill，安装和更新都会跳过并告诉你；确实要覆盖加 <code>--force</code>（会先备份）。</li>
+<li><strong>更新前自动备份。</strong> 旧版在 <code>~/.skillpm/backup/&lt;Skill名&gt;/&lt;版本&gt;-&lt;时间&gt;/</code>，想退回直接拷回去。</li>
+<li><strong>多个仓库有同名 Skill：</strong> 换来源只在你自己 <code>install</code> 时发生，而且会先问你；<code>update</code> 永远只跟着装的时候那个仓库。</li>
+</ol>
+<h2 id="start-出问题了">出问题了</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>现象</th>
+<th>先这样</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>说有冲突、跳过了</td>
+<td>你本地改过那个 Skill，或者它不是本工具装的。<code>skillpm status</code> 看是哪个；确认不要本地改动就加 <code>--force</code></td>
+</tr>
+<tr>
+<td>仓库拉不下来</td>
+<td>报错会说原因（要登录、找不到、连不上、端口不对、被代理截走……），照提示改</td>
+</tr>
+<tr>
+<td>找不到 <code>skillpm</code> 命令</td>
+<td>新开一个终端；还不行就重跑第 1 步的安装命令</td>
+</tr>
+<tr>
+<td>Agent 里看不到新装的 Skill</td>
+<td>重启一下那个 Agent；<code>skillpm status</code> 确认装到的目录对不对</td>
+</tr>
+<tr>
+<td>其他问题、建议</td>
+<td>填到<a href="https://github.com/suqian-bit/skillpm/issues">GitHub Issues</a></td>
+</tr>
+</tbody>
+</table></div></section><section class="doc" id="doc-manual"><h1 id="manual-skillpm-命令手册">skillpm 命令手册</h1>
+<blockquote class="note">
+<p>穷举版：每一条命令、每一个参数、每一种写法，都写清楚<strong>干什么</strong>和<strong>怎么用</strong>。
+只想快速上手看 <a href="#start" data-doc="start">快速上手</a>；想理解设计取舍看 <a href="https://github.com/suqian-bit/skillpm/blob/main/docs/详细说明.md" target="_blank">详细说明</a>。</p>
+</blockquote>
+<hr />
+<h2 id="manual-一-速查表">一、速查表</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>干什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>skillpm install</code></td>
+<td>装 Skill，第一次会引导你配好</td>
+</tr>
+<tr>
+<td><code>skillpm check</code></td>
+<td>只看有没有新版本，什么都不动</td>
+</tr>
+<tr>
+<td><code>skillpm update</code></td>
+<td>检查并更新，打出每个改了什么</td>
+</tr>
+<tr>
+<td><code>skillpm status</code></td>
+<td>每个宿主装了哪些、什么版本、有没有被改过</td>
+</tr>
+<tr>
+<td><code>skillpm uninstall</code></td>
+<td><strong>删 Skill</strong></td>
+</tr>
+<tr>
+<td><code>skillpm repo add\|list\|remove</code></td>
+<td>管 Skill 仓库（可配多个；别的团队配自己的）</td>
+</tr>
+<tr>
+<td><code>skillpm manifest --check</code></td>
+<td>检查自己的 Skill 仓库合不合格（manifest.json 可选）</td>
+</tr>
+<tr>
+<td><code>skillpm host add\|list\|remove</code></td>
+<td>管宿主（Agent）目录</td>
+</tr>
+<tr>
+<td><code>skillpm freeze</code></td>
+<td>导出锁文件，让全组装到完全一样的版本</td>
+</tr>
+<tr>
+<td><code>skillpm sync</code></td>
+<td>重新生成各宿主下的 <code>AGENTS.md</code> 索引</td>
+</tr>
+<tr>
+<td><code>skillpm docs</code></td>
+<td>在浏览器里打开图文使用手册（<code>--path</code> 只打出文件位置）</td>
+</tr>
+<tr>
+<td><code>skillpm self-update</code></td>
+<td>更新工具自己</td>
+</tr>
+<tr>
+<td><code>scripts/install.sh</code> / <code>.ps1</code></td>
+<td>装／更新<strong>工具本身</strong></td>
+</tr>
+<tr>
+<td><code>scripts/uninstall.sh</code> / <code>.ps1</code></td>
+<td><strong>删工具本身</strong></td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>全局参数</strong>（跟在 <code>skillpm</code> 后面，不属于任何子命令）：</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-v</code> / <code>-V</code> / <code>--version</code></td>
+<td>看版本号</td>
+</tr>
+<tr>
+<td><code>-h</code> / <code>--help</code> / <code>-help</code></td>
+<td>看帮助。单横线的 <code>-help</code>、<code>-version</code> 也认</td>
+</tr>
+<tr>
+<td><code>skillpm &lt;命令&gt; -h</code></td>
+<td>看<strong>这条命令</strong>自己的全部参数</td>
+</tr>
+</tbody>
+</table></div>
+<p>参数打错不会只丢一句 <code>unrecognized arguments</code>，会给猜测：</p>
+<pre><code>$ skillpm install --hots workbuddy
+✗ 没有 --hots 这个参数
+  是不是想写 --hosts  或  --host？
+  看全部用法：skillpm &lt;命令&gt; -h
+</code></pre>
+<hr />
+<h2 id="manual-二-装-skill-skillpm-install">二、装 Skill：<code>skillpm install</code></h2>
+<h3 id="manual-2-1-全部参数">2.1 全部参数</h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>干什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SKILL...</code></td>
+<td>要装的 Skill 名，空格分开写多个</td>
+</tr>
+<tr>
+<td><code>--only SKILL...</code></td>
+<td>同上，写不写 <code>--only</code> 都一样</td>
+</tr>
+<tr>
+<td><code>--all</code></td>
+<td>全装，跳过「装哪几个」的询问</td>
+</tr>
+<tr>
+<td><code>--repo 名字</code></td>
+<td>只装这个仓库里的</td>
+</tr>
+<tr>
+<td><code>-a 宿主</code> / <code>--agent 宿主</code></td>
+<td>只装到这<strong>一个</strong>宿主</td>
+</tr>
+<tr>
+<td><code>--hosts 宿主...</code></td>
+<td>装到这<strong>几个</strong>宿主，跳过询问</td>
+</tr>
+<tr>
+<td><code>-d 目录</code> / <code>--dir 目录</code></td>
+<td>装到指定目录，完全不走宿主探测</td>
+</tr>
+<tr>
+<td><code>-g</code> / <code>--global</code></td>
+<td>装到用户级（<strong>默认行为</strong>，写不写都一样）</td>
+</tr>
+<tr>
+<td><code>-p</code> / <code>--project</code></td>
+<td>只装到当前项目（仅编程类 Agent），版本写进锁文件</td>
+</tr>
+<tr>
+<td><code>--from 锁文件</code></td>
+<td>按锁文件复现：每个 Skill 都切到它记的那个 commit</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>有冲突也覆盖（<strong>覆盖前会先完整备份</strong>）</td>
+</tr>
+<tr>
+<td><code>--no-index</code></td>
+<td>不生成 <code>AGENTS.md</code> 索引</td>
+</tr>
+<tr>
+<td><code>--reconfigure</code></td>
+<td>重新走一遍首次引导（换仓库、换令牌时用）</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="manual-2-1-1-交互选择时怎么填">2.1.1 交互选择时怎么填</h3>
+<p>不带参数跑 <code>skillpm install</code> 会弹选择框（装哪些 Skill、装到哪些宿主）。每个框都是同一套填法：</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>填什么</th>
+<th>意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>直接回车</td>
+<td>只选<strong>带 <code>*</code> 号</strong>的那几个；提示里写明是几个</td>
+</tr>
+<tr>
+<td><code>a</code> / <code>all</code> / <code>*</code> / <code>全部</code></td>
+<td>列表里全部</td>
+</tr>
+<tr>
+<td><code>1,3,5</code> / <code>1 3 5</code> / <code>2-4</code> / <code>1,3-5</code></td>
+<td>只要这几个</td>
+</tr>
+<tr>
+<td>目录路径</td>
+<td><strong>只在选宿主时</strong>：列表里没有的，直接填 skills 目录，可和序号混填：<code>1,3 ~/.foo/skills</code></td>
+</tr>
+<tr>
+<td><code>0</code></td>
+<td>一个都不要</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>skillpm uninstall</code> 的选择框<strong>不认 <code>a</code></strong>，只能填序号——删东西不给一键全选。</p>
+<h3 id="manual-2-2-穷举各种装法">2.2 穷举各种装法</h3>
+<p><strong>最常用的三条</strong></p>
+<pre><code class="language-bash">skillpm install                     # 问你装到哪、装哪几个
+skillpm install --all               # 全装，只问装到哪
+skillpm install code-review       # 只装这一个
+</code></pre>
+<p><strong>点名装几个</strong></p>
+<pre><code class="language-bash">skillpm install code-review pdf-tools      # 直接写名字
+skillpm install --only code-review pdf-tools   # 等价写法
+</code></pre>
+<p><strong>指定从哪个仓库装</strong>（配了多个仓库时）</p>
+<pre><code class="language-bash">skillpm install --repo 我的库                  # 这个仓库里的全部
+skillpm install 我的库:some-skill              # 仓库名:Skill名，点名一个
+skillpm install team://我的库/some-skill       # 同上，另一种写法
+</code></pre>
+<blockquote class="note">
+<p>同名 Skill 出现在多个仓库时，列表里默认是先配的那个；加仓库前缀就能点名要哪个。
+<strong>已经装了别的仓库的同名 Skill，会先问你要不要换，默认不换</strong>；<code>--force</code> 直接换。
+完整规则见「六、管仓库」里的「多个仓库、同名 Skill」。</p>
+</blockquote>
+<p><strong>指定装到哪</strong></p>
+<pre><code class="language-bash">skillpm install -a workbuddy                        # 只装到 WorkBuddy
+skillpm install --hosts workbuddy claude-code       # 装到这两个，不问
+skillpm install -d ./my-skills                      # 装到指定目录
+</code></pre>
+<blockquote class="note">
+<p>⚠️ <code>--hosts</code> 会<strong>一路吃到下一个选项为止</strong>，Skill 名要写在它前面：
+<code>skillpm install code-review --hosts workbuddy</code> ✅
+<code>skillpm install --hosts workbuddy code-review</code> ❌（<code>code-review</code> 被当成宿主名）</p>
+</blockquote>
+<p><strong>强制覆盖：只接管某一个</strong></p>
+<p>目标目录里已经有一份、但不是本工具装的时候，它会跳过并提示。想让它接管：</p>
+<pre><code class="language-bash">skillpm install --force --only doc-writer   # 只动这一个
+skillpm install --force                                      # 上面列出的全部接管
+</code></pre>
+<blockquote class="note">
+<p><strong>覆盖前会把原来那份完整备份</strong>到 <code>~/.skillpm/backup/&lt;Skill名&gt;/&lt;版本&gt;-&lt;时间戳&gt;/</code>，
+包括工具不认识的文件。加 <code>--only</code> 就只动点名的那个，别的一个不碰。</p>
+</blockquote>
+<p><strong>项目级安装</strong>（只有编程类 Agent 支持）</p>
+<pre><code class="language-bash">cd ~/work/my-project
+skillpm install -p                  # 装到 .claude/skills，自动写 skillpm.lock
+</code></pre>
+<blockquote class="note">
+<p>在<strong>家目录</strong>里用 <code>-p</code> 会被拦下来——<code>~/.claude/skills</code> 本来就是用户级目录，
+<code>-p</code> 装到的是同一个地方，还会往家目录丢一个 <code>skillpm.lock</code>。</p>
+</blockquote>
+<p><strong>按锁文件复现</strong></p>
+<pre><code class="language-bash">skillpm install --from team.lock    # 每个 Skill 切到锁里记的 commit 再装
+</code></pre>
+<p><strong>重新配置</strong></p>
+<pre><code class="language-bash">skillpm install --reconfigure       # 重走首次引导：换仓库地址、换令牌
+</code></pre>
+<hr />
+<h2 id="manual-三-看现状-三条各看一层">三、看现状：三条各看一层</h2>
+<pre><code class="language-bash">skillpm status       # 每个宿主装了哪些 Skill、什么版本、有没有被改过
+skillpm host list    # 配了哪些宿主、各装了几个、本机还探到哪些
+skillpm repo list    # 配了哪些仓库、各有多少 Skill、本机装了几个
+</code></pre>
+<h3 id="manual-3-1-skillpm-status">3.1 <code>skillpm status</code></h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>干什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-g</code> / <code>--global</code></td>
+<td>只看用户级</td>
+</tr>
+<tr>
+<td><code>-p</code> / <code>--project</code></td>
+<td>只看当前项目级</td>
+</tr>
+<tr>
+<td><code>--offline</code></td>
+<td>不连仓库，只看本地记录（没网也能跑）</td>
+</tr>
+</tbody>
+</table></div>
+<pre><code>$ skillpm status
+
+工具  skillpm 1.14.2   C:\Users\你\.skillpm
+仓库  team  http://gitlab.example.com/team/skills.git   git
+
+WorkBuddy  用户级  C:\Users\你\.workbuddy\skills
+  weekly-report               2.6.0     最新   team
+  api-tester               1.11.0    最新   team
+  pdf-tools               3.3.0     最新   team
+</code></pre>
+<p><strong>排查问题先跑这条</strong>——「我这儿怎么和你不一样」九成能在这看出来。</p>
+<h3 id="manual-3-2-skillpm-check">3.2 <code>skillpm check</code></h3>
+<p>只看，不动任何文件。</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>干什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--repo 名字</code></td>
+<td>只看这个仓库来的</td>
+</tr>
+<tr>
+<td><code>-u</code> / <code>--updatable-only</code></td>
+<td>只列可更新的，没有就一句话带过</td>
+</tr>
+</tbody>
+</table></div>
+<pre><code>$ skillpm check
+
+weekly-report   2.6.0 → 2.6.1    可更新     WorkBuddy
+code-review        2.3.1            本地改过   WorkBuddy   ← 更新会被拦下
+pdf-tools   3.3.0            最新       WorkBuddy
+</code></pre>
+<h3 id="manual-3-3-skillpm-host-list">3.3 <code>skillpm host list</code></h3>
+<pre><code>$ skillpm host list
+
+已配置
+  WorkBuddy          C:\Users\你\.workbuddy\skills      装了 8 个
+
+本机探测到、还没配的
+  Codex              C:\Users\你\.codex\skills        verified
+  Trae               C:\Users\你\.trae\skills         likely
+  foobot             C:\Users\你\.foobot\skills       auto
+</code></pre>
+<p><code>verified</code> 是真机上见过或厂商文档写明的目录；<code>likely</code> 是按公开对照表推断、<strong>没实地验证过</strong>；
+<code>auto</code> 是表里没有、但「家目录隐藏文件夹下有 skills」自动发现的。后两种装之前会让你确认。</p>
+<h3 id="manual-3-4-skillpm-repo-list">3.4 <code>skillpm repo list</code></h3>
+<pre><code>$ skillpm repo list
+
+skillpm
+  地址：http://gitlab.example.com/team/skills.git
+  分支：main　方式：git　没配令牌
+  缓存：C:\Users\你\.skillpm\repos\skillpm　commit 771222aa
+  里面有 8 个 Skill，本机装了 8 个（WorkBuddy）
+</code></pre>
+<hr />
+<h2 id="manual-四-更新">四、更新</h2>
+<h3 id="manual-4-1-skillpm-update-更新-skill">4.1 <code>skillpm update</code> —— 更新 <strong>Skill</strong></h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>干什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--repo 名字</code></td>
+<td>只更新来自这个仓库的</td>
+</tr>
+<tr>
+<td><code>--yes</code></td>
+<td>不问直接更新</td>
+</tr>
+<tr>
+<td><code>--force</code></td>
+<td>有冲突也覆盖（先备份）</td>
+</tr>
+</tbody>
+</table></div>
+<p>不写 <code>--repo</code>：所有仓库一起查，但<strong>每个 Skill 只跟它装的时候的来源仓库比</strong>——不弹出来选仓库，
+也永远不会被别的仓库的同名 Skill 顶掉。</p>
+<pre><code>$ skillpm update
+
+有 2 项可以更新
+  weekly-report  2.6.0 → 2.6.1   （WorkBuddy）
+  code-review       2.3.1 → 2.3.2   （WorkBuddy）
+
+确认更新？ [Y/n]:
+
+更新成功：2 个 Skill
+
+weekly-report  2.6.0 → 2.6.1   WorkBuddy
+  ## 2.6.1 — 2026-09-20
+  - 测试报告明细页「每一步的log」列宽从 60 调到 80。
+  旧版备份：~/.skillpm/backup/weekly-report/2.6.0-20260920-093026
+</code></pre>
+<blockquote class="note">
+<p>更新<strong>前</strong>只预告谁要变，完整日志留到更新<strong>成功之后</strong>——没装上的东西不该先把日志给你看。</p>
+</blockquote>
+<h3 id="manual-4-2-skillpm-self-update-更新工具自己">4.2 <code>skillpm self-update</code> —— 更新<strong>工具自己</strong></h3>
+<pre><code class="language-bash">skillpm self-update        # 在哪个目录跑都行，不用先 cd
+</code></pre>
+<p>别和上面那条搞混：</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>命令</th>
+<th>更新的是</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>skillpm update</code></td>
+<td><strong>Skill 内容</strong>（怎么拆用例、怎么出报告……）</td>
+</tr>
+<tr>
+<td><code>skillpm self-update</code></td>
+<td><strong>skillpm 工具本身</strong>（命令、参数、提示……）</td>
+</tr>
+</tbody>
+</table></div>
+<h3 id="manual-4-3-skillpm-sync-重建索引">4.3 <code>skillpm sync</code> —— 重建索引</h3>
+<p>在各宿主目录下重写 <code>AGENTS.md</code>（列出装了哪些、什么版本、干什么用）。<strong>不动 Skill 本身。</strong></p>
+<pre><code class="language-bash">skillpm sync
+</code></pre>
+<p><code>install</code> / <code>update</code> 会自动生成，一般不用手动跑。手动跑的场景：手改过 <code>AGENTS.md</code> 想恢复，或装的时候加了 <code>--no-index</code>。</p>
+<blockquote class="note">
+<p>索引写在一对标记之间，<strong>标记外面你手写的内容会原样保留</strong>。</p>
+</blockquote>
+<hr />
+<h2 id="manual-五-删除-两个-别搞混">五、删除（两个，别搞混）</h2>
+<p>这是最容易搞混的地方，<strong>它们删的不是一个东西</strong>：</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th></th>
+<th>删什么</th>
+<th>命令</th>
+<th>删完</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>删 Skill</strong></td>
+<td>装到各 Agent 目录里的 Skill</td>
+<td><code>skillpm uninstall</code></td>
+<td>工具还在，随时能再装回来</td>
+</tr>
+<tr>
+<td><strong>删工具</strong></td>
+<td>skillpm 这个命令本身</td>
+<td><code>scripts/uninstall.sh</code> / <code>.ps1</code></td>
+<td>命令没了，<strong>已装的 Skill 原地不动</strong></td>
+</tr>
+</tbody>
+</table></div>
+<pre><code>                   skillpm uninstall              scripts/uninstall.sh --all
+                          ↓                                   ↓
+  ~/.workbuddy/skills/skillpm-*     ← 删这些      ~/.local/bin/skillpm  ← 删这个
+  ~/.claude/skills/skillpm-*                      ~/.skillpm/（配置、记录、缓存、备份）
+                                                   ~/.skillpm-src/（源码，要手动删）
+</code></pre>
+<p>要全清干净，<strong>先删 Skill 再删工具</strong>，见 5.3。</p>
+<h3 id="manual-5-1-skillpm-uninstall-删-skill">5.1 <code>skillpm uninstall</code> —— 删 <strong>Skill</strong></h3>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>干什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SKILL...</code></td>
+<td>要删的 Skill 名，可以写多个</td>
+</tr>
+<tr>
+<td><code>--only SKILL...</code></td>
+<td>同上，写不写都行</td>
+</tr>
+<tr>
+<td><code>--all</code></td>
+<td>删掉<strong>本工具装的</strong>全部</td>
+</tr>
+<tr>
+<td><code>--host 宿主</code></td>
+<td>只动这个宿主（大小写、空格随便写）</td>
+</tr>
+<tr>
+<td><code>--yes</code></td>
+<td>不再确认</td>
+</tr>
+</tbody>
+</table></div>
+<pre><code class="language-bash">skillpm uninstall                       # 不写名字：列出来让你勾（默认一个都不选）
+skillpm uninstall code-review         # 删这一个
+skillpm uninstall flow artifacts        # 删多个
+skillpm uninstall --all                 # 全删，会先列清单让你确认
+skillpm uninstall --all --yes           # 全删，不确认（脚本里用）
+skillpm uninstall --host workbuddy --all   # 只清 WorkBuddy 这一个宿主
+</code></pre>
+<pre><code>$ skillpm uninstall --all --yes
+
+要移除这些（只动本工具装的，别人放的不碰）
+  weekly-report    WorkBuddy   C:\Users\你\.workbuddy\skills\weekly-report
+  code-review         WorkBuddy   C:\Users\你\.workbuddy\skills\code-review
+  ...
+✓ WorkBuddy  weekly-report 已移除
+✓ WorkBuddy  code-review 已移除
+</code></pre>
+<blockquote class="note">
+<p><strong>它只删自己装的。</strong> 你手动拷进去的那份它认不出来，也就删不掉——
+那种情况要么自己删目录，要么先 <code>skillpm install --force --only &lt;名字&gt;</code> 让它接管。</p>
+<p><code>--yes</code> 是「别问我，直接删」。<strong>破坏性操作建议先不加</strong>，看一眼清单再回车。</p>
+</blockquote>
+<h3 id="manual-5-2-scripts-uninstall-sh-ps1-删工具本身">5.2 <code>scripts/uninstall.sh</code> / <code>.ps1</code> —— 删<strong>工具本身</strong></h3>
+<p><strong>Mac / Linux</strong></p>
+<pre><code class="language-bash">~/.skillpm-src/scripts/uninstall.sh           # 只卸工具，配置和已装的 Skill 都留着
+~/.skillpm-src/scripts/uninstall.sh --all     # 连 ~/.skillpm 一起删
+</code></pre>
+<p><strong>Windows</strong></p>
+<pre><code class="language-powershell">Set-ExecutionPolicy -Scope Process Bypass -Force
+&amp; &quot;$env:USERPROFILE\.skillpm-src\scripts\uninstall.ps1&quot;         # 只卸工具
+&amp; &quot;$env:USERPROFILE\.skillpm-src\scripts\uninstall.ps1&quot; -All    # 连 .skillpm 一起删
+</code></pre>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>删什么</th>
+<th>不删什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>（不加）</td>
+<td>启动器 / pip 包</td>
+<td><code>~/.skillpm</code>（配置、安装记录、缓存、备份）、已装的 Skill</td>
+</tr>
+<tr>
+<td><code>--all</code> / <code>-All</code></td>
+<td>上面那些 <strong>＋ <code>~/.skillpm</code></strong></td>
+<td>已装的 Skill、<code>~/.skillpm-src</code> 源码</td>
+</tr>
+</tbody>
+</table></div>
+<p>加 <code>--all</code> / <code>-All</code> 时会<strong>明确问你一次</strong>（<code>要删掉 ... 吗？[y/N]</code>），这个没有跳过的参数。</p>
+<p>它<strong>不动</strong>已经装到各宿主目录里的 Skill，也<strong>不动 PATH</strong>里那条目录
+（指向一个空目录而已，无害；想清就自己去环境变量里删）。</p>
+<p>源码目录要手动删：</p>
+<pre><code class="language-bash">rm -rf ~/.skillpm-src                                    # Mac
+Remove-Item -Recurse -Force $env:USERPROFILE\.skillpm-src   # Windows
+</code></pre>
+<h3 id="manual-5-3-完整清理-三步-顺序别反">5.3 完整清理（三步，顺序别反）</h3>
+<pre><code class="language-bash"># Mac / Linux
+skillpm uninstall --all --yes
+~/.skillpm-src/scripts/uninstall.sh --all
+rm -rf ~/.skillpm-src
+</code></pre>
+<pre><code class="language-powershell"># Windows
+skillpm uninstall --all --yes
+Set-ExecutionPolicy -Scope Process Bypass -Force; &amp; &quot;$env:USERPROFILE\.skillpm-src\scripts\uninstall.ps1&quot; -All
+Remove-Item -Recurse -Force $env:USERPROFILE\.skillpm-src
+</code></pre>
+<hr />
+<h2 id="manual-六-管仓库-skillpm-repo">六、管仓库：<code>skillpm repo</code></h2>
+<blockquote class="note">
+<p><strong>别的团队</strong>要接自己的 Skill 仓库，看 <a href="#onboard" data-doc="onboard">接入自己的Skill仓库.md</a>，从整理仓库到加进来一步步都有。</p>
+</blockquote>
+<pre><code class="language-bash">skillpm repo                                              # 不写动作＝列出已配的，顺带给常用写法
+skillpm repo add 我们团队 http://gitlab.example.com/组/仓库.git        # 地址直接写，http/git@ 自动认
+skillpm repo add 我们团队 git@gitlab.example.com:组/仓库.git
+skillpm repo add 我们团队 http://gitlab.example.com/组/仓库.git --token &lt;令牌&gt;   # 私有仓库
+skillpm repo add 我们团队 http://gitlab.example.com/组/仓库.git --branch dev     # 不是 main 分支
+skillpm repo remove 我们团队                               # 只删配置，不动已装的 Skill
+</code></pre>
+<p><strong><code>repo add</code> 会先试拉一次</strong>：拉得到、里面有能装的 Skill 才保存，并告诉你有几个；
+拉不到就说清楚是哪种原因（要登录／找不到仓库／连不上／端口不对／SSH 没过／没有这个分支／没有能装的 Skill），<strong>不保存</strong>。
+同名再 <code>add</code> 一次就是改地址、改令牌。</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>干什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>&lt;名字&gt; &lt;地址&gt;</code></td>
+<td>名字自己起；地址写 <code>http(s)://…/组/仓库(.git)</code> 或 <code>git@主机:组/仓库.git</code></td>
+</tr>
+<tr>
+<td><code>--token 令牌</code></td>
+<td>私有仓库的访问令牌。<strong>屏幕输出和报错里一律打码</strong></td>
+</tr>
+<tr>
+<td><code>--branch 分支</code></td>
+<td>默认 <code>main</code></td>
+</tr>
+<tr>
+<td><code>--no-check</code></td>
+<td>不试拉，直接记下（离线时配置用）</td>
+</tr>
+<tr>
+<td><code>--http-only</code></td>
+<td>不用 git，下载压缩包（要令牌）</td>
+</tr>
+<tr>
+<td><code>--ssh 地址</code> / <code>--http 地址</code> / <code>--path 组/项目</code></td>
+<td>旧写法，照样能用；地址直接写在名字后面更省事</td>
+</tr>
+<tr>
+<td><code>--yes</code></td>
+<td><code>remove</code> 时不再确认</td>
+</tr>
+</tbody>
+</table></div>
+<p>配好之后这些命令都能限定范围：<code>install --repo</code>、<code>check --repo</code>、<code>update --repo</code>。</p>
+<h3 id="manual-多个仓库-同名-skill-规则就两条">多个仓库、同名 Skill：规则就两条</h3>
+<p>同一个 Agent 下，同名的 Skill <strong>只能留一个</strong>。可以从多个仓库装，平时名字不会撞；撞了按下面两条走：</p>
+<p><strong>① 换来源只发生在你自己 <code>install</code> 的时候，而且一定先问你</strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>情况</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>不重名</td>
+<td>正常装</td>
+</tr>
+<tr>
+<td>同一个仓库重装、升级</td>
+<td>正常装，不问</td>
+</tr>
+<tr>
+<td>已装的 A 来自甲，这次要装乙的 A</td>
+<td>停下来问，<strong>默认不换</strong>：<br>回 <code>y</code> → 覆盖成乙的，以后跟着乙更新<br>回 <code>n</code>（或直接回车）→ 跳过，还是甲的</td>
+</tr>
+<tr>
+<td>不想被问</td>
+<td><code>skillpm install 乙:A --force</code>（只换这一个）<br><code>skillpm install --repo 乙 --force</code>（乙的全换）</td>
+</tr>
+<tr>
+<td>脚本、CI 里没法回答</td>
+<td>默认不换，退出码 1，提示加 <code>--force</code></td>
+</tr>
+</tbody>
+</table></div>
+<pre><code>! WorkBuddy：A 现在装的是「甲」的 1.0.0，这次要换成「乙」的 5.0.0
+  同一个 Agent 下同名的只能留一个；换了以后就跟着新仓库更新
+  确定换吗？[y/N]
+</code></pre>
+<p><strong>② <code>update</code> 永远不换来源</strong></p>
+<p>每个装上的 Skill 都记着「从哪个仓库装的」，<code>update</code> 只拿它跟那个仓库比：</p>
+<ul>
+<li>
+<p>不写 <code>--repo</code>：所有仓库都拉一遍，但 <strong>A 只跟甲比、B 只跟乙比</strong>，别的仓库里有没有同名的都不影响。
+  不会弹出来让你选仓库——每个 Skill 该跟哪个仓库，装的时候就定了。</p>
+</li>
+<li>
+<p>写 <code>--repo 乙</code>：只更新从乙装的那些。</p>
+</li>
+<li>只更新你装过的；仓库里新加的、你没装过的不会自己装上。</li>
+<li>来源仓库被 <code>repo remove</code> 了、或者里面没有这个 Skill 了：<strong>不更新、说明原因</strong>，不拿别的仓库的同名 Skill 顶上。</li>
+</ul>
+<p>为什么两条都要：只有 ① 不够。比如从乙装了 A，后来又加了个仓库丙、里面恰好也有 A——
+你没去装丙的 A，① 根本不会触发；是 ② 保证了 <code>update</code> 只认乙。</p>
+<blockquote class="note">
+<p>1.20.1 之前 <code>update</code> 按名字找、先配的仓库优先：从乙装的 A 会被悄悄换成甲的，版本还可能倒退。
+1.20.2 之前 <code>install</code> 换来源不问，直接顶掉。现在两处都修了。</p>
+</blockquote>
+<h2 id="manual-六-五-检查自己的仓库-skillpm-manifest">六·五、检查自己的仓库：<code>skillpm manifest</code></h2>
+<p>仓库要能被安装，<strong>只要一条</strong>：Skill 放在 <code>skills/&lt;名字&gt;/SKILL.md</code>，开头 frontmatter 里写 <code>name</code>（和目录名一样）和 <code>description</code>；<code>version</code> 可选。
+<strong>不需要任何配置文件</strong>——<code>manifest.json</code> 是可选的：没有就按 <code>skills/</code> 当场算，有就用它。</p>
+<pre><code class="language-bash">skillpm manifest --check            # 只检查：每个 Skill 合不合格；有 manifest.json 的话再查它是不是最新。不合格退出码 1（CI 用）
+skillpm manifest                    # 生成 manifest.json（可选；生成了就得每次改完都重新生成）
+skillpm manifest ~/code/我们的仓库   # 指定目录
+</code></pre>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>检查项</th>
+<th>不满足时</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>有 <code>skills/</code> 目录，里面至少一个 <code>SKILL.md</code></td>
+<td>报错</td>
+</tr>
+<tr>
+<td><code>SKILL.md</code> 有 frontmatter，<code>name</code> 和目录名一致</td>
+<td>报错</td>
+</tr>
+<tr>
+<td>写了 <code>description</code></td>
+<td>提醒</td>
+</tr>
+<tr>
+<td>写了 <code>version</code>（顶层或 <code>metadata:</code> 下都行）；不写就按文件内容判断更新</td>
+<td>提醒</td>
+</tr>
+<tr>
+<td>有 <code>CHANGELOG.md</code>，且有当前版本那一节</td>
+<td>提醒</td>
+</tr>
+<tr>
+<td>（有 manifest.json 时）它和 <code>skills/</code> 对得上，没有「文件改了、版本号没动」</td>
+<td>报错</td>
+</tr>
+</tbody>
+</table></div>
+<p>不合格的 Skill 装的时候会被跳过并提示原因，同一个仓库里别的 Skill 照常能装。</p>
+<hr />
+<h2 id="manual-七-管宿主-skillpm-host">七、管宿主：<code>skillpm host</code></h2>
+<pre><code class="language-bash">skillpm host list                           # 已配的 + 本机探到还没配的
+skillpm host add 我的工具 ~/.mytool/skills   # 自己加一个（不在目录表里的）
+skillpm host remove 我的工具                 # 只删配置，不动目录里的文件
+</code></pre>
+<p>宿主表是<strong>累积的注册表</strong>：装到 B 不会把上次配的 A 删掉，只有 <code>host remove</code> 才删。</p>
+<p>目录表里认识 52 种常见 Agent：</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>可信度</th>
+<th>有哪些</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>verified</code>（真机见过或厂商文档写明）</td>
+<td>Claude Code、Codex、WorkBuddy、WorkBuddy-AI、Qoder、Cursor、Windsurf、Gemini CLI、Antigravity、Grok、Agents、Comate</td>
+</tr>
+<tr>
+<td><code>likely</code>（按公开对照表推断）</td>
+<td>Trae、Trae CN、Qoder CN、Lingma、CodeBuddy、Qwen Code、iFlow、CodeArts、MiniMax Code、ZCode、JoyCode、Codemaker、Neovate、GitHub Copilot、OpenCode、Amp、Droid、Kiro、Kilo Code、Roo Code、Continue、Augment、Junie、Goose、Crush、OpenHands、Mistral Vibe、Devin、Rovo Dev、Tabnine、Cortex Code、IBM Bob、Hermes Agent、OpenClaw、Pi、AiderDesk、ForgeCode、Zencoder、Firebender、Deep Agents</td>
+</tr>
+<tr>
+<td><code>auto</code>（自动发现）</td>
+<td>不在表里、但家目录隐藏文件夹下有 <code>skills</code> 目录的</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="manual-八-锁版本-skillpm-freeze-install-from">八、锁版本：<code>skillpm freeze</code> + <code>install --from</code></h2>
+<p><strong>要解决的问题</strong>：你装的 2.3.1 和我装的 2.3.1，内容不一定一样——「装的时候仓库 HEAD 是什么」一直在动。锁文件记的是 <strong>commit</strong>，所以能真正复现。</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th><code>freeze</code> 参数</th>
+<th>干什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-o 文件</code> / <code>--out 文件</code></td>
+<td>输出到哪，默认当前项目的 <code>skillpm.lock</code></td>
+</tr>
+<tr>
+<td><code>--host 宿主</code></td>
+<td>只导这个宿主装的</td>
+</tr>
+</tbody>
+</table></div>
+<pre><code class="language-bash">skillpm freeze -o team.lock         # 你（定基线的人）
+skillpm install --from team.lock    # 别人，装回完全一样的一套
+</code></pre>
+<blockquote class="note">
+<p>项目级安装（<code>-p</code>）会<strong>自动</strong>写 <code>skillpm.lock</code>；用户级<strong>不自动写</strong>——
+个人偏好不该污染别人的配置，要共享就显式 <code>freeze</code> 一份。</p>
+</blockquote>
+<hr />
+<h2 id="manual-九-装-更新工具本身的脚本参数">九、装/更新工具本身的脚本参数</h2>
+<p><strong>Mac / Linux —— <code>scripts/install.sh</code></strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>写法</th>
+<th>干什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>./scripts/install.sh</code></td>
+<td>自动挑一种能用的装法（默认＝启动器）</td>
+</tr>
+<tr>
+<td><code>./scripts/install.sh --launcher</code></td>
+<td>强制只做启动器（最快，零网络）</td>
+</tr>
+<tr>
+<td><code>./scripts/install.sh --pip</code></td>
+<td>强制用 pip（要能连 PyPI）</td>
+</tr>
+<tr>
+<td><code>PREFIX=/some/bin ./scripts/install.sh</code></td>
+<td>指定装到哪个目录</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>Windows —— <code>scripts\install.ps1</code></strong></p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>参数</th>
+<th>干什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-Mode launcher</code></td>
+<td>只做启动器（默认）</td>
+</tr>
+<tr>
+<td><code>-Mode pip</code></td>
+<td>用 pip 装</td>
+</tr>
+<tr>
+<td><code>-Prefix D:\bin</code></td>
+<td>指定装到哪</td>
+</tr>
+<tr>
+<td><code>-Yes</code></td>
+<td>不弹任何询问，PATH 直接加（批量铺开、CI 用）</td>
+</tr>
+</tbody>
+</table></div>
+<p><strong>重复运行就是更新</strong>：脚本会先 <code>git pull</code> 再重新链接，所以「装」和「更新」是同一条命令。</p>
+<blockquote class="note">
+<p>⚠️ Windows 上<strong>用 <code>&amp;</code> 调用，别用 <code>powershell -File</code></strong>：
+<code>-File</code> 会另起一个进程，它改的 <code>$env:PATH</code> 传不回你的窗口，装完得重开终端。
+<code>&amp;</code> 是在当前会话里跑，装完直接就能敲 <code>skillpm</code>。</p>
+</blockquote>
+<hr />
+<h2 id="manual-十-环境变量">十、环境变量</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>变量</th>
+<th>干什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SKILLPM_HOME</code></td>
+<td>换掉 <code>~/.skillpm</code>（配置、状态、缓存、备份都跟着走）</td>
+</tr>
+<tr>
+<td><code>SKILLPM_REPO</code></td>
+<td><code>bootstrap</code> 脚本从哪个地址克隆工具源码</td>
+</tr>
+<tr>
+<td><code>NO_COLOR</code></td>
+<td>关掉彩色输出（管道、CI 里会自动关）</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="manual-十一-退出码">十一、退出码</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>码</th>
+<th>什么意思</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0</code></td>
+<td>成功</td>
+</tr>
+<tr>
+<td><code>1</code></td>
+<td>有冲突没处理，或操作失败（CI 里可以直接拿来卡）</td>
+</tr>
+<tr>
+<td><code>2</code></td>
+<td>命令行参数写错了</td>
+</tr>
+<tr>
+<td><code>130</code></td>
+<td>你按了 Ctrl-C（没做完的改动不会留下）</td>
+</tr>
+</tbody>
+</table></div>
+<hr />
+<h2 id="manual-十二-文件都放在哪">十二、文件都放在哪</h2>
+<pre><code>~/.skillpm-src/            工具源码（写死的位置，self-update 去这儿拉）
+~/.skillpm/
+  ├── config.json           仓库地址、令牌、宿主路径（权限 600）
+  ├── state.json            装了什么、什么版本、安装时每个文件的哈希
+  ├── repos/&lt;仓库名&gt;/       各仓库的本地缓存
+  └── backup/               更新和覆盖前的旧版，想回退直接拷回去
+&lt;项目根&gt;/skillpm.lock      项目级安装自动写的锁文件
+&lt;宿主目录&gt;/AGENTS.md        装了哪些 Skill 的索引
+</code></pre>
+<p>Windows 对应 <code>%USERPROFILE%\.skillpm-src</code>、<code>%USERPROFILE%\.skillpm</code>。</p>
+<hr />
+<h2 id="manual-附录-一条命令合集">附录：一条命令合集</h2>
+<p><strong>装工具（也是更新工具）</strong></p>
+<pre><code class="language-bash"># Mac / Linux
+git clone https://github.com/suqian-bit/skillpm.git ~/.skillpm-src 2&gt;/dev/null; ~/.skillpm-src/scripts/install.sh
+</code></pre>
+<pre><code class="language-powershell"># Windows
+if (-not (Test-Path $env:USERPROFILE\.skillpm-src)) { git clone https://github.com/suqian-bit/skillpm.git $env:USERPROFILE\.skillpm-src }; Set-ExecutionPolicy -Scope Process Bypass -Force; &amp; &quot;$env:USERPROFILE\.skillpm-src\scripts\install.ps1&quot;
+</code></pre>
+<p>两条都<strong>重复跑也没事</strong>，不需要 SSH key、不需要令牌，只要有 git 和 Python 3.8+。</p>
+<p><strong>日常</strong></p>
+<pre><code class="language-bash">skillpm install     # 装
+skillpm check       # 看看有没有新的
+skillpm update      # 跟上
+skillpm status      # 现在装了什么
+</code></pre>
+<hr />
+<p><strong>问题、建议、踩到的坑</strong> →
+<a href="https://github.com/suqian-bit/skillpm/issues">GitHub Issues</a></p></section><section class="doc" id="doc-onboard"><h1 id="onboard-接入自己的-skill-仓库">接入自己的 Skill 仓库</h1>
+<blockquote class="note">
+<p>给其他团队：想用 skillpm 装、更新<strong>你们自己的</strong> Skill，照这篇做。
+下面的 <code>gitlab.example.com/组/仓库</code> 都换成你们自己的地址。
+截图都是真实运行的输出；其中 <code>gitlab.example.com/ops/…</code> 是录截图时搭的演示仓库（「运维组」），不是真实地址。</p>
+</blockquote>
+<p>分两个角色：</p>
+<ul>
+<li><strong>维护仓库的人</strong>（一次性）：把仓库整理成 skillpm 认得的样子 → 第一步（第二步可选）</li>
+<li><strong>用 Skill 的人</strong>（每人一次）：把仓库加进自己的 skillpm → 第三步</li>
+</ul>
+<hr />
+<h2 id="onboard-第一步-仓库长这样">第一步：仓库长这样</h2>
+<p>Skill 用的是通用的 Agent Skill 格式，<strong>现成的 Skill 直接放进 <code>skills/</code> 就能装</strong>：</p>
+<pre><code>你们的仓库/
+└── skills/                     ← 固定叫这个名字
+    ├── 某个-skill/             ← 一个 Skill 一个目录，目录名就是 Skill 名
+    │   ├── SKILL.md            ← 必须有
+    │   ├── CHANGELOG.md        ← 建议有
+    │   ├── references/         ← 可选：参考资料，SKILL.md 里用到时再读
+    │   ├── scripts/            ← 可选：要执行的脚本
+    │   └── assets/             ← 可选：模板、图片等素材
+    └── 另一个-skill/
+        └── SKILL.md
+</code></pre>
+<p>目录里的所有文件都会原样装过去。</p>
+<h3 id="onboard-skill-md-格式">SKILL.md 格式</h3>
+<pre><code class="language-markdown">---
+name: 某个-skill
+description: 一句话说清楚干什么、什么时候该用它（Agent 靠这句决定要不要用）
+version: 1.0.0
+---
+
+# 某个 Skill
+
+正文：给 Agent 看的操作说明、步骤、注意事项……
+</code></pre>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>字段</th>
+<th>要不要写</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td><strong>必须</strong></td>
+<td>和目录名一模一样</td>
+</tr>
+<tr>
+<td><code>description</code></td>
+<td><strong>必须</strong>（不写只提醒）</td>
+<td>Agent 靠它判断什么时候用这个 Skill，写清「干什么 + 什么时候用」</td>
+</tr>
+<tr>
+<td><code>version</code></td>
+<td>建议</td>
+<td>写了：更新时能看到「1.0.0 → 1.1.0」和更新日志。<strong>不写也能装</strong>：按文件内容判断有没有更新，版本显示成「未标版本-xxxxxxx」</td>
+</tr>
+</tbody>
+</table></div>
+<p><code>version</code> 放在顶层或 <code>metadata:</code> 下面都认。</p>
+<h3 id="onboard-changelog-md-格式-建议">CHANGELOG.md 格式（建议）</h3>
+<p>每次改版本加一节，标题写版本号，最新的在最上面。别人 <code>skillpm update</code> 时会把这中间的几节念给他看：</p>
+<pre><code class="language-markdown">## 1.0.1 — 2026-09-21
+- 修了 xxx
+
+## 1.0.0 — 2026-09-01
+- 初版
+</code></pre>
+<p><strong>就这些，不需要别的配置文件。</strong> 以后改了 Skill：改一下 <code>version</code>、写一节 <code>CHANGELOG</code>，推上去，别人 <code>skillpm update</code> 就能看到。</p>
+<h2 id="onboard-第二步-可选-自检">第二步（可选）：自检</h2>
+<p>在仓库根目录跑一下，看别人能不能装：</p>
+<pre><code class="language-bash">skillpm manifest --check
+</code></pre>
+<p><code>name</code> 和目录名对不上、没有 frontmatter → 报出来是哪个、怎么改，退出码 1（可以放进 CI）；
+没写 <code>version</code>、<code>description</code>、缺 <code>CHANGELOG.md</code> 只提醒。比如 <code>ops-report</code> 目录里 <code>name</code> 写成了别的：</p>
+<p><img alt="自检不通过" class="shot" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDkgMTMwIiB3aWR0aD0iNjQ5IiBoZWlnaHQ9IjEzMCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSLnu4jnq6/vvJpza2lsbHBtIG1hbmlmZXN0IC0tY2hlY2siPgo8cmVjdCB3aWR0aD0iNjQ5IiBoZWlnaHQ9IjEzMCIgcng9IjEwIiBmaWxsPSIjMGYxNzJhIi8+CjxyZWN0IHdpZHRoPSI2NDkiIGhlaWdodD0iMzQiIHJ4PSIxMCIgZmlsbD0iIzFlMjkzYiIvPjxyZWN0IHk9IjI0IiB3aWR0aD0iNjQ5IiBoZWlnaHQ9IjEwIiBmaWxsPSIjMWUyOTNiIi8+CjxjaXJjbGUgY3g9IjIwIiBjeT0iMTciIHI9IjYiIGZpbGw9IiNmZjVmNTciLz48Y2lyY2xlIGN4PSI0MCIgY3k9IjE3IiByPSI2IiBmaWxsPSIjZmViYzJlIi8+PGNpcmNsZSBjeD0iNjAiIGN5PSIxNyIgcj0iNiIgZmlsbD0iIzI4Yzg0MCIvPgo8dGV4dCB4PSIzMjQuNSIgeT0iMjIiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iMTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSItYXBwbGUtc3lzdGVtLFBpbmdGYW5nIFNDLE1pY3Jvc29mdCBZYUhlaSxzYW5zLXNlcmlmIj56c2g8L3RleHQ+CjxnIGZvbnQtZmFtaWx5PSJTRiBNb25vLE1lbmxvLENvbnNvbGFzLFBpbmdGYW5nIFNDLE1pY3Jvc29mdCBZYUhlaSxtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTQiPgo8dGV4dCB4PSIxOC4wIiB5PSI2NCIgZmlsbD0iIzRhZGU4MCIgZm9udC13ZWlnaHQ9IjcwMCI+4p6cPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDQzLjIgNTEuNiA2MC4wIDY4LjQgNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjggMTI3LjIiIHk9IjY0IiBmaWxsPSIjMjJkM2VlIiBmb250LXdlaWdodD0iNzAwIj5+L29wcy1za2lsbHM8L3RleHQ+Cjx0ZXh0IHg9IjE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IDE4Ni4wIDE5NC40IiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+c2tpbGxwbTwvdGV4dD4KPHRleHQgeD0iMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQgMjQ0LjggMjUzLjIgMjYxLjYgMjcwLjAiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5tYW5pZmVzdDwvdGV4dD4KPHRleHQgeD0iMjg2LjggMjk1LjIgMzAzLjYgMzEyLjAgMzIwLjQgMzI4LjggMzM3LjIiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj4tLWNoZWNrPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIiB5PSI4NiIgZmlsbD0iI2Y4NzE3MSI+4pyXPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYiIHk9Ijg2IiBmaWxsPSIjZTJlOGYwIj7ov5nkups8L3RleHQ+Cjx0ZXh0IHg9Ijc2LjggODUuMiA5My42IDEwMi4wIDExMC40IiB5PSI4NiIgZmlsbD0iI2UyZThmMCI+U2tpbGw8L3RleHQ+Cjx0ZXh0IHg9IjEyNy4yIDE0NC4wIDE2MC44IDE3Ny42IDE5NC40IDIxMS4yIiB5PSI4NiIgZmlsbD0iI2UyZThmMCI+5Yir5Lq66KOF5LiN5LiK77yaPC90ZXh0Pgo8dGV4dCB4PSI1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCAxMTAuNCAxMTguOCAxMjcuMiAxMzUuNiAxNTIuNCAxNjAuOCAxNjkuMiAxNzcuNiAxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiIgeT0iMTA4IiBmaWxsPSIjZTJlOGYwIj5vcHMtcmVwb3J077yaU0tJTEwubWQ8L3RleHQ+Cjx0ZXh0IHg9IjIyOC4wIiB5PSIxMDgiIGZpbGw9IiNlMmU4ZjAiPumHjDwvdGV4dD4KPHRleHQgeD0iMjUzLjIgMjYxLjYgMjcwLjAgMjc4LjQiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+bmFtZTwvdGV4dD4KPHRleHQgeD0iMjk1LjIgMzEyLjAgMzI4LjgiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+5YaZ55qE5pivPC90ZXh0Pgo8dGV4dCB4PSIzNTQuMCAzNjIuNCAzNzAuOCAzNzkuMiAzODcuNiAzOTYuMCA0MDQuNCA0MTIuOCA0MjEuMiA0MjkuNiA0MzguMCA0NDYuNCA0NTQuOCA0NjMuMiA0NzEuNiA0ODAuMCA0ODguNCA0OTYuOCA1MTMuNiA1MzAuNCA1NDcuMiA1NjQuMCA1ODAuOCA1OTcuNiA2MTQuNCIgeT0iMTA4IiBmaWxsPSIjZTJlOGYwIj5vcHMtd2Vla2x5LXJlcG9ydO+8jOimgeWSjOebruW9leWQjeS4gOiHtDwvdGV4dD4KPC9nPjwvc3ZnPg==" /></p>
+<p>照提示把 <code>name</code> 改成和目录名一样，再检一次：</p>
+<p><img alt="自检通过" class="shot" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NTcgMTA4IiB3aWR0aD0iNjU3IiBoZWlnaHQ9IjEwOCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSLnu4jnq6/vvJpza2lsbHBtIG1hbmlmZXN0IC0tY2hlY2siPgo8cmVjdCB3aWR0aD0iNjU3IiBoZWlnaHQ9IjEwOCIgcng9IjEwIiBmaWxsPSIjMGYxNzJhIi8+CjxyZWN0IHdpZHRoPSI2NTciIGhlaWdodD0iMzQiIHJ4PSIxMCIgZmlsbD0iIzFlMjkzYiIvPjxyZWN0IHk9IjI0IiB3aWR0aD0iNjU3IiBoZWlnaHQ9IjEwIiBmaWxsPSIjMWUyOTNiIi8+CjxjaXJjbGUgY3g9IjIwIiBjeT0iMTciIHI9IjYiIGZpbGw9IiNmZjVmNTciLz48Y2lyY2xlIGN4PSI0MCIgY3k9IjE3IiByPSI2IiBmaWxsPSIjZmViYzJlIi8+PGNpcmNsZSBjeD0iNjAiIGN5PSIxNyIgcj0iNiIgZmlsbD0iIzI4Yzg0MCIvPgo8dGV4dCB4PSIzMjguNSIgeT0iMjIiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iMTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSItYXBwbGUtc3lzdGVtLFBpbmdGYW5nIFNDLE1pY3Jvc29mdCBZYUhlaSxzYW5zLXNlcmlmIj56c2g8L3RleHQ+CjxnIGZvbnQtZmFtaWx5PSJTRiBNb25vLE1lbmxvLENvbnNvbGFzLFBpbmdGYW5nIFNDLE1pY3Jvc29mdCBZYUhlaSxtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTQiPgo8dGV4dCB4PSIxOC4wIiB5PSI2NCIgZmlsbD0iIzRhZGU4MCIgZm9udC13ZWlnaHQ9IjcwMCI+4p6cPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDQzLjIgNTEuNiA2MC4wIDY4LjQgNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjggMTI3LjIiIHk9IjY0IiBmaWxsPSIjMjJkM2VlIiBmb250LXdlaWdodD0iNzAwIj5+L29wcy1za2lsbHM8L3RleHQ+Cjx0ZXh0IHg9IjE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IDE4Ni4wIDE5NC40IiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+c2tpbGxwbTwvdGV4dD4KPHRleHQgeD0iMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQgMjQ0LjggMjUzLjIgMjYxLjYgMjcwLjAiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5tYW5pZmVzdDwvdGV4dD4KPHRleHQgeD0iMjg2LjggMjk1LjIgMzAzLjYgMzEyLjAgMzIwLjQgMzI4LjggMzM3LjIiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj4tLWNoZWNrPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIiB5PSI4NiIgZmlsbD0iIzRhZGU4MCI+4pyTPC90ZXh0Pgo8dGV4dCB4PSIzNC44IiB5PSI4NiIgZmlsbD0iI2UyZThmMCI+MzwvdGV4dD4KPHRleHQgeD0iNTEuNiIgeT0iODYiIGZpbGw9IiNlMmU4ZjAiPuS4qjwvdGV4dD4KPHRleHQgeD0iNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQiIHk9Ijg2IiBmaWxsPSIjZTJlOGYwIj5Ta2lsbDwvdGV4dD4KPHRleHQgeD0iMTI3LjIgMTQ0LjAgMTYwLjggMTc3LjYgMTk0LjQgMjExLjIiIHk9Ijg2IiBmaWxsPSIjZTJlOGYwIj7pg73lkIjmoLzvvIjmsqHmnIk8L3RleHQ+Cjx0ZXh0IHg9IjIzNi40IDI0NC44IDI1My4yIDI2MS42IDI3MC4wIDI3OC40IDI4Ni44IDI5NS4yIDMwMy42IDMxMi4wIDMyMC40IDMyOC44IDMzNy4yIDM0NS42IDM2Mi40IDM3OS4yIDM5Ni4wIDQxMi44IDQyOS42IDQzOC4wIDQ0Ni40IDQ2My4yIDQ4MC4wIDQ5Ni44IDUxMy42IiB5PSI4NiIgZmlsbD0iI2UyZThmMCI+bWFuaWZlc3QuanNvbu+8jOS5n+S4jemcgOimgeKAlOKAlOijheeahOaXtuWAmeaMiTwvdGV4dD4KPHRleHQgeD0iNTM4LjggNTQ3LjIgNTU1LjYgNTY0LjAgNTcyLjQgNTgwLjggNTg5LjIiIHk9Ijg2IiBmaWxsPSIjZTJlOGYwIj5za2lsbHMvPC90ZXh0Pgo8dGV4dCB4PSI2MDYuMCA2MjIuOCIgeT0iODYiIGZpbGw9IiNlMmU4ZjAiPueul++8iTwvdGV4dD4KPC9nPjwvc3ZnPg==" /></p>
+<blockquote class="note">
+<p>关于 <code>manifest.json</code>：它是<strong>可选的</strong>。仓库里没有，skillpm 装的时候直接按 <code>skills/</code> 当场算；
+有的话就用它。<strong>建议不要提交</strong>——提交了就得每次改完都重新生成（<code>skillpm manifest</code>），
+忘了的话别人看到的是旧版本号。有自己发版流程、想在发布时再把一道关的仓库，才值得保留它。</p>
+</blockquote>
+<p><strong>仓库权限</strong>：最省事是开<strong>匿名读</strong>（GitLab → 项目设置 → 可见性 → 公开/内部），这样大家不用配 SSH key、不用令牌。
+不方便公开的，见下面「私有仓库」。</p>
+<h2 id="onboard-第三步-每个人把仓库加进来">第三步：每个人把仓库加进来</h2>
+<pre><code class="language-bash">skillpm repo add 我们团队 http://gitlab.example.com/组/仓库.git
+</code></pre>
+<p><code>我们团队</code> 是<strong>你给这个仓库起的名字</strong>，不是固定写法——建议就用团队名，比如 <code>运维组</code>、<code>存储组</code>。
+以后 <code>--repo 运维组</code> 就是指这个仓库。地址直接写，<code>http(s)://</code> 和 <code>git@</code> 两种都认。
+加的时候会<strong>先试拉一次</strong>，能装才记下来：</p>
+<p><img alt="加仓库" class="shot" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NDkgMTk2IiB3aWR0aD0iNjQ5IiBoZWlnaHQ9IjE5NiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSLnu4jnq6/vvJpza2lsbHBtIHJlcG8gYWRkIOi/kOe7tOe7hCBodHRwOi8vZ2l0bGFiLmV4YW1wbGUuY29tL29wcy9za2lsbHMuZ2l0Ij4KPHJlY3Qgd2lkdGg9IjY0OSIgaGVpZ2h0PSIxOTYiIHJ4PSIxMCIgZmlsbD0iIzBmMTcyYSIvPgo8cmVjdCB3aWR0aD0iNjQ5IiBoZWlnaHQ9IjM0IiByeD0iMTAiIGZpbGw9IiMxZTI5M2IiLz48cmVjdCB5PSIyNCIgd2lkdGg9IjY0OSIgaGVpZ2h0PSIxMCIgZmlsbD0iIzFlMjkzYiIvPgo8Y2lyY2xlIGN4PSIyMCIgY3k9IjE3IiByPSI2IiBmaWxsPSIjZmY1ZjU3Ii8+PGNpcmNsZSBjeD0iNDAiIGN5PSIxNyIgcj0iNiIgZmlsbD0iI2ZlYmMyZSIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iMTciIHI9IjYiIGZpbGw9IiMyOGM4NDAiLz4KPHRleHQgeD0iMzI0LjUiIHk9IjIyIiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjEyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxQaW5nRmFuZyBTQyxNaWNyb3NvZnQgWWFIZWksc2Fucy1zZXJpZiI+enNoPC90ZXh0Pgo8ZyBmb250LWZhbWlseT0iU0YgTW9ubyxNZW5sbyxDb25zb2xhcyxQaW5nRmFuZyBTQyxNaWNyb3NvZnQgWWFIZWksbW9ub3NwYWNlIiBmb250LXNpemU9IjE0Ij4KPHRleHQgeD0iMTguMCIgeT0iNjQiIGZpbGw9IiM0YWRlODAiIGZvbnQtd2VpZ2h0PSI3MDAiPuKenDwvdGV4dD4KPHRleHQgeD0iMzQuOCIgeT0iNjQiIGZpbGw9IiMyMmQzZWUiIGZvbnQtd2VpZ2h0PSI3MDAiPn48L3RleHQ+Cjx0ZXh0IHg9IjUxLjYgNjAuMCA2OC40IDc2LjggODUuMiA5My42IDEwMi4wIiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+c2tpbGxwbTwvdGV4dD4KPHRleHQgeD0iMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5yZXBvPC90ZXh0Pgo8dGV4dCB4PSIxNjAuOCAxNjkuMiAxNzcuNiIgeT0iNjQiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPmFkZDwvdGV4dD4KPHRleHQgeD0iMTk0LjQgMjExLjIgMjI4LjAiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj7ov5Dnu7Tnu4Q8L3RleHQ+Cjx0ZXh0IHg9IjI1My4yIDI2MS42IDI3MC4wIDI3OC40IDI4Ni44IDI5NS4yIDMwMy42IDMxMi4wIDMyMC40IDMyOC44IDMzNy4yIDM0NS42IDM1NC4wIDM2Mi40IDM3MC44IDM3OS4yIDM4Ny42IDM5Ni4wIDQwNC40IDQxMi44IDQyMS4yIDQyOS42IDQzOC4wIDQ0Ni40IDQ1NC44IDQ2My4yIDQ3MS42IDQ4MC4wIDQ4OC40IDQ5Ni44IDUwNS4yIDUxMy42IDUyMi4wIDUzMC40IDUzOC44IDU0Ny4yIDU1NS42IDU2NC4wIDU3Mi40IDU4MC44IiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+aHR0cDovL2dpdGxhYi5leGFtcGxlLmNvbS9vcHMvc2tpbGxzLmdpdDwvdGV4dD4KPHRleHQgeD0iMzQuOCA1MS42IDY4LjQgODUuMiAxMDIuMCIgeT0iODYiIGZpbGw9IiM3ZDhiYTEiPuWFiOivleaLieS4gOasoTwvdGV4dD4KPHRleHQgeD0iMTI3LjIgMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjggMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQgMjQ0LjggMjUzLjIgMjYxLjYgMjcwLjAgMjc4LjQgMjg2LjggMjk1LjIgMzAzLjYgMzEyLjAgMzIwLjQgMzI4LjggMzM3LjIgMzQ1LjYgMzU0LjAgMzYyLjQgMzcwLjggMzc5LjIgMzg3LjYgMzk2LjAgNDA0LjQgNDEyLjggNDIxLjIgNDI5LjYgNDM4LjAgNDQ2LjQgNDU0LjgiIHk9Ijg2IiBmaWxsPSIjN2Q4YmExIj5odHRwOi8vZ2l0bGFiLmV4YW1wbGUuY29tL29wcy9za2lsbHMuZ2l0PC90ZXh0Pgo8dGV4dCB4PSI0NzEuNiIgeT0iODYiIGZpbGw9IiM3ZDhiYTEiPuKApjwvdGV4dD4KPHRleHQgeD0iMTguMCIgeT0iMTA4IiBmaWxsPSIjNGFkZTgwIj7inJM8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjggMTM1LjYiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+5ouJ5b6X5Yiw77yM6YeM6Z2i5pyJPC90ZXh0Pgo8dGV4dCB4PSIxNjAuOCIgeT0iMTA4IiBmaWxsPSIjZTJlOGYwIj4yPC90ZXh0Pgo8dGV4dCB4PSIxNzcuNiIgeT0iMTA4IiBmaWxsPSIjZTJlOGYwIj7kuKo8L3RleHQ+Cjx0ZXh0IHg9IjIwMi44IDIxMS4yIDIxOS42IDIyOC4wIDIzNi40IDI0NC44IDI2MS42IDI3MC4wIDI3OC40IDI4Ni44IDI5NS4yIDMwMy42IDMxMi4wIDMyMC40IDMyOC44IDMzNy4yIDM0NS42IDM2Mi40IDM3MC44IDM3OS4yIDM4Ny42IDM5Ni4wIDQwNC40IDQxMi44IDQyMS4yIDQyOS42IDQzOC4wIiB5PSIxMDgiIGZpbGw9IiNlMmU4ZjAiPlNraWxs77yab3BzLWJhY2t1cOOAgW9wcy1wYXRyb2w8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAiIHk9IjEzMCIgZmlsbD0iIzdkOGJhMSI+5LuT5bqT6YeM5rKh5pyJPC90ZXh0Pgo8dGV4dCB4PSIxMjcuMiAxMzUuNiAxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiAxNzcuNiAxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCAyNTMuMiIgeT0iMTMwIiBmaWxsPSIjN2Q4YmExIj5tYW5pZmVzdC5qc29u77yM5oyJPC90ZXh0Pgo8dGV4dCB4PSIyNzguNCAyODYuOCAyOTUuMiAzMDMuNiAzMTIuMCAzMjAuNCAzMjguOCIgeT0iMTMwIiBmaWxsPSIjN2Q4YmExIj5za2lsbHMvPC90ZXh0Pgo8dGV4dCB4PSIzNDUuNiAzNjIuNCAzNzkuMiAzOTYuMCA0MTIuOCA0MjkuNiA0NDYuNCA0NjMuMiA0ODAuMCA0OTYuOCA1MTMuNiA1MzAuNCA1NDcuMiA1NjQuMCA1ODAuOCA1OTcuNiA2MTQuNCIgeT0iMTMwIiBmaWxsPSIjN2Q4YmExIj7nm67lvZXnrpfnmoTvvIjov5nmoLflsLHooYzvvIzkuI3nlKjpnZ7lvpfnlJ/miJDvvIk8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAiIHk9IjE1MiIgZmlsbD0iIzRhZGU4MCI+4pyTPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYiIHk9IjE1MiIgZmlsbD0iI2UyZThmMCI+5LuT5bqTPC90ZXh0Pgo8dGV4dCB4PSI3Ni44IDkzLjYgMTEwLjQiIHk9IjE1MiIgZmlsbD0iI2UyZThmMCI+6L+Q57u057uEPC90ZXh0Pgo8dGV4dCB4PSIxMzUuNiAxNTIuNCAxNjkuMiAxODYuMCAyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCAyNzguNCAyODYuOCAyOTUuMiAzMDMuNiAzMTIuMCAzMjAuNCAzMjguOCAzMzcuMiAzNDUuNiAzNTQuMCAzNjIuNCAzNzAuOCAzNzkuMiAzODcuNiAzOTYuMCA0MDQuNCA0MTIuOCA0MjEuMiA0MjkuNiA0MzguMCA0NDYuNCA0NTQuOCA0NjMuMiA0NzEuNiA0ODAuMCA0ODguNCA0OTYuOCA1MDUuMiA1MTMuNiA1MjIuMCA1MzAuNCA1MzguOCA1NTUuNiA1NjQuMCA1NzIuNCA1ODAuOCIgeT0iMTUyIiBmaWxsPSIjZTJlOGYwIj7lt7LorrDkuIvvvJpodHRwOi8vZ2l0bGFiLmV4YW1wbGUuY29tL29wcy9za2lsbHMuZ2l077yIZ2l077yJPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjguNCIgeT0iMTc0IiBmaWxsPSIjN2Q4YmExIj7oo4XlroPnmoQ8L3RleHQ+Cjx0ZXh0IHg9IjkzLjYgMTAyLjAgMTEwLjQgMTE4LjggMTI3LjIgMTM1LjYgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjgiIHk9IjE3NCIgZmlsbD0iIzdkOGJhMSI+U2tpbGzvvJpza2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSIyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCIgeT0iMTc0IiBmaWxsPSIjN2Q4YmExIj5pbnN0YWxsPC90ZXh0Pgo8dGV4dCB4PSIyODYuOCAyOTUuMiAzMDMuNiAzMTIuMCAzMjAuNCAzMjguOCIgeT0iMTc0IiBmaWxsPSIjN2Q4YmExIj4tLXJlcG88L3RleHQ+Cjx0ZXh0IHg9IjM0NS42IDM2Mi40IDM3OS4yIiB5PSIxNzQiIGZpbGw9IiM3ZDhiYTEiPui/kOe7tOe7hDwvdGV4dD4KPC9nPjwvc3ZnPg==" /></p>
+<p>然后装：</p>
+<pre><code class="language-bash">skillpm install --repo 我们团队         # 把你们仓库里的 Skill 装上（只问装到哪）
+skillpm update                          # 以后更新（所有仓库一起）
+</code></pre>
+<p><img alt="从这个仓库装" class="shot" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MjUgNTI2IiB3aWR0aD0iODI1IiBoZWlnaHQ9IjUyNiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSLnu4jnq6/vvJpza2lsbHBtIGluc3RhbGwgLS1yZXBvIOi/kOe7tOe7hCI+CjxyZWN0IHdpZHRoPSI4MjUiIGhlaWdodD0iNTI2IiByeD0iMTAiIGZpbGw9IiMwZjE3MmEiLz4KPHJlY3Qgd2lkdGg9IjgyNSIgaGVpZ2h0PSIzNCIgcng9IjEwIiBmaWxsPSIjMWUyOTNiIi8+PHJlY3QgeT0iMjQiIHdpZHRoPSI4MjUiIGhlaWdodD0iMTAiIGZpbGw9IiMxZTI5M2IiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNyIgcj0iNiIgZmlsbD0iI2ZmNWY1NyIvPjxjaXJjbGUgY3g9IjQwIiBjeT0iMTciIHI9IjYiIGZpbGw9IiNmZWJjMmUiLz48Y2lyY2xlIGN4PSI2MCIgY3k9IjE3IiByPSI2IiBmaWxsPSIjMjhjODQwIi8+Cjx0ZXh0IHg9IjQxMi41IiB5PSIyMiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSIxMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Ii1hcHBsZS1zeXN0ZW0sUGluZ0ZhbmcgU0MsTWljcm9zb2Z0IFlhSGVpLHNhbnMtc2VyaWYiPnpzaDwvdGV4dD4KPGcgZm9udC1mYW1pbHk9IlNGIE1vbm8sTWVubG8sQ29uc29sYXMsUGluZ0ZhbmcgU0MsTWljcm9zb2Z0IFlhSGVpLG1vbm9zcGFjZSIgZm9udC1zaXplPSIxNCI+Cjx0ZXh0IHg9IjE4LjAiIHk9IjY0IiBmaWxsPSIjNGFkZTgwIiBmb250LXdlaWdodD0iNzAwIj7inpw8L3RleHQ+Cjx0ZXh0IHg9IjM0LjgiIHk9IjY0IiBmaWxsPSIjMjJkM2VlIiBmb250LXdlaWdodD0iNzAwIj5+PC90ZXh0Pgo8dGV4dCB4PSI1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCIgeT0iNjQiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPnNraWxscG08L3RleHQ+Cjx0ZXh0IHg9IjExOC44IDEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+aW5zdGFsbDwvdGV4dD4KPHRleHQgeD0iMTg2LjAgMTk0LjQgMjAyLjggMjExLjIgMjE5LjYgMjI4LjAiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj4tLXJlcG88L3RleHQ+Cjx0ZXh0IHg9IjI0NC44IDI2MS42IDI3OC40IiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+6L+Q57u057uEPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIiB5PSI4NiIgZmlsbD0iIzRhZGU4MCI+4pyTPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjguNCA4NS4yIDEwMi4wIDExOC44IDEzNS42IDE1Mi40IDE2OS4yIDE4Ni4wIDIwMi44IDIxMS4yIDIxOS42IDIyOC4wIiB5PSI4NiIgZmlsbD0iI2UyZThmMCI+6L+Q57u057uE77ya5bey5ouJ5Yiw5pyA5paw77yIZ2l077yJPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIDM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjgiIHk9IjEzMCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+5o6i5rWL5Yiw6L+Z5Lqb5a6/5Li7PC90ZXh0Pgo8dGV4dCB4PSIxOC4wIDM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjgiIHk9IjE1MiIgZmlsbD0iI2UyZThmMCI+6KaB6KOF5Yiw5ZOq5Yeg5Liq77yfPC90ZXh0Pgo8dGV4dCB4PSIzNC44IiB5PSIxNzQiIGZpbGw9IiNlMmU4ZjAiPio8L3RleHQ+Cjx0ZXh0IHg9IjUxLjYgNjAuMCIgeT0iMTc0IiBmaWxsPSIjZTJlOGYwIj4xLjwvdGV4dD4KPHRleHQgeD0iNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjgiIHk9IjE3NCIgZmlsbD0iI2UyZThmMCI+Q2xhdWRlPC90ZXh0Pgo8dGV4dCB4PSIxMzUuNiAxNDQuMCAxNTIuNCAxNjAuOCIgeT0iMTc0IiBmaWxsPSIjZTJlOGYwIj5Db2RlPC90ZXh0Pgo8dGV4dCB4PSIxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCAyNzguNCAyODYuOCAyOTUuMiAzMDMuNiAzMTIuMCIgeT0iMTc0IiBmaWxsPSIjN2Q4YmExIj5+Ly5jbGF1ZGUvc2tpbGxzPC90ZXh0Pgo8dGV4dCB4PSIzNC44IiB5PSIxOTYiIGZpbGw9IiNlMmU4ZjAiPio8L3RleHQ+Cjx0ZXh0IHg9IjUxLjYgNjAuMCIgeT0iMTk2IiBmaWxsPSIjZTJlOGYwIj4yLjwvdGV4dD4KPHRleHQgeD0iNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAiIHk9IjE5NiIgZmlsbD0iI2UyZThmMCI+V29ya0J1ZGR5PC90ZXh0Pgo8dGV4dCB4PSIxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCAyNzguNCAyODYuOCAyOTUuMiAzMDMuNiAzMTIuMCAzMjAuNCAzMjguOCAzMzcuMiIgeT0iMTk2IiBmaWxsPSIjN2Q4YmExIj5+Ly53b3JrYnVkZHkvc2tpbGxzPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIDM0LjggNTEuNiA2OC40IDg1LjIiIHk9IjIxOCIgZmlsbD0iIzdkOGJhMSI+5Zue6L2m77yd5YWo6YOoPC90ZXh0Pgo8dGV4dCB4PSIxMTAuNCIgeT0iMjE4IiBmaWxsPSIjN2Q4YmExIj4yPC90ZXh0Pgo8dGV4dCB4PSIxMjcuMiAxNDQuMCAxNjAuOCAxNzcuNiAxOTQuNCAyMTEuMiAyMjguMCAyNDQuOCAyNjEuNiAyNzguNCAyOTUuMiAzMTIuMCAzMjguOCAzNDUuNiAzNTQuMCAzNjIuNCAzNzAuOCAzNzkuMiIgeT0iMjE4IiBmaWxsPSIjN2Q4YmExIj7kuKrvvJvlj6ropoHlhbbkuK3lh6DkuKrlsLHloavluo/lj7fvvIgxLDMsNTwvdGV4dD4KPHRleHQgeD0iMzk2LjAiIHk9IjIxOCIgZmlsbD0iIzdkOGJhMSI+5oiWPC90ZXh0Pgo8dGV4dCB4PSI0MjEuMiA0MjkuNiA0MzguMCA0NDYuNCA0NjMuMiA0ODAuMCA0OTYuOCA1MTMuNiA1MzAuNCA1NDcuMiA1NjQuMCA1ODAuOCA1OTcuNiA2MTQuNCA2MzEuMiA2NDguMCA2NjQuOCA2ODEuNiA2OTguNCA3MTUuMiA3MjMuNiA3NDAuNCA3NTcuMiA3NzQuMCIgeT0iMjE4IiBmaWxsPSIjN2Q4YmExIj4yLTTvvInvvJvliJfooajph4zmsqHmnInlsLHnm7TmjqXloavnm67lvZXot6/lvoTvvJsw77yd6YO95LiN6KaBPC90ZXh0Pgo8dGV4dCB4PSI3OTAuOCIgeT0iMjE4IiBmaWxsPSIjZTJlOGYwIj46PC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjguNCA4NS4yIDEwMi4wIDExOC44IDEzNS42IDE1Mi40IDE2OS4yIDE4Ni4wIDIwMi44IDIxOS42IDIzNi40IDI1My4yIDI3MC4wIDI4Ni44IDMwMy42IDMyMC40IDMzNy4yIDM1NC4wIDM3MC44IDM4Ny42IDQwNC40IDQyMS4yIDQzOC4wIDQ1NC44IDQ3MS42IiB5PSIyNjIiIGZpbGw9IiM3ZDhiYTEiPuWFqOWxgOWuieijhe+8muijheWIsOeUqOaIt+e6p+ebruW9le+8jOWvueS9oOaJgOaciemhueebrueUn+aViO+8jOS4jeWGmemUgeaWh+S7tjwvdGV4dD4KPHRleHQgeD0iMTguMCIgeT0iMzA2IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj7ihpI8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCA3Ni44IiB5PSIzMDYiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPkNsYXVkZTwvdGV4dD4KPHRleHQgeD0iOTMuNiAxMDIuMCAxMTAuNCAxMTguOCIgeT0iMzA2IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5Db2RlPC90ZXh0Pgo8dGV4dCB4PSIxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiAxNzcuNiAxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCIgeT0iMzA2IiBmaWxsPSIjNjBhNWZhIj5+Ly5jbGF1ZGUvc2tpbGxzPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIiB5PSIzMjgiIGZpbGw9IiM0YWRlODAiPuKckzwvdGV4dD4KPHRleHQgeD0iMzQuOCA0My4yIDUxLjYgNjAuMCA2OC40IDc2LjggODUuMiA5My42IDEwMi4wIDExMC40IiB5PSIzMjgiIGZpbGw9IiNlMmU4ZjAiPm9wcy1iYWNrdXA8L3RleHQ+Cjx0ZXh0IHg9IjEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIiB5PSIzMjgiIGZpbGw9IiNlMmU4ZjAiPjEuMi4wPC90ZXh0Pgo8dGV4dCB4PSIyMDIuOCAyMTkuNiAyMzYuNCIgeT0iMzI4IiBmaWxsPSIjN2Q4YmExIj7ov5Dnu7Tnu4Q8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAiIHk9IjM1MCIgZmlsbD0iIzRhZGU4MCI+4pyTPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDQzLjIgNTEuNiA2MC4wIDY4LjQgNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQiIHk9IjM1MCIgZmlsbD0iI2UyZThmMCI+b3BzLXBhdHJvbDwvdGV4dD4KPHRleHQgeD0iMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIiIHk9IjM1MCIgZmlsbD0iI2UyZThmMCI+MS4wLjA8L3RleHQ+Cjx0ZXh0IHg9IjIwMi44IDIxOS42IDIzNi40IiB5PSIzNTAiIGZpbGw9IiM3ZDhiYTEiPui/kOe7tOe7hDwvdGV4dD4KPHRleHQgeD0iMTguMCIgeT0iMzk0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj7ihpI8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCIgeT0iMzk0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5Xb3JrQnVkZHk8L3RleHQ+Cjx0ZXh0IHg9IjEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IDE4Ni4wIDE5NC40IDIwMi44IDIxMS4yIDIxOS42IDIyOC4wIDIzNi40IDI0NC44IDI1My4yIDI2MS42IDI3MC4wIDI3OC40IiB5PSIzOTQiIGZpbGw9IiM2MGE1ZmEiPn4vLndvcmtidWRkeS9za2lsbHM8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAiIHk9IjQxNiIgZmlsbD0iIzRhZGU4MCI+4pyTPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDQzLjIgNTEuNiA2MC4wIDY4LjQgNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQiIHk9IjQxNiIgZmlsbD0iI2UyZThmMCI+b3BzLWJhY2t1cDwvdGV4dD4KPHRleHQgeD0iMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIiIHk9IjQxNiIgZmlsbD0iI2UyZThmMCI+MS4yLjA8L3RleHQ+Cjx0ZXh0IHg9IjIwMi44IDIxOS42IDIzNi40IiB5PSI0MTYiIGZpbGw9IiM3ZDhiYTEiPui/kOe7tOe7hDwvdGV4dD4KPHRleHQgeD0iMTguMCIgeT0iNDM4IiBmaWxsPSIjNGFkZTgwIj7inJM8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNDMuMiA1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCAxMTAuNCIgeT0iNDM4IiBmaWxsPSIjZTJlOGYwIj5vcHMtcGF0cm9sPC90ZXh0Pgo8dGV4dCB4PSIxMzUuNiAxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiIgeT0iNDM4IiBmaWxsPSIjZTJlOGYwIj4xLjAuMDwvdGV4dD4KPHRleHQgeD0iMjAyLjggMjE5LjYgMjM2LjQiIHk9IjQzOCIgZmlsbD0iIzdkOGJhMSI+6L+Q57u057uEPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIiB5PSI0ODIiIGZpbGw9IiM0YWRlODAiPuKckzwvdGV4dD4KPHRleHQgeD0iMzQuOCA1MS42IDY4LjQgODUuMiIgeT0iNDgyIiBmaWxsPSIjZTJlOGYwIj7oo4XlrozkuobjgII8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjggMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAiIHk9IjUwNCIgZmlsbD0iIzdkOGJhMSI+55yL6KOF5LqG5LuA5LmI77yac2tpbGxwbTwvdGV4dD4KPHRleHQgeD0iMjAyLjggMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQgMjQ0LjggMjUzLjIgMjcwLjAgMjg2LjggMzAzLjYgMzIwLjQgMzM3LjIgMzU0LjAgMzYyLjQgMzcwLjggMzc5LjIgMzg3LjYgMzk2LjAgNDA0LjQiIHk9IjUwNCIgZmlsbD0iIzdkOGJhMSI+c3RhdHVz77yb6Lef5LiK5pu05paw77yac2tpbGxwbTwvdGV4dD4KPHRleHQgeD0iNDIxLjIgNDI5LjYgNDM4LjAgNDQ2LjQgNDU0LjggNDYzLjIiIHk9IjUwNCIgZmlsbD0iIzdkOGJhMSI+dXBkYXRlPC90ZXh0Pgo8L2c+PC9zdmc+" /></p>
+<p>配了哪些仓库、各有几个 Skill、本机装了几个：<code>skillpm repo</code></p>
+<p><img alt="看配了哪些仓库" class="shot" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5MDkgNTcwIiB3aWR0aD0iOTA5IiBoZWlnaHQ9IjU3MCIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSLnu4jnq6/vvJpza2lsbHBtIHJlcG8iPgo8cmVjdCB3aWR0aD0iOTA5IiBoZWlnaHQ9IjU3MCIgcng9IjEwIiBmaWxsPSIjMGYxNzJhIi8+CjxyZWN0IHdpZHRoPSI5MDkiIGhlaWdodD0iMzQiIHJ4PSIxMCIgZmlsbD0iIzFlMjkzYiIvPjxyZWN0IHk9IjI0IiB3aWR0aD0iOTA5IiBoZWlnaHQ9IjEwIiBmaWxsPSIjMWUyOTNiIi8+CjxjaXJjbGUgY3g9IjIwIiBjeT0iMTciIHI9IjYiIGZpbGw9IiNmZjVmNTciLz48Y2lyY2xlIGN4PSI0MCIgY3k9IjE3IiByPSI2IiBmaWxsPSIjZmViYzJlIi8+PGNpcmNsZSBjeD0iNjAiIGN5PSIxNyIgcj0iNiIgZmlsbD0iIzI4Yzg0MCIvPgo8dGV4dCB4PSI0NTQuNSIgeT0iMjIiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iMTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSItYXBwbGUtc3lzdGVtLFBpbmdGYW5nIFNDLE1pY3Jvc29mdCBZYUhlaSxzYW5zLXNlcmlmIj56c2g8L3RleHQ+CjxnIGZvbnQtZmFtaWx5PSJTRiBNb25vLE1lbmxvLENvbnNvbGFzLFBpbmdGYW5nIFNDLE1pY3Jvc29mdCBZYUhlaSxtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTQiPgo8dGV4dCB4PSIxOC4wIiB5PSI2NCIgZmlsbD0iIzRhZGU4MCIgZm9udC13ZWlnaHQ9IjcwMCI+4p6cPC90ZXh0Pgo8dGV4dCB4PSIzNC44IiB5PSI2NCIgZmlsbD0iIzIyZDNlZSIgZm9udC13ZWlnaHQ9IjcwMCI+fjwvdGV4dD4KPHRleHQgeD0iNTEuNiA2MC4wIDY4LjQgNzYuOCA4NS4yIDkzLjYgMTAyLjAiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5za2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSIxMTguOCAxMjcuMiAxMzUuNiAxNDQuMCIgeT0iNjQiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPnJlcG88L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IDg1LjIiIHk9Ijg2IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj7luLjnlKjlhpnms5U8L3RleHQ+Cjx0ZXh0IHg9IjUxLjYgNjguNCA4NS4yIDEwMi4wIDExOC44IDEzNS42IDE1Mi40IiB5PSIxMDgiIGZpbGw9IiNlMmU4ZjAiPueci+mFjeS6huWTquS6m+S7k+W6kzwvdGV4dD4KPHRleHQgeD0iMzg3LjYgMzk2LjAgNDA0LjQgNDEyLjggNDIxLjIgNDI5LjYgNDM4LjAiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+c2tpbGxwbTwvdGV4dD4KPHRleHQgeD0iNDU0LjggNDYzLjIgNDcxLjYgNDgwLjAiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+cmVwbzwvdGV4dD4KPHRleHQgeD0iNDk2LjggNTA1LjIgNTEzLjYgNTIyLjAiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+bGlzdDwvdGV4dD4KPHRleHQgeD0iNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjggMTM1LjYgMTUyLjQgMTY5LjIgMTg2LjAgMjAyLjggMjE5LjYgMjM2LjQgMjUzLjIgMjcwLjAgMjg2LjggMzAzLjYgMzIwLjQgMzM3LjIgMzU0LjAiIHk9IjEzMCIgZmlsbD0iI2UyZThmMCI+5Yqg5LiA5Liq5LuT5bqT77yI5ZCN5a2X6Ieq5bex6LW377yM5bu66K6u55So5Zui6Zif5ZCN77yJPC90ZXh0Pgo8dGV4dCB4PSIzODcuNiAzOTYuMCA0MDQuNCA0MTIuOCA0MjEuMiA0MjkuNiA0MzguMCIgeT0iMTMwIiBmaWxsPSIjZTJlOGYwIj5za2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSI0NTQuOCA0NjMuMiA0NzEuNiA0ODAuMCIgeT0iMTMwIiBmaWxsPSIjZTJlOGYwIj5yZXBvPC90ZXh0Pgo8dGV4dCB4PSI0OTYuOCA1MDUuMiA1MTMuNiIgeT0iMTMwIiBmaWxsPSIjZTJlOGYwIj5hZGQ8L3RleHQ+Cjx0ZXh0IHg9IjUzMC40IDU0Ny4yIDU2NC4wIDU4MC44IiB5PSIxMzAiIGZpbGw9IiNlMmU4ZjAiPuaIkeS7rOWboumYnzwvdGV4dD4KPHRleHQgeD0iNjA2LjAgNjE0LjQgNjIyLjggNjMxLjIgNjM5LjYgNjQ4LjAgNjU2LjQgNjY0LjggNjczLjIgNjgxLjYgNjkwLjAgNjk4LjQgNzA2LjggNzE1LjIgNzIzLjYgNzMyLjAgNzQwLjQgNzQ4LjggNzU3LjIgNzY1LjYgNzc0LjAgNzgyLjQgNzkwLjggNzk5LjIgODA3LjYgODE2LjAgODI0LjQgODQxLjIgODQ5LjYgODY2LjQgODgzLjIiIHk9IjEzMCIgZmlsbD0iI2UyZThmMCI+aHR0cDovL2dpdGxhYi5leGFtcGxlLmNvbS/nu4Qv5LuT5bqTLjwvdGV4dD4KPHRleHQgeD0iMTguMCAyNi40IDM0LjgiIHk9IjE1MiIgZmlsbD0iI2UyZThmMCI+Z2l0PC90ZXh0Pgo8dGV4dCB4PSI1MS42IiB5PSIxNzQiIGZpbGw9IiNlMmU4ZjAiPui1sDwvdGV4dD4KPHRleHQgeD0iNzYuOCA4NS4yIDkzLjYiIHk9IjE3NCIgZmlsbD0iI2UyZThmMCI+U1NIPC90ZXh0Pgo8dGV4dCB4PSIzODcuNiAzOTYuMCA0MDQuNCA0MTIuOCA0MjEuMiA0MjkuNiA0MzguMCIgeT0iMTc0IiBmaWxsPSIjZTJlOGYwIj5za2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSI0NTQuOCA0NjMuMiA0NzEuNiA0ODAuMCIgeT0iMTc0IiBmaWxsPSIjZTJlOGYwIj5yZXBvPC90ZXh0Pgo8dGV4dCB4PSI0OTYuOCA1MDUuMiA1MTMuNiIgeT0iMTc0IiBmaWxsPSIjZTJlOGYwIj5hZGQ8L3RleHQ+Cjx0ZXh0IHg9IjUzMC40IDU0Ny4yIDU2NC4wIDU4MC44IiB5PSIxNzQiIGZpbGw9IiNlMmU4ZjAiPuaIkeS7rOWboumYnzwvdGV4dD4KPHRleHQgeD0iNjA2LjAgNjE0LjQgNjIyLjggNjMxLjIgNjM5LjYgNjQ4LjAgNjU2LjQgNjY0LjggNjczLjIgNjgxLjYgNjkwLjAgNjk4LjQgNzA2LjggNzE1LjIgNzIzLjYgNzMyLjAgNzQwLjQgNzQ4LjggNzU3LjIgNzY1LjYgNzc0LjAgNzgyLjQgNzkwLjggNzk5LjIgODE2LjAgODI0LjQgODQxLjIgODU4LjAgODY2LjQgODc0LjggODgzLjIiIHk9IjE3NCIgZmlsbD0iI2UyZThmMCI+Z2l0QGdpdGxhYi5leGFtcGxlLmNvbTrnu4Qv5LuT5bqTLmdpdDwvdGV4dD4KPHRleHQgeD0iNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjggMTM1LjYgMTUyLjQiIHk9IjE5NiIgZmlsbD0iI2UyZThmMCI+56eB5pyJ5LuT5bqT5bim5Luk54mMPC90ZXh0Pgo8dGV4dCB4PSIzODcuNiAzOTYuMCA0MDQuNCA0MTIuOCA0MjEuMiA0MjkuNiA0MzguMCIgeT0iMTk2IiBmaWxsPSIjZTJlOGYwIj5za2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSI0NTQuOCA0NjMuMiA0NzEuNiA0ODAuMCIgeT0iMTk2IiBmaWxsPSIjZTJlOGYwIj5yZXBvPC90ZXh0Pgo8dGV4dCB4PSI0OTYuOCA1MDUuMiA1MTMuNiIgeT0iMTk2IiBmaWxsPSIjZTJlOGYwIj5hZGQ8L3RleHQ+Cjx0ZXh0IHg9IjUzMC40IDU0Ny4yIDU2NC4wIDU4MC44IiB5PSIxOTYiIGZpbGw9IiNlMmU4ZjAiPuaIkeS7rOWboumYnzwvdGV4dD4KPHRleHQgeD0iNjA2LjAgNjE0LjQgNjIyLjggNjMxLjIgNjM5LjYgNjQ4LjAgNjU2LjQgNjY0LjggNjczLjIgNjgxLjYgNjkwLjAgNjk4LjQgNzA2LjggNzE1LjIgNzIzLjYgNzMyLjAgNzQwLjQgNzQ4LjggNzU3LjIgNzY1LjYgNzc0LjAgNzgyLjQgNzkwLjggNzk5LjIgODA3LjYgODE2LjAgODI0LjQgODQxLjIgODQ5LjYgODY2LjQgODgzLjIiIHk9IjE5NiIgZmlsbD0iI2UyZThmMCI+aHR0cDovL2dpdGxhYi5leGFtcGxlLmNvbS/nu4Qv5LuT5bqTLjwvdGV4dD4KPHRleHQgeD0iMTguMCAyNi40IDM0LjgiIHk9IjIxOCIgZmlsbD0iI2UyZThmMCI+Z2l0PC90ZXh0Pgo8dGV4dCB4PSI1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCIgeT0iMjE4IiBmaWxsPSIjZTJlOGYwIj4tLXRva2VuPC90ZXh0Pgo8dGV4dCB4PSIxMTguOCAxMjcuMiAxNDQuMCAxNjAuOCIgeT0iMjE4IiBmaWxsPSIjZTJlOGYwIj4mbHQ75Luk54mMJmd0OzwvdGV4dD4KPHRleHQgeD0iNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjggMTM1LjYiIHk9IjI0MCIgZmlsbD0iI2UyZThmMCI+5Yig5o6J77yI5bey6KOF55qEPC90ZXh0Pgo8dGV4dCB4PSIxNjAuOCAxNjkuMiAxNzcuNiAxODYuMCAxOTQuNCIgeT0iMjQwIiBmaWxsPSIjZTJlOGYwIj5Ta2lsbDwvdGV4dD4KPHRleHQgeD0iMjExLjIgMjI4LjAgMjQ0LjgiIHk9IjI0MCIgZmlsbD0iI2UyZThmMCI+5LiN5Yqo77yJPC90ZXh0Pgo8dGV4dCB4PSIzODcuNiAzOTYuMCA0MDQuNCA0MTIuOCA0MjEuMiA0MjkuNiA0MzguMCIgeT0iMjQwIiBmaWxsPSIjZTJlOGYwIj5za2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSI0NTQuOCA0NjMuMiA0NzEuNiA0ODAuMCIgeT0iMjQwIiBmaWxsPSIjZTJlOGYwIj5yZXBvPC90ZXh0Pgo8dGV4dCB4PSI0OTYuOCA1MDUuMiA1MTMuNiA1MjIuMCA1MzAuNCA1MzguOCIgeT0iMjQwIiBmaWxsPSIjZTJlOGYwIj5yZW1vdmU8L3RleHQ+Cjx0ZXh0IHg9IjU1NS42IDU3Mi40IDU4OS4yIDYwNi4wIiB5PSIyNDAiIGZpbGw9IiNlMmU4ZjAiPuaIkeS7rOWboumYnzwvdGV4dD4KPHRleHQgeD0iMTguMCAzNC44IDUxLjYiIHk9IjI4NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+6L+Q57u057uEPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjguNCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjggMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQgMjQ0LjggMjUzLjIgMjYxLjYgMjcwLjAgMjc4LjQgMjg2LjggMjk1LjIgMzAzLjYgMzEyLjAgMzIwLjQgMzI4LjggMzM3LjIgMzQ1LjYgMzU0LjAgMzYyLjQgMzcwLjggMzc5LjIgMzg3LjYgMzk2LjAgNDA0LjQgNDEyLjgiIHk9IjMwNiIgZmlsbD0iI2UyZThmMCI+5Zyw5Z2A77yaaHR0cDovL2dpdGxhYi5leGFtcGxlLmNvbS9vcHMvc2tpbGxzLmdpdDwvdGV4dD4KPHRleHQgeD0iMzQuOCA1MS42IDY4LjQgODUuMiA5My42IDEwMi4wIDExMC40IiB5PSIzMjgiIGZpbGw9IiNlMmU4ZjAiPuWIhuaUr++8mm1haW48L3RleHQ+Cjx0ZXh0IHg9IjEzNS42IDE1Mi40IDE2OS4yIDE4Ni4wIDE5NC40IDIwMi44IiB5PSIzMjgiIGZpbGw9IiNlMmU4ZjAiPuaWueW8j++8mmdpdDwvdGV4dD4KPHRleHQgeD0iMjI4LjAgMjQ0LjggMjYxLjYgMjc4LjQiIHk9IjMyOCIgZmlsbD0iI2UyZThmMCI+5rKh6YWN5Luk54mMPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjguNCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjggMjExLjIgMjE5LjYgMjI4LjAgMjQ0LjggMjYxLjYiIHk9IjM1MCIgZmlsbD0iI2UyZThmMCI+57yT5a2Y77yafi8uc2tpbGxwbS9yZXBvcy/ov5Dnu7Tnu4Q8L3RleHQ+Cjx0ZXh0IHg9IjI5NS4yIDMwMy42IDMxMi4wIDMyMC40IDMyOC44IDMzNy4yIiB5PSIzNTAiIGZpbGw9IiM3ZDhiYTEiPmNvbW1pdDwvdGV4dD4KPHRleHQgeD0iMzU0LjAgMzYyLjQgMzcwLjggMzc5LjIgMzg3LjYgMzk2LjAgNDA0LjQgNDEyLjgiIHk9IjM1MCIgZmlsbD0iIzdkOGJhMSI+NDVjNWE4YjM8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IiB5PSIzNzIiIGZpbGw9IiNlMmU4ZjAiPumHjOmdouaciTwvdGV4dD4KPHRleHQgeD0iOTMuNiIgeT0iMzcyIiBmaWxsPSIjZTJlOGYwIj4yPC90ZXh0Pgo8dGV4dCB4PSIxMTAuNCIgeT0iMzcyIiBmaWxsPSIjZTJlOGYwIj7kuKo8L3RleHQ+Cjx0ZXh0IHg9IjEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IDE5NC40IDIxMS4yIDIyOC4wIDI0NC44IiB5PSIzNzIiIGZpbGw9IiNlMmU4ZjAiPlNraWxs77yM5pys5py66KOF5LqGPC90ZXh0Pgo8dGV4dCB4PSIyNzAuMCIgeT0iMzcyIiBmaWxsPSIjZTJlOGYwIj4yPC90ZXh0Pgo8dGV4dCB4PSIyODYuOCAzMDMuNiAzMjAuNCAzMjguOCAzMzcuMiAzNDUuNiAzNTQuMCAzNjIuNCIgeT0iMzcyIiBmaWxsPSIjZTJlOGYwIj7kuKrvvIhDbGF1ZGU8L3RleHQ+Cjx0ZXh0IHg9IjM3OS4yIDM4Ny42IDM5Ni4wIDQwNC40IDQxMi44IDQyOS42IDQzOC4wIDQ0Ni40IDQ1NC44IDQ2My4yIDQ3MS42IDQ4MC4wIDQ4OC40IDQ5Ni44IDUwNS4yIiB5PSIzNzIiIGZpbGw9IiNlMmU4ZjAiPkNvZGXjgIFXb3JrQnVkZHnvvIk8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAgMzQuOCA1MS42IDY4LjQiIHk9IjQxNiIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+6L+Q57u056eB5pyJPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjguNCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjggMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQgMjQ0LjggMjUzLjIgMjYxLjYgMjcwLjAgMjc4LjQgMjg2LjggMjk1LjIgMzAzLjYgMzEyLjAgMzIwLjQgMzI4LjggMzM3LjIgMzQ1LjYgMzU0LjAgMzYyLjQgMzcwLjggMzc5LjIgMzg3LjYgMzk2LjAgNDA0LjQgNDEyLjggNDIxLjIiIHk9IjQzOCIgZmlsbD0iI2UyZThmMCI+5Zyw5Z2A77yaaHR0cDovL2dpdGxhYi5leGFtcGxlLmNvbS9vcHMvcHJpdmF0ZS5naXQ8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IDg1LjIgOTMuNiAxMDIuMCAxMTAuNCIgeT0iNDYwIiBmaWxsPSIjZTJlOGYwIj7liIbmlK/vvJptYWluPC90ZXh0Pgo8dGV4dCB4PSIxMzUuNiAxNTIuNCAxNjkuMiAxODYuMCAxOTQuNCAyMDIuOCIgeT0iNDYwIiBmaWxsPSIjZTJlOGYwIj7mlrnlvI/vvJpnaXQ8L3RleHQ+Cjx0ZXh0IHg9IjIyOC4wIDI0NC44IDI2MS42IDI3OC40IDI5NS4yIDMxMi4wIDMyOC44IDM0NS42IDM2Mi40IDM3OS4yIDM5Ni4wIDQxMi44IDQyOS42IiB5PSI0NjAiIGZpbGw9IiNlMmU4ZjAiPuW3sumFjeS7pOeJjO+8iOi+k+WHuumHjOS4gOW+i+aJk+egge+8iTwvdGV4dD4KPHRleHQgeD0iMzQuOCA1MS42IDY4LjQgODUuMiA5My42IDEwMi4wIDExMC40IDExOC44IDEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IDE4Ni4wIDE5NC40IDIwMi44IDIxMS4yIDIxOS42IDIyOC4wIDI0NC44IDI2MS42IDI3OC40IiB5PSI0ODIiIGZpbGw9IiNlMmU4ZjAiPue8k+WtmO+8mn4vLnNraWxscG0vcmVwb3Mv6L+Q57u056eB5pyJPC90ZXh0Pgo8dGV4dCB4PSIzMTIuMCAzMjAuNCAzMjguOCAzMzcuMiAzNDUuNiAzNTQuMCIgeT0iNDgyIiBmaWxsPSIjN2Q4YmExIj5jb21taXQ8L3RleHQ+Cjx0ZXh0IHg9IjM3MC44IDM3OS4yIDM4Ny42IDM5Ni4wIDQwNC40IDQxMi44IDQyMS4yIDQyOS42IiB5PSI0ODIiIGZpbGw9IiM3ZDhiYTEiPjM0MWIyYjNjPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjguNCIgeT0iNTA0IiBmaWxsPSIjZTJlOGYwIj7ph4zpnaLmnIk8L3RleHQ+Cjx0ZXh0IHg9IjkzLjYiIHk9IjUwNCIgZmlsbD0iI2UyZThmMCI+MTwvdGV4dD4KPHRleHQgeD0iMTEwLjQiIHk9IjUwNCIgZmlsbD0iI2UyZThmMCI+5LiqPC90ZXh0Pgo8dGV4dCB4PSIxMzUuNiAxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiAxNzcuNiAxOTQuNCAyMTEuMiAyMjguMCAyNDQuOCAyNjEuNiAyNzguNCAyOTUuMiIgeT0iNTA0IiBmaWxsPSIjZTJlOGYwIj5Ta2lsbO+8jOacrOacuuS4gOS4qumDveayoeijhTwvdGV4dD4KPHRleHQgeD0iMzQuOCA1MS42IDY4LjQgODUuMiAxMDIuMCAxMTguOCAxMzUuNiAxNTIuNCAxNjkuMiAxODYuMCAyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCAyNTMuMiIgeT0iNTQ4IiBmaWxsPSIjN2Q4YmExIj7nnIvmr4/kuKrlrr/kuLvoo4Xkuoblk6rkupvvvJpza2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSIyNzAuMCAyNzguNCAyODYuOCAyOTUuMiAzMDMuNiAzMTIuMCAzMjAuNCAzMzcuMiAzNTQuMCAzNzAuOCAzODcuNiA0MDQuNCA0MjEuMiA0MzguMCA0NTQuOCA0NzEuNiA0ODAuMCA0ODguNCA0OTYuOCA1MDUuMiA1MTMuNiA1MjIuMCIgeT0iNTQ4IiBmaWxsPSIjN2Q4YmExIj5zdGF0dXPvvJvlj6roo4Xmn5DkuKrku5PlupPnmoTvvJpza2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSI1MzguOCA1NDcuMiA1NTUuNiA1NjQuMCA1NzIuNCA1ODAuOCA1ODkuMiIgeT0iNTQ4IiBmaWxsPSIjN2Q4YmExIj5pbnN0YWxsPC90ZXh0Pgo8dGV4dCB4PSI2MDYuMCA2MTQuNCA2MjIuOCA2MzEuMiA2MzkuNiA2NDguMCIgeT0iNTQ4IiBmaWxsPSIjN2Q4YmExIj4tLXJlcG88L3RleHQ+Cjx0ZXh0IHg9IjY2NC44IDY3My4yIDY5MC4wIDcwNi44IiB5PSI1NDgiIGZpbGw9IiM3ZDhiYTEiPiZsdDvlkI3lrZcmZ3Q7PC90ZXh0Pgo8L2c+PC9zdmc+" /></p>
+<h3 id="onboard-第一次用-skillpm-的人">第一次用 skillpm 的人</h3>
+<p>装完工具，第一次跑 <code>skillpm install</code> 会先问仓库地址，填你们的：</p>
+<pre><code>1/2　Skill 仓库
+  仓库地址: http://gitlab.example.com/ops/skills.git
+  给它起个名字，以后 --repo 用它指这个仓库（建议用团队名）
+  仓库名 [ops]:                              ← 默认取地址里的组名，回车就行
+  先试拉一次 http://gitlab.example.com/ops/skills.git …
+✓ 拉得到，里面有 2 个 Skill：某个-skill、另一个-skill
+
+2/2　装到哪
+  ……
+</code></pre>
+<p>拉不到会说清楚原因、让你重填地址；是私有仓库的话会问你要访问令牌（直接回车＝重填地址）。
+已经配了别的仓库也没关系，<code>repo add</code> 再加一个，几个仓库可以同时用。</p>
+<h3 id="onboard-私有仓库">私有仓库</h3>
+<p>两种任选：</p>
+<pre><code class="language-bash"># ① 用令牌（GitLab → 头像 → Preferences → Access Tokens，勾 read_repository）
+skillpm repo add 我们团队 http://gitlab.example.com/组/仓库.git --token &lt;令牌&gt;
+
+# ② 用 SSH（要先把自己的 SSH key 加到 GitLab）
+skillpm repo add 我们团队 git@gitlab.example.com:组/仓库.git
+</code></pre>
+<p>不带令牌加私有仓库，会告诉你要登录：</p>
+<p><img alt="私有仓库不带令牌" class="shot" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5MDkgMjYyIiB3aWR0aD0iOTA5IiBoZWlnaHQ9IjI2MiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSLnu4jnq6/vvJpza2lsbHBtIHJlcG8gYWRkIOi/kOe7tOengeaciSBodHRwOi8vZ2l0bGFiLmV4YW1wbGUuY29tL29wcy9wcml2YXRlLmdpdCI+CjxyZWN0IHdpZHRoPSI5MDkiIGhlaWdodD0iMjYyIiByeD0iMTAiIGZpbGw9IiMwZjE3MmEiLz4KPHJlY3Qgd2lkdGg9IjkwOSIgaGVpZ2h0PSIzNCIgcng9IjEwIiBmaWxsPSIjMWUyOTNiIi8+PHJlY3QgeT0iMjQiIHdpZHRoPSI5MDkiIGhlaWdodD0iMTAiIGZpbGw9IiMxZTI5M2IiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIxNyIgcj0iNiIgZmlsbD0iI2ZmNWY1NyIvPjxjaXJjbGUgY3g9IjQwIiBjeT0iMTciIHI9IjYiIGZpbGw9IiNmZWJjMmUiLz48Y2lyY2xlIGN4PSI2MCIgY3k9IjE3IiByPSI2IiBmaWxsPSIjMjhjODQwIi8+Cjx0ZXh0IHg9IjQ1NC41IiB5PSIyMiIgZmlsbD0iIzk0YTNiOCIgZm9udC1zaXplPSIxMiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Ii1hcHBsZS1zeXN0ZW0sUGluZ0ZhbmcgU0MsTWljcm9zb2Z0IFlhSGVpLHNhbnMtc2VyaWYiPnpzaDwvdGV4dD4KPGcgZm9udC1mYW1pbHk9IlNGIE1vbm8sTWVubG8sQ29uc29sYXMsUGluZ0ZhbmcgU0MsTWljcm9zb2Z0IFlhSGVpLG1vbm9zcGFjZSIgZm9udC1zaXplPSIxNCI+Cjx0ZXh0IHg9IjE4LjAiIHk9IjY0IiBmaWxsPSIjNGFkZTgwIiBmb250LXdlaWdodD0iNzAwIj7inpw8L3RleHQ+Cjx0ZXh0IHg9IjM0LjgiIHk9IjY0IiBmaWxsPSIjMjJkM2VlIiBmb250LXdlaWdodD0iNzAwIj5+PC90ZXh0Pgo8dGV4dCB4PSI1MS42IDYwLjAgNjguNCA3Ni44IDg1LjIgOTMuNiAxMDIuMCIgeT0iNjQiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPnNraWxscG08L3RleHQ+Cjx0ZXh0IHg9IjExOC44IDEyNy4yIDEzNS42IDE0NC4wIiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+cmVwbzwvdGV4dD4KPHRleHQgeD0iMTYwLjggMTY5LjIgMTc3LjYiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5hZGQ8L3RleHQ+Cjx0ZXh0IHg9IjE5NC40IDIxMS4yIDIyOC4wIDI0NC44IiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+6L+Q57u056eB5pyJPC90ZXh0Pgo8dGV4dCB4PSIyNzAuMCAyNzguNCAyODYuOCAyOTUuMiAzMDMuNiAzMTIuMCAzMjAuNCAzMjguOCAzMzcuMiAzNDUuNiAzNTQuMCAzNjIuNCAzNzAuOCAzNzkuMiAzODcuNiAzOTYuMCA0MDQuNCA0MTIuOCA0MjEuMiA0MjkuNiA0MzguMCA0NDYuNCA0NTQuOCA0NjMuMiA0NzEuNiA0ODAuMCA0ODguNCA0OTYuOCA1MDUuMiA1MTMuNiA1MjIuMCA1MzAuNCA1MzguOCA1NDcuMiA1NTUuNiA1NjQuMCA1NzIuNCA1ODAuOCA1ODkuMiA1OTcuNiA2MDYuMCIgeT0iNjQiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPmh0dHA6Ly9naXRsYWIuZXhhbXBsZS5jb20vb3BzL3ByaXZhdGUuZ2l0PC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjguNCA4NS4yIDEwMi4wIiB5PSI4NiIgZmlsbD0iIzdkOGJhMSI+5YWI6K+V5ouJ5LiA5qyhPC90ZXh0Pgo8dGV4dCB4PSIxMjcuMiAxMzUuNiAxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiAxNzcuNiAxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCAyNzguNCAyODYuOCAyOTUuMiAzMDMuNiAzMTIuMCAzMjAuNCAzMjguOCAzMzcuMiAzNDUuNiAzNTQuMCAzNjIuNCAzNzAuOCAzNzkuMiAzODcuNiAzOTYuMCA0MDQuNCA0MTIuOCA0MjEuMiA0MjkuNiA0MzguMCA0NDYuNCA0NTQuOCA0NjMuMiIgeT0iODYiIGZpbGw9IiM3ZDhiYTEiPmh0dHA6Ly9naXRsYWIuZXhhbXBsZS5jb20vb3BzL3ByaXZhdGUuZ2l0PC90ZXh0Pgo8dGV4dCB4PSI0ODAuMCIgeT0iODYiIGZpbGw9IiM3ZDhiYTEiPuKApjwvdGV4dD4KPHRleHQgeD0iMTguMCIgeT0iMTA4IiBmaWxsPSIjZjg3MTcxIj7inJc8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IDg1LjIiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+6L+Q57u056eB5pyJPC90ZXh0Pgo8dGV4dCB4PSIxMTAuNCAxMjcuMiAxNDQuMCAxNjAuOCAxNzcuNiAxOTQuNCAyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCIgeT0iMTA4IiBmaWxsPSIjZTJlOGYwIj7mi4nlj5blpLHotKXvvJpHaXRMYWI8L3RleHQ+Cjx0ZXh0IHg9IjI1My4yIDI3MC4wIDI4Ni44IDMwMy42IDMyMC40IDMyOC44IDMzNy4yIDM1NC4wIDM3MC44IDM4Ny42IDQwNC40IDQyMS4yIDQzOC4wIDQ1NC44IDQ3MS42IDQ4OC40IDUwNS4yIDUyMi4wIDUzOC44IDU1NS42IDU3Mi40IDU4MC44IDU4OS4yIDU5Ny42IDYwNi4wIDYxNC40IiB5PSIxMDgiIGZpbGw9IiNlMmU4ZjAiPuimgeaxgueZu+W9leKAlOKAlOS7k+W6k+S4jeWtmOWcqO+8jOaIluiAheS4jeaYr+WFrOW8gOeahO+8iEdpdExhYjwvdGV4dD4KPHRleHQgeD0iNjMxLjIgNjQ4LjAgNjY0LjggNjgxLjYgNjk4LjQgNzE1LjIgNzMyLjAgNzQ4LjggNzY1LjYgNzgyLjQgNzk5LjIgODE2LjAgODMyLjggODQ5LjYiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+5a+55LiN5a2Y5Zyo55qE5LuT5bqT5Lmf5Lya6KaB5rGC55m75b2V77yJPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjAuMCA2OC40IiB5PSIxMzAiIGZpbGw9IiNlMmU4ZjAiPu+8iGdpdDwvdGV4dD4KPHRleHQgeD0iODUuMiAxMDIuMCAxMTguOCAxMzUuNiAxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiAxNzcuNiIgeT0iMTMwIiBmaWxsPSIjZTJlOGYwIj7ljp/or53vvJpmYXRhbDo8L3RleHQ+Cjx0ZXh0IHg9IjE5NC40IDIwMi44IDIxMS4yIDIxOS42IDIyOC4wIiB5PSIxMzAiIGZpbGw9IiNlMmU4ZjAiPmNvdWxkPC90ZXh0Pgo8dGV4dCB4PSIyNDQuOCAyNTMuMiAyNjEuNiIgeT0iMTMwIiBmaWxsPSIjZTJlOGYwIj5ub3Q8L3RleHQ+Cjx0ZXh0IHg9IjI3OC40IDI4Ni44IDI5NS4yIDMwMy42IiB5PSIxMzAiIGZpbGw9IiNlMmU4ZjAiPnJlYWQ8L3RleHQ+Cjx0ZXh0IHg9IjMyMC40IDMyOC44IDMzNy4yIDM0NS42IDM1NC4wIDM2Mi40IDM3MC44IDM3OS4yIiB5PSIxMzAiIGZpbGw9IiNlMmU4ZjAiPlVzZXJuYW1lPC90ZXh0Pgo8dGV4dCB4PSIzOTYuMCA0MDQuNCA0MTIuOCIgeT0iMTMwIiBmaWxsPSIjZTJlOGYwIj5mb3I8L3RleHQ+Cjx0ZXh0IHg9IjQyOS42IDQzOC4wIDQ0Ni40IDQ1NC44IDQ2My4yIDQ3MS42IDQ4MC4wIDQ4OC40IDQ5Ni44IDUwNS4yIDUxMy42IDUyMi4wIDUzMC40IDUzOC44IDU0Ny4yIDU1NS42IDU2NC4wIDU3Mi40IDU4MC44IDU4OS4yIDU5Ny42IDYwNi4wIDYxNC40IDYyMi44IDYzMS4yIDYzOS42IDY0OC4wIDY1Ni40IiB5PSIxMzAiIGZpbGw9IiNlMmU4ZjAiPiYjeDI3O2h0dHA6Ly9naXRsYWIuZXhhbXBsZS5jb20mI3gyNzs6PC90ZXh0Pgo8dGV4dCB4PSI2NzMuMiA2ODEuNiA2OTAuMCA2OTguNCA3MDYuOCA3MTUuMiA3MjMuNiA3MzIuMCIgeT0iMTMwIiBmaWxsPSIjZTJlOGYwIj50ZXJtaW5hbDwvdGV4dD4KPHRleHQgeD0iNzQ4LjggNzU3LjIgNzY1LjYgNzc0LjAgNzgyLjQgNzkwLjggNzk5LjIiIHk9IjEzMCIgZmlsbD0iI2UyZThmMCI+cHJvbXB0czwvdGV4dD4KPHRleHQgeD0iODE2LjAgODI0LjQgODMyLjggODQxLjIgODQ5LjYgODU4LjAgODY2LjQgODc0LjgiIHk9IjEzMCIgZmlsbD0iI2UyZThmMCI+ZGlzYWJsZWQ8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAiIHk9IjE1MiIgZmlsbD0iI2UyZThmMCI+77yJPC90ZXh0Pgo8dGV4dCB4PSIzNC44IiB5PSIxNzQiIGZpbGw9IiNlMmU4ZjAiPuKGkjwvdGV4dD4KPHRleHQgeD0iNTEuNiA2OC40IiB5PSIxNzQiIGZpbGw9IiNlMmU4ZjAiPuS7k+W6kzwvdGV4dD4KPHRleHQgeD0iOTMuNiAxMTAuNCAxMjcuMiAxNDQuMCIgeT0iMTc0IiBmaWxsPSIjZTJlOGYwIj7ov5Dnu7Tnp4HmnIk8L3RleHQ+Cjx0ZXh0IHg9IjE2OS4yIDE4Ni4wIDIwMi44IDIxOS42IDIzNi40IDI1My4yIDI3MC4wIDI4Ni44IDMwMy42IDMyMC40IDMzNy4yIiB5PSIxNzQiIGZpbGw9IiNlMmU4ZjAiPuayoeacieS/neWtmO+8jOaUueWlveWGjeWKoOS4gOasoTwvdGV4dD4KPHRleHQgeD0iMzQuOCA1MS42IDY4LjQgODUuMiAxMDIuMCAxMTguOCIgeT0iMTk2IiBmaWxsPSIjN2Q4YmExIj7nlKjmtY/op4jlmajmiZPlvIA8L3RleHQ+Cjx0ZXh0IHg9IjE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IDE4Ni4wIDE5NC40IDIwMi44IDIxMS4yIDIxOS42IDIyOC4wIDIzNi40IDI0NC44IDI1My4yIDI2MS42IDI3MC4wIDI3OC40IDI4Ni44IDI5NS4yIDMwMy42IDMxMi4wIDMyMC40IDMyOC44IDMzNy4yIDM0NS42IDM1NC4wIDM2Mi40IDM3MC44IDM3OS4yIDM4Ny42IDM5Ni4wIDQwNC40IDQxMi44IDQyMS4yIDQyOS42IDQzOC4wIDQ0Ni40IDQ1NC44IDQ3MS42IDQ4OC40IDUwNS4yIDUyMi4wIDUzOC44IDU1NS42IDU3Mi40IDU4OS4yIDYwNi4wIDYyMi44IDYzOS42IDY1Ni40IDY3My4yIDY5MC4wIDcwNi44IDcyMy42IDc0MC40IDc1Ny4yIDc3NC4wIDc5MC44IDgwNy42IDgyNC40IDg0MS4yIDg1OC4wIDg3NC44IiB5PSIxOTYiIGZpbGw9IiM3ZDhiYTEiPmh0dHA6Ly9naXRsYWIuZXhhbXBsZS5jb20vb3BzL3ByaXZhdGXvvJrmiZPkuI3lvIDlsLHmmK/lnLDlnYDlhpnplJnkuobvvJvopoHnmbvlvZXmiY3og73nnIvlsLHmmK/np4HmnInku5PlupPvvIzliqA8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAgMzQuOCA1MS42IDY4LjQgNzYuOCA4NS4yIDkzLjYgMTAyLjAgMTEwLjQgMTE4LjgiIHk9IjIxOCIgZmlsbD0iIzdkOGJhMSI+5Luk54mM77yac2tpbGxwbTwvdGV4dD4KPHRleHQgeD0iMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjgiIHk9IjIxOCIgZmlsbD0iIzdkOGJhMSI+cmVwbzwvdGV4dD4KPHRleHQgeD0iMTc3LjYgMTg2LjAgMTk0LjQiIHk9IjIxOCIgZmlsbD0iIzdkOGJhMSI+YWRkPC90ZXh0Pgo8dGV4dCB4PSIyMTEuMiAyMTkuNiAyMzYuNCAyNTMuMiIgeT0iMjE4IiBmaWxsPSIjN2Q4YmExIj4mbHQ75ZCN5a2XJmd0OzwvdGV4dD4KPHRleHQgeD0iMjcwLjAgMjc4LjQgMjk1LjIgMzEyLjAiIHk9IjIxOCIgZmlsbD0iIzdkOGJhMSI+Jmx0O+WcsOWdgCZndDs8L3RleHQ+Cjx0ZXh0IHg9IjMyOC44IDMzNy4yIDM0NS42IDM1NC4wIDM2Mi40IDM3MC44IDM3OS4yIiB5PSIyMTgiIGZpbGw9IiM3ZDhiYTEiPi0tdG9rZW48L3RleHQ+Cjx0ZXh0IHg9IjM5Ni4wIDQwNC40IDQyMS4yIDQzOC4wIDQ0Ni40IDQ2My4yIDQ3MS42IDQ4MC4wIDQ4OC40IDQ5Ni44IDUwNS4yIiB5PSIyMTgiIGZpbGw9IiM3ZDhiYTEiPiZsdDvku6TniYwmZ3Q777yIR2l0TGFiPC90ZXh0Pgo8dGV4dCB4PSI1MjIuMCIgeT0iMjE4IiBmaWxsPSIjN2Q4YmExIj7ihpI8L3RleHQ+Cjx0ZXh0IHg9IjUzOC44IDU1NS42IiB5PSIyMTgiIGZpbGw9IiM3ZDhiYTEiPuWktOWDjzwvdGV4dD4KPHRleHQgeD0iNTgwLjgiIHk9IjIxOCIgZmlsbD0iIzdkOGJhMSI+4oaSPC90ZXh0Pgo8dGV4dCB4PSI1OTcuNiA2MDYuMCA2MTQuNCA2MjIuOCA2MzEuMiA2MzkuNiA2NDguMCA2NTYuNCA2NjQuOCA2NzMuMiA2ODEuNiIgeT0iMjE4IiBmaWxsPSIjN2Q4YmExIj5QcmVmZXJlbmNlczwvdGV4dD4KPHRleHQgeD0iNjk4LjQiIHk9IjIxOCIgZmlsbD0iIzdkOGJhMSI+4oaSPC90ZXh0Pgo8dGV4dCB4PSI3MTUuMiA3MjMuNiA3MzIuMCA3NDAuNCA3NDguOCA3NTcuMiIgeT0iMjE4IiBmaWxsPSIjN2Q4YmExIj5BY2Nlc3M8L3RleHQ+Cjx0ZXh0IHg9Ijc3NC4wIDc4Mi40IDc5MC44IDc5OS4yIDgwNy42IDgxNi4wIDgyNC40IDg0MS4yIiB5PSIyMTgiIGZpbGw9IiM3ZDhiYTEiPlRva2Vuc++8jOWLvjwvdGV4dD4KPHRleHQgeD0iODY2LjQgODc0LjggODgzLjIiIHk9IjIxOCIgZmlsbD0iIzdkOGJhMSI+cmVhPC90ZXh0Pgo8dGV4dCB4PSIxOC4wIDI2LjQgMzQuOCA0My4yIDUxLjYgNjAuMCA2OC40IDc2LjggODUuMiA5My42IDEwMi4wIDExMC40IDExOC44IiB5PSIyNDAiIGZpbGw9IiM3ZDhiYTEiPmRfcmVwb3NpdG9yee+8iTwvdGV4dD4KPC9nPjwvc3ZnPg==" /></p>
+<p>带上 <code>--token</code> 就行：</p>
+<p><img alt="私有仓库带令牌" class="shot" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA4MjUgMTk2IiB3aWR0aD0iODI1IiBoZWlnaHQ9IjE5NiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSLnu4jnq6/vvJpza2lsbHBtIHJlcG8gYWRkIOi/kOe7tOengeaciSBodHRwOi8vZ2l0bGFiLmV4YW1wbGUuY29tL29wcy9wcml2YXRlLmdpdCAtLXRva2VuIGdscGF0LWRlbW8xMjM0Ij4KPHJlY3Qgd2lkdGg9IjgyNSIgaGVpZ2h0PSIxOTYiIHJ4PSIxMCIgZmlsbD0iIzBmMTcyYSIvPgo8cmVjdCB3aWR0aD0iODI1IiBoZWlnaHQ9IjM0IiByeD0iMTAiIGZpbGw9IiMxZTI5M2IiLz48cmVjdCB5PSIyNCIgd2lkdGg9IjgyNSIgaGVpZ2h0PSIxMCIgZmlsbD0iIzFlMjkzYiIvPgo8Y2lyY2xlIGN4PSIyMCIgY3k9IjE3IiByPSI2IiBmaWxsPSIjZmY1ZjU3Ii8+PGNpcmNsZSBjeD0iNDAiIGN5PSIxNyIgcj0iNiIgZmlsbD0iI2ZlYmMyZSIvPjxjaXJjbGUgY3g9IjYwIiBjeT0iMTciIHI9IjYiIGZpbGw9IiMyOGM4NDAiLz4KPHRleHQgeD0iNDEyLjUiIHk9IjIyIiBmaWxsPSIjOTRhM2I4IiBmb250LXNpemU9IjEyIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iLWFwcGxlLXN5c3RlbSxQaW5nRmFuZyBTQyxNaWNyb3NvZnQgWWFIZWksc2Fucy1zZXJpZiI+enNoPC90ZXh0Pgo8ZyBmb250LWZhbWlseT0iU0YgTW9ubyxNZW5sbyxDb25zb2xhcyxQaW5nRmFuZyBTQyxNaWNyb3NvZnQgWWFIZWksbW9ub3NwYWNlIiBmb250LXNpemU9IjE0Ij4KPHRleHQgeD0iMTguMCIgeT0iNjQiIGZpbGw9IiM0YWRlODAiIGZvbnQtd2VpZ2h0PSI3MDAiPuKenDwvdGV4dD4KPHRleHQgeD0iMzQuOCIgeT0iNjQiIGZpbGw9IiMyMmQzZWUiIGZvbnQtd2VpZ2h0PSI3MDAiPn48L3RleHQ+Cjx0ZXh0IHg9IjUxLjYgNjAuMCA2OC40IDc2LjggODUuMiA5My42IDEwMi4wIiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+c2tpbGxwbTwvdGV4dD4KPHRleHQgeD0iMTE4LjggMTI3LjIgMTM1LjYgMTQ0LjAiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5yZXBvPC90ZXh0Pgo8dGV4dCB4PSIxNjAuOCAxNjkuMiAxNzcuNiIgeT0iNjQiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPmFkZDwvdGV4dD4KPHRleHQgeD0iMTk0LjQgMjExLjIgMjI4LjAgMjQ0LjgiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj7ov5Dnu7Tnp4HmnIk8L3RleHQ+Cjx0ZXh0IHg9IjI3MC4wIDI3OC40IDI4Ni44IDI5NS4yIDMwMy42IDMxMi4wIDMyMC40IDMyOC44IDMzNy4yIDM0NS42IDM1NC4wIDM2Mi40IDM3MC44IDM3OS4yIDM4Ny42IDM5Ni4wIDQwNC40IDQxMi44IDQyMS4yIDQyOS42IDQzOC4wIDQ0Ni40IDQ1NC44IDQ2My4yIDQ3MS42IDQ4MC4wIDQ4OC40IDQ5Ni44IDUwNS4yIDUxMy42IDUyMi4wIDUzMC40IDUzOC44IDU0Ny4yIDU1NS42IDU2NC4wIDU3Mi40IDU4MC44IDU4OS4yIDU5Ny42IDYwNi4wIiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+aHR0cDovL2dpdGxhYi5leGFtcGxlLmNvbS9vcHMvcHJpdmF0ZS5naXQ8L3RleHQ+Cjx0ZXh0IHg9IjYyMi44IDYzMS4yIDYzOS42IDY0OC4wIDY1Ni40IDY2NC44IDY3My4yIiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+LS10b2tlbjwvdGV4dD4KPHRleHQgeD0iNjkwLjAgNjk4LjQgNzA2LjggNzE1LjIgNzIzLjYgNzMyLjAgNzQwLjQgNzQ4LjggNzU3LjIgNzY1LjYgNzc0LjAgNzgyLjQgNzkwLjggNzk5LjIiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5nbHBhdC1kZW1vMTIzNDwvdGV4dD4KPHRleHQgeD0iMzQuOCA1MS42IDY4LjQgODUuMiAxMDIuMCIgeT0iODYiIGZpbGw9IiM3ZDhiYTEiPuWFiOivleaLieS4gOasoTwvdGV4dD4KPHRleHQgeD0iMTI3LjIgMTM1LjYgMTQ0LjAgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjggMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQgMjQ0LjggMjUzLjIgMjYxLjYgMjcwLjAgMjc4LjQgMjg2LjggMjk1LjIgMzAzLjYgMzEyLjAgMzIwLjQgMzI4LjggMzM3LjIgMzQ1LjYgMzU0LjAgMzYyLjQgMzcwLjggMzc5LjIgMzg3LjYgMzk2LjAgNDA0LjQgNDEyLjggNDIxLjIgNDI5LjYgNDM4LjAgNDQ2LjQgNDU0LjggNDYzLjIiIHk9Ijg2IiBmaWxsPSIjN2Q4YmExIj5odHRwOi8vZ2l0bGFiLmV4YW1wbGUuY29tL29wcy9wcml2YXRlLmdpdDwvdGV4dD4KPHRleHQgeD0iNDgwLjAiIHk9Ijg2IiBmaWxsPSIjN2Q4YmExIj7igKY8L3RleHQ+Cjx0ZXh0IHg9IjE4LjAiIHk9IjEwOCIgZmlsbD0iIzRhZGU4MCI+4pyTPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjguNCA4NS4yIDEwMi4wIDExOC44IDEzNS42IiB5PSIxMDgiIGZpbGw9IiNlMmU4ZjAiPuaLieW+l+WIsO+8jOmHjOmdouaciTwvdGV4dD4KPHRleHQgeD0iMTYwLjgiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+MTwvdGV4dD4KPHRleHQgeD0iMTc3LjYiIHk9IjEwOCIgZmlsbD0iI2UyZThmMCI+5LiqPC90ZXh0Pgo8dGV4dCB4PSIyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCAyNjEuNiAyNzAuMCAyNzguNCAyODYuOCAyOTUuMiAzMDMuNiAzMTIuMCAzMjAuNCAzMjguOCAzMzcuMiAzNDUuNiAzNTQuMCAzNjIuNCAzNzAuOCAzNzkuMiIgeT0iMTA4IiBmaWxsPSIjZTJlOGYwIj5Ta2lsbO+8mm9wcy1zZWNyZXQtdG9vbDwvdGV4dD4KPHRleHQgeD0iMzQuOCA1MS42IDY4LjQgODUuMiAxMDIuMCIgeT0iMTMwIiBmaWxsPSIjN2Q4YmExIj7ku5PlupPph4zmsqHmnIk8L3RleHQ+Cjx0ZXh0IHg9IjEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IDE4Ni4wIDE5NC40IDIwMi44IDIxMS4yIDIxOS42IDIyOC4wIDIzNi40IDI1My4yIiB5PSIxMzAiIGZpbGw9IiM3ZDhiYTEiPm1hbmlmZXN0Lmpzb27vvIzmjIk8L3RleHQ+Cjx0ZXh0IHg9IjI3OC40IDI4Ni44IDI5NS4yIDMwMy42IDMxMi4wIDMyMC40IDMyOC44IiB5PSIxMzAiIGZpbGw9IiM3ZDhiYTEiPnNraWxscy88L3RleHQ+Cjx0ZXh0IHg9IjM0NS42IDM2Mi40IDM3OS4yIDM5Ni4wIDQxMi44IDQyOS42IDQ0Ni40IDQ2My4yIDQ4MC4wIDQ5Ni44IDUxMy42IDUzMC40IDU0Ny4yIDU2NC4wIDU4MC44IDU5Ny42IDYxNC40IiB5PSIxMzAiIGZpbGw9IiM3ZDhiYTEiPuebruW9leeul+eahO+8iOi/meagt+WwseihjO+8jOS4jeeUqOmdnuW+l+eUn+aIkO+8iTwvdGV4dD4KPHRleHQgeD0iMTguMCIgeT0iMTUyIiBmaWxsPSIjNGFkZTgwIj7inJM8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiIgeT0iMTUyIiBmaWxsPSIjZTJlOGYwIj7ku5PlupM8L3RleHQ+Cjx0ZXh0IHg9Ijc2LjggOTMuNiAxMTAuNCAxMjcuMiIgeT0iMTUyIiBmaWxsPSIjZTJlOGYwIj7ov5Dnu7Tnp4HmnIk8L3RleHQ+Cjx0ZXh0IHg9IjE1Mi40IDE2OS4yIDE4Ni4wIDIwMi44IDIxOS42IDIyOC4wIDIzNi40IDI0NC44IDI1My4yIDI2MS42IDI3MC4wIDI3OC40IDI4Ni44IDI5NS4yIDMwMy42IDMxMi4wIDMyMC40IDMyOC44IDMzNy4yIDM0NS42IDM1NC4wIDM2Mi40IDM3MC44IDM3OS4yIDM4Ny42IDM5Ni4wIDQwNC40IDQxMi44IDQyMS4yIDQyOS42IDQzOC4wIDQ0Ni40IDQ1NC44IDQ2My4yIDQ3MS42IDQ4MC4wIDQ4OC40IDQ5Ni44IDUwNS4yIDUxMy42IDUyMi4wIDUzMC40IDUzOC44IDU0Ny4yIDU1NS42IDU2NC4wIDU4MC44IDU4OS4yIDU5Ny42IDYwNi4wIiB5PSIxNTIiIGZpbGw9IiNlMmU4ZjAiPuW3suiusOS4i++8mmh0dHA6Ly9naXRsYWIuZXhhbXBsZS5jb20vb3BzL3ByaXZhdGUuZ2l077yIZ2l077yJPC90ZXh0Pgo8dGV4dCB4PSIzNC44IDUxLjYgNjguNCIgeT0iMTc0IiBmaWxsPSIjN2Q4YmExIj7oo4XlroPnmoQ8L3RleHQ+Cjx0ZXh0IHg9IjkzLjYgMTAyLjAgMTEwLjQgMTE4LjggMTI3LjIgMTM1LjYgMTUyLjQgMTYwLjggMTY5LjIgMTc3LjYgMTg2LjAgMTk0LjQgMjAyLjgiIHk9IjE3NCIgZmlsbD0iIzdkOGJhMSI+U2tpbGzvvJpza2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSIyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCIgeT0iMTc0IiBmaWxsPSIjN2Q4YmExIj5pbnN0YWxsPC90ZXh0Pgo8dGV4dCB4PSIyODYuOCAyOTUuMiAzMDMuNiAzMTIuMCAzMjAuNCAzMjguOCIgeT0iMTc0IiBmaWxsPSIjN2Q4YmExIj4tLXJlcG88L3RleHQ+Cjx0ZXh0IHg9IjM0NS42IDM2Mi40IDM3OS4yIDM5Ni4wIiB5PSIxNzQiIGZpbGw9IiM3ZDhiYTEiPui/kOe7tOengeaciTwvdGV4dD4KPC9nPjwvc3ZnPg==" /></p>
+<p>令牌只存在 <code>~/.skillpm/config.json</code>（权限 600），屏幕输出和报错里一律打码；拉代码时也不会写进缓存目录的 git 配置。</p>
+<h3 id="onboard-不是-main-分支">不是 main 分支</h3>
+<pre><code class="language-bash">skillpm repo add 我们团队 http://gitlab.example.com/组/仓库.git --branch dev
+</code></pre>
+<h3 id="onboard-和别的仓库有同名的-skill">和别的仓库有同名的 Skill</h3>
+<p>同一个 Agent 下同名的只能留一个。两条规则：</p>
+<ol>
+<li><strong>换来源只发生在你自己 <code>install</code> 的时候，而且一定先问你</strong>，默认不换；<code>--force</code> 直接换。</li>
+<li><strong><code>update</code> 永远不换来源</strong>：每个 Skill 只跟它装的时候的那个仓库比，别的仓库里有没有同名的都不影响。</li>
+</ol>
+<p>所以起 Skill 名字时尽量带上团队或业务前缀（比如 <code>ops-巡检</code>），能从根上避免撞名。</p>
+<hr />
+<h2 id="onboard-加不上的时候">加不上的时候</h2>
+<p><code>repo add</code> 失败<strong>不会保存</strong>，改好再加一次就行。报错会说是哪种原因、下一步怎么做，比如项目名写错了：</p>
+<p><img alt="地址写错" class="shot" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA3NTggMTk2IiB3aWR0aD0iNzU4IiBoZWlnaHQ9IjE5NiIgcm9sZT0iaW1nIiBhcmlhLWxhYmVsPSLnu4jnq6/vvJpza2lsbHBtIHJlcG8gYWRkIOWtmOWCqOe7hCBodHRwOi8vZ2l0bGFiLmV4YW1wbGUuY29tL29wcy9za2lscy5naXQiPgo8cmVjdCB3aWR0aD0iNzU4IiBoZWlnaHQ9IjE5NiIgcng9IjEwIiBmaWxsPSIjMGYxNzJhIi8+CjxyZWN0IHdpZHRoPSI3NTgiIGhlaWdodD0iMzQiIHJ4PSIxMCIgZmlsbD0iIzFlMjkzYiIvPjxyZWN0IHk9IjI0IiB3aWR0aD0iNzU4IiBoZWlnaHQ9IjEwIiBmaWxsPSIjMWUyOTNiIi8+CjxjaXJjbGUgY3g9IjIwIiBjeT0iMTciIHI9IjYiIGZpbGw9IiNmZjVmNTciLz48Y2lyY2xlIGN4PSI0MCIgY3k9IjE3IiByPSI2IiBmaWxsPSIjZmViYzJlIi8+PGNpcmNsZSBjeD0iNjAiIGN5PSIxNyIgcj0iNiIgZmlsbD0iIzI4Yzg0MCIvPgo8dGV4dCB4PSIzNzkuMCIgeT0iMjIiIGZpbGw9IiM5NGEzYjgiIGZvbnQtc2l6ZT0iMTIiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSItYXBwbGUtc3lzdGVtLFBpbmdGYW5nIFNDLE1pY3Jvc29mdCBZYUhlaSxzYW5zLXNlcmlmIj56c2g8L3RleHQ+CjxnIGZvbnQtZmFtaWx5PSJTRiBNb25vLE1lbmxvLENvbnNvbGFzLFBpbmdGYW5nIFNDLE1pY3Jvc29mdCBZYUhlaSxtb25vc3BhY2UiIGZvbnQtc2l6ZT0iMTQiPgo8dGV4dCB4PSIxOC4wIiB5PSI2NCIgZmlsbD0iIzRhZGU4MCIgZm9udC13ZWlnaHQ9IjcwMCI+4p6cPC90ZXh0Pgo8dGV4dCB4PSIzNC44IiB5PSI2NCIgZmlsbD0iIzIyZDNlZSIgZm9udC13ZWlnaHQ9IjcwMCI+fjwvdGV4dD4KPHRleHQgeD0iNTEuNiA2MC4wIDY4LjQgNzYuOCA4NS4yIDkzLjYgMTAyLjAiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5za2lsbHBtPC90ZXh0Pgo8dGV4dCB4PSIxMTguOCAxMjcuMiAxMzUuNiAxNDQuMCIgeT0iNjQiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPnJlcG88L3RleHQ+Cjx0ZXh0IHg9IjE2MC44IDE2OS4yIDE3Ny42IiB5PSI2NCIgZmlsbD0iI2UyZThmMCIgZm9udC13ZWlnaHQ9IjcwMCI+YWRkPC90ZXh0Pgo8dGV4dCB4PSIxOTQuNCAyMTEuMiAyMjguMCIgeT0iNjQiIGZpbGw9IiNlMmU4ZjAiIGZvbnQtd2VpZ2h0PSI3MDAiPuWtmOWCqOe7hDwvdGV4dD4KPHRleHQgeD0iMjUzLjIgMjYxLjYgMjcwLjAgMjc4LjQgMjg2LjggMjk1LjIgMzAzLjYgMzEyLjAgMzIwLjQgMzI4LjggMzM3LjIgMzQ1LjYgMzU0LjAgMzYyLjQgMzcwLjggMzc5LjIgMzg3LjYgMzk2LjAgNDA0LjQgNDEyLjggNDIxLjIgNDI5LjYgNDM4LjAgNDQ2LjQgNDU0LjggNDYzLjIgNDcxLjYgNDgwLjAgNDg4LjQgNDk2LjggNTA1LjIgNTEzLjYgNTIyLjAgNTMwLjQgNTM4LjggNTQ3LjIgNTU1LjYgNTY0LjAgNTcyLjQiIHk9IjY0IiBmaWxsPSIjZTJlOGYwIiBmb250LXdlaWdodD0iNzAwIj5odHRwOi8vZ2l0bGFiLmV4YW1wbGUuY29tL29wcy9za2lscy5naXQ8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAiIHk9Ijg2IiBmaWxsPSIjN2Q4YmExIj7lhYjor5Xmi4nkuIDmrKE8L3RleHQ+Cjx0ZXh0IHg9IjEyNy4yIDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IDE4Ni4wIDE5NC40IDIwMi44IDIxMS4yIDIxOS42IDIyOC4wIDIzNi40IDI0NC44IDI1My4yIDI2MS42IDI3MC4wIDI3OC40IDI4Ni44IDI5NS4yIDMwMy42IDMxMi4wIDMyMC40IDMyOC44IDMzNy4yIDM0NS42IDM1NC4wIDM2Mi40IDM3MC44IDM3OS4yIDM4Ny42IDM5Ni4wIDQwNC40IDQxMi44IDQyMS4yIDQyOS42IDQzOC4wIDQ0Ni40IiB5PSI4NiIgZmlsbD0iIzdkOGJhMSI+aHR0cDovL2dpdGxhYi5leGFtcGxlLmNvbS9vcHMvc2tpbHMuZ2l0PC90ZXh0Pgo8dGV4dCB4PSI0NjMuMiIgeT0iODYiIGZpbGw9IiM3ZDhiYTEiPuKApjwvdGV4dD4KPHRleHQgeD0iMTguMCIgeT0iMTA4IiBmaWxsPSIjZjg3MTcxIj7inJc8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IiB5PSIxMDgiIGZpbGw9IiNlMmU4ZjAiPuWtmOWCqOe7hDwvdGV4dD4KPHRleHQgeD0iOTMuNiAxMTAuNCAxMjcuMiAxNDQuMCAxNjAuOCAxNzcuNiAxOTQuNCAyMTEuMiAyMjguMCAyNDQuOCAyNjEuNiAyNzguNCAyOTUuMiAzMDMuNiAzMTIuMCAzMjguOCAzNDUuNiAzNjIuNCAzNzkuMiAzOTYuMCA0MTIuOCA0MjkuNiA0NDYuNCA0NjMuMiA0ODAuMCA0OTYuOCA1MTMuNiIgeT0iMTA4IiBmaWxsPSIjZTJlOGYwIj7mi4nlj5blpLHotKXvvJrmib7kuI3liLDov5nkuKrku5PlupPigJTigJTlnLDlnYDph4znmoTnu4TlkI3miJbpobnnm67lkI3lhpnplJnkuoY8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2MC4wIDY4LjQiIHk9IjEzMCIgZmlsbD0iI2UyZThmMCI+77yIZ2l0PC90ZXh0Pgo8dGV4dCB4PSI4NS4yIDEwMi4wIDExOC44IDEzNS42IDE0NC4wIDE1Mi40IDE2MC44IDE2OS4yIDE3Ny42IiB5PSIxMzAiIGZpbGw9IiNlMmU4ZjAiPuWOn+ivne+8mmZhdGFsOjwvdGV4dD4KPHRleHQgeD0iMTk0LjQgMjAyLjggMjExLjIgMjE5LjYgMjI4LjAgMjM2LjQgMjQ0LjggMjUzLjIgMjYxLjYgMjcwLjAiIHk9IjEzMCIgZmlsbD0iI2UyZThmMCI+cmVwb3NpdG9yeTwvdGV4dD4KPHRleHQgeD0iMjg2LjggMjk1LjIgMzAzLjYgMzEyLjAgMzIwLjQgMzI4LjggMzM3LjIgMzQ1LjYgMzU0LjAgMzYyLjQgMzcwLjggMzc5LjIgMzg3LjYgMzk2LjAgNDA0LjQgNDEyLjggNDIxLjIgNDI5LjYgNDM4LjAgNDQ2LjQgNDU0LjggNDYzLjIgNDcxLjYgNDgwLjAgNDg4LjQgNDk2LjggNTA1LjIgNTEzLjYgNTIyLjAgNTMwLjQgNTM4LjggNTQ3LjIgNTU1LjYgNTY0LjAgNTcyLjQgNTgwLjggNTg5LjIgNTk3LjYgNjA2LjAgNjE0LjQgNjIyLjggNjMxLjIiIHk9IjEzMCIgZmlsbD0iI2UyZThmMCI+JiN4Mjc7aHR0cDovL2dpdGxhYi5leGFtcGxlLmNvbS9vcHMvc2tpbHMuZ2l0LyYjeDI3OzwvdGV4dD4KPHRleHQgeD0iNjQ4LjAgNjU2LjQgNjY0LjgiIHk9IjEzMCIgZmlsbD0iI2UyZThmMCI+bm90PC90ZXh0Pgo8dGV4dCB4PSI2ODEuNiA2OTAuMCA2OTguNCA3MDYuOCA3MTUuMiA3MjMuNiIgeT0iMTMwIiBmaWxsPSIjZTJlOGYwIj5mb3VuZO+8iTwvdGV4dD4KPHRleHQgeD0iMzQuOCIgeT0iMTUyIiBmaWxsPSIjZTJlOGYwIj7ihpI8L3RleHQ+Cjx0ZXh0IHg9IjUxLjYgNjguNCIgeT0iMTUyIiBmaWxsPSIjZTJlOGYwIj7ku5PlupM8L3RleHQ+Cjx0ZXh0IHg9IjkzLjYgMTEwLjQgMTI3LjIiIHk9IjE1MiIgZmlsbD0iI2UyZThmMCI+5a2Y5YKo57uEPC90ZXh0Pgo8dGV4dCB4PSIxNTIuNCAxNjkuMiAxODYuMCAyMDIuOCAyMTkuNiAyMzYuNCAyNTMuMiAyNzAuMCAyODYuOCAzMDMuNiAzMjAuNCIgeT0iMTUyIiBmaWxsPSIjZTJlOGYwIj7msqHmnInkv53lrZjvvIzmlLnlpb3lho3liqDkuIDmrKE8L3RleHQ+Cjx0ZXh0IHg9IjM0LjggNTEuNiA2OC40IDg1LjIgMTAyLjAgMTE4LjgiIHk9IjE3NCIgZmlsbD0iIzdkOGJhMSI+55So5rWP6KeI5Zmo5omT5byAPC90ZXh0Pgo8dGV4dCB4PSIxNDQuMCAxNTIuNCAxNjAuOCAxNjkuMiAxNzcuNiAxODYuMCAxOTQuNCAyMDIuOCAyMTEuMiAyMTkuNiAyMjguMCAyMzYuNCAyNDQuOCAyNTMuMiAyNjEuNiAyNzAuMCAyNzguNCAyODYuOCAyOTUuMiAzMDMuNiAzMTIuMCAzMjAuNCAzMjguOCAzMzcuMiAzNDUuNiAzNTQuMCAzNjIuNCAzNzAuOCAzNzkuMiAzODcuNiAzOTYuMCA0MDQuNCA0MTIuOCA0MjEuMiA0MjkuNiIgeT0iMTc0IiBmaWxsPSIjN2Q4YmExIj5odHRwOi8vZ2l0bGFiLmV4YW1wbGUuY29tL29wcy9za2lsczwvdGV4dD4KPHRleHQgeD0iNDQ2LjQgNDYzLjIgNDgwLjAgNDk2LjggNTEzLjYgNTMwLjQgNTQ3LjIgNTY0LjAgNTgwLjggNTk3LjYiIHk9IjE3NCIgZmlsbD0iIzdkOGJhMSI+5qC45a+55LiA5LiL57uE5ZCN5ZKM6aG555uu5ZCNPC90ZXh0Pgo8L2c+PC9zdmc+" /></p>
+<p>所有原因：</p>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>报错里写的</th>
+<th>怎么办</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GitLab 要求登录——仓库不存在，或者不是公开的</td>
+<td>先用浏览器打开地址看看：打不开就是地址错；要登录才能看就是私有，加 <code>--token</code></td>
+</tr>
+<tr>
+<td>找不到这个仓库</td>
+<td>组名、项目名写错了</td>
+</tr>
+<tr>
+<td>连不上主机</td>
+<td>主机名写错，或者不在公司网络里</td>
+</tr>
+<tr>
+<td>端口不对 / 被代理截走了</td>
+<td>端口要和浏览器里打开 GitLab 时的一样；本机开了代理的话，内部地址设成不走代理</td>
+</tr>
+<tr>
+<td>SSH 认证没过</td>
+<td>SSH key 没加到 GitLab；不想折腾就改用 http 地址</td>
+</tr>
+<tr>
+<td>仓库里没有这个分支</td>
+<td><code>--branch</code> 指定</td>
+</tr>
+<tr>
+<td>没找到能装的 Skill</td>
+<td>仓库里要有 <code>skills/&lt;名字&gt;/SKILL.md</code>，开头 frontmatter 写 <code>name</code>（和目录名一样）和 <code>description</code>；维护的人跑 <code>skillpm manifest --check</code> 看具体哪里不对</td>
+</tr>
+</tbody>
+</table></div>
+<h2 id="onboard-常用命令速查">常用命令速查</h2>
+<div class="tw"><table>
+<thead>
+<tr>
+<th>想干什么</th>
+<th>命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>看配了哪些仓库</td>
+<td><code>skillpm repo</code> 或 <code>skillpm repo list</code></td>
+</tr>
+<tr>
+<td>加仓库</td>
+<td><code>skillpm repo add &lt;名字&gt; &lt;地址&gt;</code></td>
+</tr>
+<tr>
+<td>删仓库（已装的 Skill 不动）</td>
+<td><code>skillpm repo remove &lt;名字&gt;</code></td>
+</tr>
+<tr>
+<td>只装某个仓库的</td>
+<td><code>skillpm install --repo &lt;名字&gt;</code></td>
+</tr>
+<tr>
+<td>看有没有新版本</td>
+<td><code>skillpm check</code></td>
+</tr>
+<tr>
+<td>更新</td>
+<td><code>skillpm update</code></td>
+</tr>
+<tr>
+<td>检查仓库合不合格（维护者用）</td>
+<td><code>skillpm manifest --check</code></td>
+</tr>
+<tr>
+<td>任何命令的完整用法</td>
+<td><code>skillpm &lt;命令&gt; -h</code></td>
+</tr>
+</tbody>
+</table></div></section></article>
+  <section class="card"><details class="changelog" id="changelog"><summary>更新日志<span class="d">共 1 个版本，点开看每一版改了什么</span></summary><details class="ver-item"><summary><b>2.0.0</b><span class="d">2026-09-21</span><span class="g">首个公开版本。</span></summary><div class="ver-body"><p><strong>首个公开版本。</strong> 把放在 git 仓库里的 AI Skill 一键装到本机的各个 Agent，并跟着仓库更新。</p>
+<p><strong>和 1.x 的不兼容之处：不再内置默认的 Skill 仓库。</strong> 第一次运行 <code>skillpm install</code> 时必须填你们团队的仓库地址；
+已经配好的人不受影响。</p>
+<h3>能做什么</h3>
+<ul>
+<li>
+<p><strong>一键装到多个 Agent</strong>：认识 52 种常见 Agent 的 Skill 目录（Claude Code、Codex、Cursor、Windsurf、Gemini CLI、
+  Qoder、Trae、WorkBuddy……），表里没有的按「家目录的隐藏文件夹下有 skills」自动发现，也能手填目录。</p>
+</li>
+<li>
+<p><strong>跟着仓库更新</strong>：<code>skillpm update</code> 列出新版本，确认后更新，并把每个 Skill 的更新日志念给你；旧版自动备份。</p>
+</li>
+<li><strong>不碰别人的东西</strong>：本地改过的、不是本工具装的 Skill，安装和更新都跳过并说明；<code>--force</code> 覆盖前先完整备份。</li>
+<li>
+<p><strong>多个仓库</strong>：可以同时配多个仓库。同名 Skill 换来源只在你自己 <code>install</code> 时发生、而且会先问你；
+  <code>update</code> 永远只跟着装的时候那个仓库。</p>
+</li>
+<li>
+<p><strong>Skill 仓库几乎零要求</strong>：通用 Agent Skill 格式（<code>skills/&lt;名字&gt;/SKILL.md</code>，写好 <code>name</code>、<code>description</code>）就能装；
+  <code>version</code>、<code>CHANGELOG.md</code>、<code>manifest.json</code> 都可选。<code>skillpm manifest --check</code> 自检，适合放 CI。</p>
+</li>
+<li>
+<p><strong>私有仓库</strong>：<code>--token</code> 访问令牌（不进命令行、不落盘到缓存的 git 配置），或者 SSH。</p>
+</li>
+<li><strong>锁版本</strong>：<code>skillpm freeze</code> 导出锁文件，别人 <code>install --from</code> 装到完全一样的一套。</li>
+<li><strong>项目级安装</strong>：<code>-p</code> 只装到当前项目，版本写进锁文件随项目提交。</li>
+<li><strong>中文友好</strong>：全部提示和报错是中文，写错命令会猜你想写什么并列出常用写法；拉取失败按原因给出下一步。</li>
+<li><strong>图文手册随工具发</strong>：<code>skillpm docs</code> 在浏览器里打开，快速上手每一步都有真实截图。</li>
+<li><strong>零依赖</strong>：只用 Python 3.8+ 标准库；Mac / Windows / Linux 通用，安装脚本默认不碰 PyPI。</li>
+</ul></div></details></details></section>
+  <p class="foot">skillpm v2.0.0 · 生成于 2026-09-21 · 内容来自工具仓库 docs/ 下的 Markdown，改那里再重新生成</p></main>
+</div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+function show(key,hash){$$('.doc').forEach(d=>d.classList.toggle('on',d.id==='doc-'+key));
+$$('.tabs button').forEach(b=>b.classList.toggle('on',b.dataset.doc===key));
+$$('nav.toc .t').forEach(t=>t.hidden=t.dataset.doc!==key);
+try{localStorage.setItem('te-doc',key)}catch(e){}
+if(hash){const el=document.getElementById(hash);if(el){el.scrollIntoView();return}}window.scrollTo(0,0)}
+$$('.tabs button').forEach(b=>b.onclick=()=>{history.replaceState(null,'','#'+b.dataset.doc);show(b.dataset.doc)});
+// 目录底部「更新日志」：展开再滚过去
+function openLog(){const c=document.getElementById('changelog');if(!c)return;c.open=true;
+setTimeout(()=>c.scrollIntoView({behavior:'instant',block:'start'}),0)}
+$('#toc-changelog').onclick=e=>{e.preventDefault();history.replaceState(null,'','#changelog');openLog();
+document.body.classList.remove('menu')};
+document.addEventListener('click',e=>{const a=e.target.closest('a[data-doc]');if(a){e.preventDefault();
+history.replaceState(null,'','#'+a.dataset.doc);show(a.dataset.doc)}
+if(e.target.closest('nav.toc a'))document.body.classList.remove('menu')});
+// 代码块：注释变灰、加复制按钮
+$$('pre').forEach(pre=>{const code=pre.querySelector('code');if(!code)return;
+code.innerHTML=code.innerHTML.split('\n').map(l=>l.replace(/(^|\s)(#(?!!)[^\n]*)$/,'$1<span class="c">$2</span>')).join('\n');
+const b=document.createElement('button');b.className='copy';b.textContent='复制';
+b.onclick=()=>{const t=code.innerText.replace(/\s+$/,'');(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject())
+.then(()=>{b.textContent='已复制';setTimeout(()=>b.textContent='复制',1400)}).catch(()=>{const r=document.createRange();
+r.selectNodeContents(code);const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='已选中，按 Ctrl+C'})};pre.appendChild(b)});
+// 目录跟随滚动高亮
+const io=new IntersectionObserver(es=>es.forEach(en=>{if(en.isIntersecting){$$('nav.toc a').forEach(a=>
+a.classList.toggle('cur',a.getAttribute('href')==='#'+en.target.id));
+const c=$('nav.toc a.cur');if(c){const n=$('nav.toc'),r=c.getBoundingClientRect(),nr=n.getBoundingClientRect();
+if(r.top<nr.top+40||r.bottom>nr.bottom-20)n.scrollTop+=r.top-nr.top-nr.height/3}}}),{rootMargin:'-80px 0px -70% 0px'});
+$$('.doc h2[id],.doc h3[id]').forEach(h=>io.observe(h));
+// 目录搜索
+$('.search').oninput=e=>{const q=e.target.value.trim().toLowerCase();$$('nav.toc li').forEach(li=>{
+li.style.display=!q||li.textContent.toLowerCase().includes(q)?'':'none'})};
+// 深浅色
+const root=document.documentElement;try{const t=localStorage.getItem('te-theme');if(t)root.dataset.theme=t}catch(e){}
+$('#theme').onclick=()=>{const dark=root.dataset.theme?root.dataset.theme==='dark':matchMedia('(prefers-color-scheme: dark)').matches;
+root.dataset.theme=dark?'light':'dark';try{localStorage.setItem('te-theme',root.dataset.theme)}catch(e){}};
+$('#menu').onclick=()=>document.body.classList.toggle('menu');
+// 打开时：#锚点优先，其次上次看的那份
+(()=>{const h=decodeURIComponent(location.hash.slice(1));let key='start';
+if(h==='changelog'){try{key=localStorage.getItem('te-doc')||key}catch(e){};show(key);openLog();return}
+const hit=h&&document.getElementById(h);if(hit){key=hit.closest('.doc').id.slice(4)}
+else if(['start','manual','onboard'].includes(h)){key=h}else{try{key=localStorage.getItem('te-doc')||key}catch(e){}}
+show(key,hit?h:null)})();
+</script>
+</body></html>
