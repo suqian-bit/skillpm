@@ -1486,7 +1486,12 @@ class Parser(argparse.ArgumentParser):
         w2 = max(_cols(c) for c, _d in EPILOG_ROWS) + 2
         out += ["选项", "  -h, --help     显示这份帮助", "  -v, --version  显示版本号", "", "常用写法"]
         out += [f"  {c}{' ' * (w2 - _cols(c))}{d}" for c, d in EPILOG_ROWS]
-        out += ["", "图文使用手册：skillpm docs（浏览器打开，快速上手在第一页）",
+        from skillpm.manual import html_path
+        doc = str(html_path())
+        home = str(Path.home())
+        doc = "~" + doc[len(home):] if doc.startswith(home) else doc
+        out += ["", f"图文使用手册（HTML）：skillpm docs 在浏览器里打开，快速上手在第一页",
+                f"　　文件在 {doc}",
                 "配置和状态放在 ~/.skillpm/（改位置用环境变量 SKILLPM_HOME）。"]
         return "\n".join(out).rstrip() + "\n"
 
