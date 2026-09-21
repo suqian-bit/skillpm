@@ -69,6 +69,8 @@ def render(key, path):
         data = base64.b64encode(f.read_bytes()).decode()
         return f'class="shot" src="data:image/svg+xml;base64,{data}"'
     body = re.sub(r'src="([^"]+\.svg)"', inline, body)
+    # 外部链接新开标签页（手册是本地单文件，点走了就回不来）
+    body = re.sub(r'<a href="(https?://[^"]+)"(?![^>]*target=)', r'<a href="\1" target="_blank" rel="noopener"', body)
     # 表格包一层，窄屏能横向滚
     body = body.replace("<table>", '<div class="tw"><table>').replace("</table>", "</table></div>")
     # 引用块做成提示框
