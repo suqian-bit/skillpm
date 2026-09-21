@@ -76,7 +76,7 @@ def test_help_has_clickable_manual_link(capsys):
     with pytest.raises(SystemExit):
         main(["-h"])
     out = capsys.readouterr().out
-    assert "使用手册.html" in out and ("open " in out or "start " in out or "xdg-open " in out), \
+    assert "使用手册.html" in out and ("open " in out or "explorer " in out or "xdg-open " in out), \
         "帮助里要有一条复制就能打开手册的命令（macOS 自带终端点不开 file:// 链接）"
 
 
