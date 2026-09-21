@@ -2,9 +2,9 @@
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>skillpm 使用手册</title>
-<meta name="description" content="skillpm 命令手册与接入说明，v2.0.5">
-<meta name="skillpm-version" content="2.0.5">
-<meta name="skillpm-source" content="5abfdb583a28b31d">
+<meta name="description" content="skillpm 命令手册与接入说明，v2.0.6">
+<meta name="skillpm-version" content="2.0.6">
+<meta name="skillpm-source" content="f606e23c9ce444a0">
 <style>
 :root{--bg:#f7f8fa;--paper:#fff;--ink:#1f2933;--muted:#5b6673;--line:#e3e7ec;--accent:#3e6ddf;
 --accent-soft:#eaf0fd;--code-bg:#0f172a;--code-ink:#e2e8f0;--inline-bg:#eef1f5;--warn:#b05a00;--warn-soft:#fff6e5;
@@ -86,7 +86,7 @@ transform:translateX(-100%);transition:transform .2s}body.menu nav.toc{transform
 <header><div class="bar">
   <button class="icon-btn menu-btn" id="menu" aria-label="目录">☰</button>
   <div class="brand"><span class="logo">sp</span><span class="name">skillpm 使用手册</span>
-  <span class="ver">v2.0.5</span></div>
+  <span class="ver">v2.0.6</span></div>
   <div class="tabs"><button data-doc="start">快速上手</button><button data-doc="manual">完整命令手册</button><button data-doc="onboard">接入自己的仓库</button></div>
   <div class="sp"></div>
   <button class="icon-btn" id="theme" title="切换深浅色" aria-label="切换深浅色">◐</button>
@@ -1388,7 +1388,16 @@ skillpm repo add 我们团队 git@gitlab.example.com:组/仓库.git
 </tr>
 </tbody>
 </table></div></section></article>
-  <section class="card"><details class="changelog" id="changelog"><summary>更新日志<span class="d">共 6 个版本，点开看每一版改了什么</span></summary><details class="ver-item"><summary><b>2.0.5</b><span class="d">2026-09-21</span><span class="g">手册改成「复制一条命令就能打开」</span></summary><div class="ver-body"><ul>
+  <section class="card"><details class="changelog" id="changelog"><summary>更新日志<span class="d">共 7 个版本，点开看每一版改了什么</span></summary><details class="ver-item"><summary><b>2.0.6</b><span class="d">2026-09-21</span><span class="g">修 Windows 下 skillpm -h 底部乱码</span></summary><div class="ver-body"><ul>
+<li>
+<p><strong>修 Windows 下 <code>skillpm -h</code> 底部乱码</strong>：老式 cmd 不认识超链接转义（OSC 8），会原样打成 <code>]8;;file:///…</code> 一串乱码。
+  超链接转义整个去掉，只输出纯文字——反正常用终端也点不开。</p>
+</li>
+<li>
+<p>Windows 下打开手册的命令从 <code>start "" "…"</code> 改成 <code>explorer "…"</code>：<code>start</code> 在 PowerShell 里会报错，<code>explorer</code> 在 cmd 和 PowerShell 都能用。</p>
+</li>
+<li>Windows 下 <code>-h</code> 最后一行显示配置目录的真实路径（<code>C:\Users\你\.skillpm\</code>），不再写 Windows 上没意义的 <code>~/.skillpm/</code>。</li>
+</ul></div></details><details class="ver-item"><summary><b>2.0.5</b><span class="d">2026-09-21</span><span class="g">手册改成「复制一条命令就能打开」</span></summary><div class="ver-body"><ul>
 <li>
 <p><strong>手册改成「复制一条命令就能打开」</strong>：macOS 自带的「终端」点不开 <code>file://</code> 链接（⌘ 单击、双击、右键都试过），
   所以 <code>skillpm -h</code> 底部改成给一条现成的命令——macOS <code>open ~/.skillpm-src/docs/使用手册.html</code>、Windows <code>start</code>、Linux <code>xdg-open</code>，
@@ -1455,7 +1464,7 @@ skillpm repo add 我们团队 git@gitlab.example.com:组/仓库.git
 <li><strong>图文手册随工具发</strong>：<code>skillpm docs</code> 在浏览器里打开，快速上手每一步都有真实截图。</li>
 <li><strong>零依赖</strong>：只用 Python 3.8+ 标准库；Mac / Windows / Linux 通用，安装脚本默认不碰 PyPI。</li>
 </ul></div></details></details></section>
-  <p class="foot">skillpm v2.0.5 · 生成于 2026-09-21 · 内容来自工具仓库 docs/ 下的 Markdown，改那里再重新生成</p></main>
+  <p class="foot">skillpm v2.0.6 · 生成于 2026-09-21 · 内容来自工具仓库 docs/ 下的 Markdown，改那里再重新生成</p></main>
 </div>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];

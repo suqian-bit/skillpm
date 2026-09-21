@@ -12,7 +12,7 @@ from skillpm.changelog import for_skill, sections_since
 from skillpm.config import (backup_dir, cache_dir, config_path, home, load_config, load_state,
                              save_config, save_state, state_path)
 from skillpm.console import (BLUE, BOLD, DIM, GREEN, PATH_C, RED, RESET, YELLOW, Abort,
-                              ask, confirm, choose, die, ensure_utf8_stdio, info, link, md_line, ok, remember_secret, say, warn)
+                              ask, confirm, choose, die, ensure_utf8_stdio, info, md_line, ok, remember_secret, say, warn)
 from skillpm import index, lockfile
 from skillpm.sources import locate, parse as parse_source
 from skillpm.hosts import (CATALOG, confidence, describe, detect, name_for_path, detect_project, project_capable,
@@ -1486,10 +1486,11 @@ class Parser(argparse.ArgumentParser):
         w2 = max(_cols(c) for c, _d in EPILOG_ROWS) + 2
         out += ["选项", "  -h, --help     显示这份帮助", "  -v, --version  显示版本号", "", "常用写法"]
         out += [f"  {c}{' ' * (w2 - _cols(c))}{d}" for c, d in EPILOG_ROWS]
-        from skillpm.manual import html_uri, open_command
+        from skillpm.manual import open_command
+        where = str(home()) + "\\" if sys.platform.startswith("win") else "~/.skillpm/"   # Windows 上 ~ 没意义
         out += ["", f"图文使用手册（HTML）：skillpm docs 在浏览器里打开，快速上手在第一页",
-                f"　　或者复制这条命令打开：{link(html_uri(), open_command())}",
-                "配置和状态放在 ~/.skillpm/（改位置用环境变量 SKILLPM_HOME）。"]
+                f"　　或者复制这条命令打开：{open_command()}",
+                f"配置和状态放在 {where}（改位置用环境变量 SKILLPM_HOME）。"]
         return "\n".join(out).rstrip() + "\n"
 
     def error(self, message):

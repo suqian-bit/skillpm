@@ -33,21 +33,18 @@ def html_path(root=ROOT):
     return Path(root) / HTML
 
 
-def html_uri(root=ROOT):
-    """手册的 file:// 地址，终端里 ⌘/Ctrl + 点击就能打开。文件名全英文，终端才认得全。"""
-    return html_path(root).resolve().as_uri()
-
-
 def open_command(root=ROOT):
     """在终端里打开手册的命令，复制粘贴就能用。
 
     macOS 自带的「终端」点不开 file:// 链接（⌘ 单击、双击、右键都不行，实测），
     所以给一条各系统自己的「打开文件」命令，哪个终端都能用。
+    也不带 OSC 8 超链接转义：Windows 的老式 cmd 不认识，会原样打成乱码。
+    Windows 用 explorer 而不用 start：start 在 PowerShell 里是 Start-Process，`start "" 路径` 会报错。
     """
     import sys
     p = html_path(root).resolve()
     if sys.platform.startswith("win"):
-        return f'start "" "{p}"'
+        return f'explorer "{p}"'
     home = Path.home()
     try:
         shown = "~/" + p.relative_to(home).as_posix()

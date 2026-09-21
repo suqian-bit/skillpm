@@ -3,6 +3,13 @@
 版本号语义：主版本＝命令或配置不兼容；次版本＝加功能；修订号＝修 bug，行为不变。
 改了 `src/skillpm/__init__.py` 里的版本号就要在这写一条，`tools/check_release.py` 会检查。
 
+## 2.0.6 — 2026-09-21
+
+- **修 Windows 下 `skillpm -h` 底部乱码**：老式 cmd 不认识超链接转义（OSC 8），会原样打成 `]8;;file:///…` 一串乱码。
+  超链接转义整个去掉，只输出纯文字——反正常用终端也点不开。
+- Windows 下打开手册的命令从 `start "" "…"` 改成 `explorer "…"`：`start` 在 PowerShell 里会报错，`explorer` 在 cmd 和 PowerShell 都能用。
+- Windows 下 `-h` 最后一行显示配置目录的真实路径（`C:\Users\你\.skillpm\`），不再写 Windows 上没意义的 `~/.skillpm/`。
+
 ## 2.0.5 — 2026-09-21
 
 - **手册改成「复制一条命令就能打开」**：macOS 自带的「终端」点不开 `file://` 链接（⌘ 单击、双击、右键都试过），

@@ -80,8 +80,19 @@ def test_help_has_clickable_manual_link(capsys):
         "帮助里要有一条复制就能打开手册的命令（macOS 自带终端点不开 file:// 链接）"
 
 
-def test_link_escape_only_on_tty(monkeypatch):
-    from skillpm.console import link
+def test_help_has_no_escape_codes(capsys, monkeypatch):
+    """Windows 老式 cmd 不认识 OSC 8 超链接转义，会原样打成乱码——终端里也不能带。"""
+    import sys, pytest
+    monkeypatch.setattr(sys.stdout, "isatty", lambda: True, raising=False)
+    with pytest.raises(SystemExit):
+        main(["-h"])
+    assert "\033" not in capsys.readouterr().out
+
+
+def test_open_command_per_platform(monkeypatch):
     import sys
-    monkeypatch.setattr(sys.stdout, "isatty", lambda: False, raising=False)
-    assert link("file:///x/manual.html") == "file:///x/manual.html"      # 接管道时不带转义
+    from skillpm.manual import open_command
+    monkeypatch.setattr(sys, "platform", "win32")
+    assert open_command().startswith('explorer "')      # start 在 PowerShell 里会报错
+    monkeypatch.setattr(sys, "platform", "darwin")
+    assert open_command().startswith("open ")
