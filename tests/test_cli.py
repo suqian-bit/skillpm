@@ -130,37 +130,6 @@ def test_install_to_custom_dir(skillpm_home, fake_repo, tmp_path, capsys):
     assert not (tmp_path / "unused").exists(), "指定了 -d 就不该再往宿主目录装"
 
 
-def test_freeze_exports_installed_versions(skillpm_home, fake_repo, host_dir, tmp_path, capsys):
-    from skillpm.config import cache_dir, load_config, save_config
-    import shutil, json as _json
-    cfg = load_config()
-    cfg["repos"] = {"local": {"ssh": "", "branch": "main", "mode": "git"}}
-    cfg["hosts"] = {"H": str(host_dir)}
-    save_config(cfg)
-    shutil.copytree(fake_repo, cache_dir("local"))
-    import skillpm.cli as cli
-    cli.fetch_all = lambda cfg, quiet=False: {
-        "local": (cache_dir("local"), _json.loads(
-            (cache_dir("local") / "manifest.json").read_text(encoding="utf-8")))}
-    main(["install", "--all"])
-    out = tmp_path / "team.lock"
-    capsys.readouterr()
-    assert main(["freeze", "-o", str(out)]) == 0
-    lock = _json.loads(out.read_text(encoding="utf-8"))
-    assert set(lock["skills"]) == {"demo-a", "demo-b"}
-    assert lock["skills"]["demo-a"]["version"] == "1.0.0"
-
-
-def test_install_from_lock_rejects_bad_file(skillpm_home, tmp_path):
-    bad = tmp_path / "x.lock"
-    bad.write_text("{不是 json", encoding="utf-8")
-    assert main(["install", "--from", str(bad)]) == 1
-
-
-def test_install_from_missing_lock(skillpm_home, tmp_path):
-    assert main(["install", "--from", str(tmp_path / "nope.lock")]) == 1
-
-
 def _local_repo_setup(skillpm_home, fake_repo, host_dir):
     from skillpm.config import cache_dir, load_config, save_config
     import shutil, json as _json
@@ -460,15 +429,14 @@ def test_home_dir_is_not_a_project(monkeypatch, tmp_path):
 
 def test_install_p_in_home_refuses(skillpm_home, fake_repo, host_dir, tmp_path,
                                    monkeypatch, capsys):
-    """在家目录里 install -p 要拦下来，而不是往家目录丢 skillpm.lock。"""
+    """在家目录里 install -p 要拦下来：家目录下的 .claude/skills 本来就是用户级目录。"""
     _wire_local_repo(tmp_path, fake_repo, host_dir)
     home = tmp_path / "home"          # skillpm_home fixture 已经建过了
     monkeypatch.setattr(Path, "home", staticmethod(lambda: home))
     monkeypatch.chdir(home)
     assert main(["install", "-p", "--all"]) == 1
     out = capsys.readouterr().out
-    assert "家目录" in out and "skillpm.lock" in out
-    assert not (home / "skillpm.lock").exists()
+    assert "家目录" in out
 
 
 def test_conflict_advice_names_the_skills(skillpm_home, fake_repo, host_dir,

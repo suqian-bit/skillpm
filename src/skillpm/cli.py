@@ -14,7 +14,7 @@ from skillpm.config import (backup_dir, cache_dir, config_path, home, load_confi
                              save_config, save_state, state_path)
 from skillpm.console import (BLUE, BOLD, CODE, DIM, GREEN, PATH_C, RED, RESET, YELLOW, Abort,
                               ask, confirm, choose, die, ensure_utf8_stdio, info, md_line, ok, remember_secret, say, warn)
-from skillpm import index, lockfile, sealed
+from skillpm import index, project, sealed
 from skillpm.sources import locate, parse as parse_source
 from skillpm.hosts import (CATALOG, confidence, describe, detect, name_for_path, detect_project, project_capable,
                             project_dir, supports_project)
@@ -73,7 +73,7 @@ def source_of(fetched, name, rec):
 
 
 def repo_commit(repo_dir):
-    """锁文件要锁到 commit，不能只锁版本号——同一个版本号的内容也可能被改过。"""
+    """装的时候记下仓库的 commit：同一个版本号的内容也可能被改过，出问题时能对上是哪次提交。"""
     try:
         return run_git(["rev-parse", "HEAD"], cwd=repo_dir).strip()
     except (RuntimeError, OSError):
@@ -99,24 +99,15 @@ def project_hosts(root, cfg):
     return {n: str(Path(root) / project_dir(n)) for n, _ in picked}
 
 
-def install_one(catalog, name, dest, host, scope, lock, root, force=False, src=None):
-    """装一个 Skill；项目级的同时写进锁文件。src：加密存放的 Skill 解开后的目录（普通 Skill 不给）。"""
+def install_one(catalog, name, dest, host, scope, force=False, src=None):
+    """装一个 Skill。src：要口令的 Skill 解开后的目录（普通 Skill 不给）。"""
     rname, rdir, meta = catalog[name]
     rec = install(src or rdir, name, meta, dest, backup_existing=force)
     rec["repo"], rec["host"], rec["scope"] = rname, host, scope
-    if meta.get("tier"):
-        rec["tier"] = meta["tier"]
-    if meta.get("lock"):
-        rec["lock"] = meta["lock"]
-    rec["commit"] = repo_commit(rdir)        # 用户级也记 commit，freeze 时才导得出来
-    if scope == "project":
-        cfg = load_config()
-        src = (cfg.get("repos", {}).get(rname) or {})
-        lockfile.record(lock, name, repo=rname,
-                        source=src.get("ssh") or src.get("http") or "",
-                        commit=repo_commit(rdir), version=meta["version"], host=host,
-                        rel_path=str(Path(dest).resolve().relative_to(Path(root).resolve()) / name),
-                        files=meta["files"])
+    for f in ("tier", "lock"):
+        if meta.get(f):
+            rec[f] = meta[f]
+    rec["commit"] = repo_commit(rdir)
     return rec
 
 
@@ -396,17 +387,9 @@ def check_python_deps(catalog, names):
 # ── 命令 ──────────────────────────────────────────────────────────────────
 
 def cmd_install(a):
-    from_lock = getattr(a, "from_lock", None)
-    lock_data = None
-    if from_lock:
-        # 先验锁文件再走引导——文件都不对就别让人白答四个问题
-        lock_data = read_lock_file(Path(from_lock).expanduser())
-
     cfg = load_config()
     if not config_path().exists() or a.reconfigure:
         cfg = onboarding(cfg)
-    if from_lock:
-        return install_from_lock(a, cfg, Path(from_lock).expanduser(), lock_data)
     only_repo = pick_repo(cfg, a)
     if only_repo:
         a.repo = only_repo
@@ -416,18 +399,17 @@ def cmd_install(a):
         prefer = dict(reversed(x.split(":", 1)) for x in (a.only or []) if ":" in x)
         catalog = all_skills(fetch_all(cfg), prefer)
 
-    root = lockfile.find_root()
-    lock = lockfile.load(root)
+    root = project.find_root()
     # 默认用户级：绝大多数 Agent 全局生效，没有项目概念。只有编程类 Agent 才分项目级。
     scope = "project" if getattr(a, "project", False) else "global"
     if scope == "project" and not is_project_root(root):
         die(f"{root} 是你的家目录，不是一个项目",
             "这里的 .claude/skills、.codex/skills 本来就是用户级目录，"
-            "-p 装到的是同一个地方，还会在家目录里留一个 skillpm.lock。"
+            "-p 装到的是同一个地方。"
             "要装项目级就先 cd 到那个代码仓库里；就想全局装的话去掉 -p。")
     if scope == "global":
-        hint_project_scope(root, lock)
-    return _do_install(a, cfg, catalog, root, lock, scope)
+        hint_project_scope(root)
+    return _do_install(a, cfg, catalog, root, scope)
 
 
 def is_project_root(root):
@@ -435,21 +417,15 @@ def is_project_root(root):
 
     家目录不算：`~/.codex/skills`、`~/.claude/skills` 本来就是**用户级**目录，
     在家目录下跑的时候它们会被当成「项目里的目录」，于是提示你用 -p——
-    可 -p 装到的是同一个地方，还会在家目录里丢一个 skillpm.lock。
-    文件系统根目录同理，不该被当成项目。
+    可 -p 装到的是同一个地方。文件系统根目录同理，不该被当成项目。
     """
     root = Path(root).resolve()
     return root != Path.home().resolve() and root != Path(root.anchor)
 
 
-def hint_project_scope(root, lock):
+def hint_project_scope(root):
     """在编程类 Agent 的项目里装全局时提一句，但不擅自改行为。"""
     if not is_project_root(root):
-        return
-    if lock.get("skills"):
-        say()
-        warn(f"{root} 下有 {lockfile.LOCK_NAME}，说明这个项目有自己的 Skill 基线")
-        info(f"要按它复现请加 -p：skillpm install -p")
         return
     here = detect_project(root)
     if here:
@@ -458,79 +434,7 @@ def hint_project_scope(root, lock):
              f"想让 Skill 只在本项目生效可以用 skillpm install -p")
 
 
-def read_lock_file(lock_path):
-    """读并校验锁文件。有问题立刻说清楚，不要等走完引导才报。"""
-    import json as _json
-    if not lock_path.exists():
-        die(f"找不到 {lock_path}", "确认路径对不对；生成锁文件用 skillpm freeze")
-    try:
-        lock = _json.loads(lock_path.read_text(encoding="utf-8"))
-    except ValueError as e:
-        die(f"{lock_path} 不是合法 JSON：{e}", "多半是 git 合并冲突没解干净，看看有没有 <<<<<<< 标记")
-    if not isinstance(lock, dict) or not (lock.get("skills") or {}):
-        die(f"{lock_path} 里没有记录任何 Skill")
-    return lock
-
-
-def install_from_lock(a, cfg, lock_path, lock=None):
-    """按别人给的锁文件装回同一套：每个 Skill 都切到它记的那个 commit。"""
-    lock = lock or read_lock_file(lock_path)
-    skills = lock["skills"]
-
-    say()
-    info(f"按 {lock_path.name} 复现 {len(skills)} 个 Skill")
-    hosts = pick_hosts(cfg, a, ask=True)
-    if getattr(a, "agent", None):
-        hosts = {n: p for n, p in hosts.items()
-                 if n.lower().replace(" ", "-") == a.agent.lower()} or die(
-                     f"没有叫「{a.agent}」的宿主")
-
-    # 同一个仓库的多个 Skill 可能锁在不同 commit，按 commit 分批拉
-    by_commit = {}
-    for name, rec in skills.items():
-        by_commit.setdefault((rec.get("repo"), rec.get("commit")), []).append((name, rec))
-
-    conflicts, state = ConflictLog(), load_state()
-    for (rname, commit), items in by_commit.items():
-        repo = (cfg.get("repos") or {}).get(rname)
-        if not repo:
-            warn(f"锁里写的仓库「{rname}」本机没配，跳过 {len(items)} 个 Skill")
-            info(f"配上它：skillpm repo add {rname} --ssh <地址>")
-            continue
-        rdir = fetch(rname, repo, ref=commit)
-        man = manifest_of(rdir, rname)
-        for name, rec in items:
-            meta = man.get("skills", {}).get(name)
-            if not meta:
-                warn(f"{name} 在 {rname}@{str(commit)[:8]} 里不存在，跳过")
-                continue
-            if meta["version"] != rec.get("version"):
-                warn(f"{name}：锁里写的是 {rec.get('version')}，"
-                     f"这个 commit 上是 {meta['version']}——按 commit 为准")
-            for host, path in hosts.items():
-                key = host
-                entry = state["hosts"].setdefault(key, {"path": path, "skills": {}, "scope": "global"})
-                entry["path"] = path
-                src, why = sealed.open_skill(rname, rdir, name, meta)
-                if src is None:
-                    locked_hint(name, why)
-                    break
-                if conflicts.check(host, path, name, entry["skills"].get(name), a.force, src):
-                    continue
-                new = install(src, name, meta, path, backup_existing=a.force)
-                new["repo"], new["host"], new["scope"], new["commit"] = rname, host, "global", commit
-                entry["skills"][name] = new
-                ok(f"{name}  {meta['version']}  {DIM}{rname}@{str(commit)[:8]}  {host}{RESET}")
-    save_state(state)
-    say()
-    if len(conflicts):
-        warn(f"部分完成：{len(conflicts)} 项因为冲突没动")
-    else:
-        ok("复现完成，和锁文件里记的一致。")
-    return conflicts.report()
-
-
-def _do_install(a, cfg, catalog, root, lock, scope):
+def _do_install(a, cfg, catalog, root, scope):
     custom = getattr(a, "dir", None)
     if custom:
         # -d 指定了目录，下面会把 hosts 整个换掉——那就别再问「装到哪些宿主」，
@@ -548,7 +452,7 @@ def _do_install(a, cfg, catalog, root, lock, scope):
         cfg["last_hosts"] = sorted(hosts)
         save_config(cfg)
         say()
-        info("全局安装：装到用户级目录，对你所有项目生效，不写锁文件")
+        info("全局安装：装到用户级目录，对你所有项目生效")
     else:
         hosts = project_hosts(root, cfg)
         if not hosts:
@@ -556,7 +460,7 @@ def _do_install(a, cfg, catalog, root, lock, scope):
                 f"支持项目级的只有编程类 Agent：{'、'.join(project_capable())}。"
                 "别的 Agent 是全局生效的，直接 skillpm install 就行")
         say()
-        info(f"项目级安装：装到 {root}，版本写进 {lockfile.LOCK_NAME} 随项目提交")
+        info(f"项目级安装：装到 {root}，只对这个项目生效")
 
 
     want_host = getattr(a, "agent", None)
@@ -567,7 +471,7 @@ def _do_install(a, cfg, catalog, root, lock, scope):
                 f"本次可选：{'、'.join(hosts)}；全部认识的用 skillpm host list 看")
         hosts = matched
 
-    names = _pick_names(a, catalog, lock, scope)
+    names = _pick_names(a, catalog)
     if not names:
         die("一个都没选")
     # 加密存放的级别：先解开（本机记过口令就不问；没记过、在终端里就当场问）
@@ -602,7 +506,7 @@ def _do_install(a, cfg, catalog, root, lock, scope):
                 continue
             if conflicts.check(host, path, n, prev, a.force, rdir):
                 continue
-            entry["skills"][n] = install_one(catalog, n, path, host, scope, lock, root, a.force, src=opened.get(n))
+            entry["skills"][n] = install_one(catalog, n, path, host, scope, a.force, src=opened.get(n))
             g = excl_group(n, meta)
             gone = replace_siblings(state, key, n, group_members(catalog, g)) if g else []
             if gone:
@@ -622,11 +526,6 @@ def _do_install(a, cfg, catalog, root, lock, scope):
             if entries:
                 index.write(path, entries, scope)
     save_state(state)
-    if scope == "project" and lock.get("skills"):
-        p = lockfile.save(root, lock)
-        say()
-        ok(f"版本已锁定：{p}")
-        info(f"把它和宿主目录一起提交，别人 git pull 后跑 skillpm install 就能拿到同样的版本")
     check_python_deps(catalog, names)
     say()
     skipped = len(conflicts) + len(switch_skipped)
@@ -676,8 +575,8 @@ def pick_repo(cfg, a):
     return names[0]
 
 
-def _pick_names(a, catalog, lock, scope):
-    """决定装哪几个。项目级且没点名时，优先照锁文件复现。"""
+def _pick_names(a, catalog):
+    """决定装哪几个。"""
     _pick_names.full = catalog
     if a.only:
         # --only 既收光名字，也收「仓库名:Skill名」——后者只在那个仓库里找
@@ -700,15 +599,6 @@ def _pick_names(a, catalog, lock, scope):
         if not names:
             die(f"仓库 {a.repo} 里没有 Skill，或者这个仓库名不对", "看看有哪些：skillpm repo list")
         return names
-    if scope == "project" and lock.get("skills") and not a.all:
-        locked = [n for n in lock["skills"] if n in _pick_names.full]
-        missing = [n for n in lock["skills"] if n not in _pick_names.full]
-        if missing:
-            warn(f"锁文件里这几个在仓库里找不到了：{'、'.join(missing)}")
-        if locked:
-            say()
-            info(f"按 {lockfile.LOCK_NAME} 复现 {len(locked)} 个 Skill（要改动用 --only 或 --all）")
-            return locked
     if a.all:
         return list(catalog)
     say()
@@ -724,43 +614,6 @@ def _pick_names(a, catalog, lock, scope):
     return [n for n, _ in choose("", opts)]
 
 
-def cmd_freeze(a):
-    """把当前装的版本导成一份锁文件，发给别人就能复现同一套。
-
-    joySkills 的锁只服务项目级，但我们主力宿主（WorkBuddy）根本没有项目级概念，
-    所以这里让锁脱离项目也能用：freeze 出来一份，别人 install --from 装回去。
-    """
-    state = load_state()
-    if not state.get("hosts"):
-        die("本地没有安装记录", "先跑 skillpm install")
-    root = lockfile.find_root()
-    lock = {"lockfile_version": lockfile.LOCK_VERSION, "skills": {}}
-    for key, entry in state["hosts"].items():
-        if a.host and key.split(":")[-1] != a.host:
-            continue
-        for name, rec in entry.get("skills", {}).items():
-            if name in lock["skills"]:
-                continue
-            lock["skills"][name] = {
-                "repo": rec.get("repo"), "source": "", "commit": rec.get("commit"),
-                "version": rec.get("version"), "host": key.split(":")[-1],
-                "path": "", "files": rec.get("files", {}),
-            }
-    if not lock["skills"]:
-        die("没有可导出的安装记录")
-    out = Path(a.out).expanduser() if a.out else lockfile.path_of(root)
-    missing = [n for n, v in lock["skills"].items() if not v.get("commit")]
-    lockfile.save(out.parent if out.name == lockfile.LOCK_NAME else out.parent, lock) \
-        if out.name == lockfile.LOCK_NAME else out.write_text(
-            __import__("json").dumps(lock, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
-    ok(f"已导出 {len(lock['skills'])} 个 Skill 的版本 → {PATH_C}{out}{RESET}")
-    if missing:
-        warn(f"这几个没记到 commit（装的时候还没有这个字段）：{'、'.join(missing)}")
-        info("重新装一次就会补上；没有 commit 时复现只能按版本号，不保证内容完全一致")
-    info(f"别人拿这个文件装回同一套：skillpm install --from {out.name}")
-    return 0
-
-
 def cmd_check(a):
     """只检查有没有新版本，什么都不动。想更新再跑 skillpm update。"""
     cfg = load_config()
@@ -768,7 +621,7 @@ def cmd_check(a):
         die("还没配过", "先跑 skillpm install")
     fetched = fetch_all(cfg, quiet=True)
     state = load_state()
-    root = lockfile.find_root()
+    root = project.find_root()
 
     rows, dirty = [], []
     for key, entry in (state.get("hosts") or {}).items():
@@ -945,7 +798,7 @@ def not_installed(fetched, state):
     """仓库里有、本机用户级宿主没装的 Skill：[(仓库名, Skill名, info, [宿主…])]。
 
     只看装过这个仓库东西的宿主——配了仓库却一个都没从它装过，多半是有意不用，别去烦人。
-    项目级安装跟着锁文件走，不在这儿管。
+    项目级安装按项目自己管，不在这儿提示。
     """
     miss = {}
     for key, entry in (state.get("hosts") or {}).items():
@@ -1127,10 +980,7 @@ def cmd_status(a):
             fetched = fetch_all(cfg, quiet=True)
         except Abort:
             warn("没连上仓库，只显示本地情况")
-    root = lockfile.find_root()
-    lock = lockfile.load(root)
-    if lock.get("skills"):
-        say(f"{BOLD}锁文件{RESET}  {lockfile.path_of(root)}　{DIM}{len(lock['skills'])} 个 Skill{RESET}")
+    root = project.find_root()
     want = None
     if getattr(a, "project", False):
         want = "project"
@@ -1494,7 +1344,7 @@ def cmd_sync(a):
         fetched = fetch_all(cfg, quiet=True)
     except Abort:
         warn("没连上仓库，说明文字可能不全，但索引照样生成")
-    root = lockfile.find_root()
+    root = project.find_root()
     n = 0
     for key, entry in (state.get("hosts") or {}).items():
         scope = entry.get("scope", "global")
@@ -1692,7 +1542,6 @@ HELP_GROUPS = [
     ("配置", [("repo", "Skill 仓库：加 / 看 / 删，可以配多个"),
               ("host", "Agent 目录：加 / 看 / 删，一般自动探到")]),
     ("维护", [("manifest", "检查自己的 Skill 仓库是否合格（可选：生成 manifest.json）"),
-              ("freeze", "导出锁文件，让全组装到完全一样的版本"),
               ("sync", "重新生成各 Agent 目录下的 AGENTS.md 索引"),
               ("self-update", "更新 skillpm 工具本身"),
               ("publish", "发版：要口令的 Skill 加密进仓库，其余照常放（维护仓库的人用）")]),
@@ -1926,7 +1775,7 @@ def build_parser():
     p.add_argument("specs", nargs="*", metavar="SKILL",
                    help="要装的 Skill 名，或安装源（owner/repo/skill、git 地址、team://库/名、本地路径）")
     p.add_argument("-p", "--project", action="store_true",
-                   help="只装到当前项目（仅编程类 Agent 支持），版本写进锁文件随项目提交")
+                   help="只装到当前项目（仅编程类 Agent 支持）")
     p.add_argument("-g", "--global", dest="global_", action="store_true",
                    help="装到用户级目录（默认行为，写不写都一样）")
     p.add_argument("--only", nargs="*", metavar="SKILL", help="只装这几个")
@@ -1936,16 +1785,9 @@ def build_parser():
     p.add_argument("-a", "--agent", metavar="宿主", help="只装到这个宿主（如 claude-code、cursor）")
     p.add_argument("--hosts", nargs="*", metavar="宿主", help="装到这几个宿主，跳过询问")
     p.add_argument("-d", "--dir", metavar="目录", help="装到指定目录，不走宿主探测")
-    p.add_argument("--from", dest="from_lock", metavar="锁文件",
-                   help="按锁文件复现：每个 Skill 都切到它记的那个 commit")
     p.add_argument("--no-index", action="store_true", help="不生成 AGENTS.md 索引")
     p.add_argument("--reconfigure", action="store_true", help="重新走一遍引导")
     p.set_defaults(fn=cmd_install)
-
-    p = sub.add_parser("freeze", help="把当前装的版本导成锁文件，发给别人复现")
-    p.add_argument("-o", "--out", metavar="文件", help="输出到哪，默认当前项目的 skillpm.lock")
-    p.add_argument("--host", metavar="宿主", help="只导这个宿主装的")
-    p.set_defaults(fn=cmd_freeze)
 
     p = sub.add_parser("check", help="只看有没有新版本，什么都不动")
     p.add_argument("--repo", metavar="名字", help="只看这个仓库来的")

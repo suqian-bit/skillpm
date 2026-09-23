@@ -3,6 +3,16 @@
 版本号语义：主版本＝命令或配置不兼容；次版本＝加功能；修订号＝修 bug，行为不变。
 改了 `src/skillpm/__init__.py` 里的版本号就要在这写一条，`tools/check_release.py` 会检查。
 
+## 3.0.0 — 2026-09-23
+
+**去掉锁文件功能**：`skillpm freeze`、`skillpm install --from <锁文件>`、项目级安装自动写 `skillpm.lock`，这一套都拿掉了。
+
+它和口令组（`skillpm.repo.json` 里的 `lock`）都叫「锁」，放在一起有歧义；日常跟版本靠 `update` 就够了。去掉命令属于不兼容改动，所以升主版本。
+
+- 项目级安装（`-p`）照常能用，只是不再写 `skillpm.lock`；项目里已有的 `skillpm.lock` 不会再被读取，可以删掉。
+- 安装记录里照样记着装的时候仓库的 commit。
+- 文档：命令手册删掉「锁版本」一节，其后章节顺移；详细说明、快速上手、README 补上「要口令的 Skill」怎么装。
+
 ## 2.3.0 — 2026-09-23
 
 - **一个 Skill 可以配几个口令组**：`skillpm.repo.json` 里 `"lock": ["write", "admin"]`，这两个组的口令都能装它。

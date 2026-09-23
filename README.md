@@ -53,7 +53,7 @@ skillpm update     # 跟上最新，并告诉你每个 Skill 改了什么
 | `skillpm repo add\|list\|remove` | 管理 Skill 仓库，**可以配多个**；怎么准备自己的 Skill 仓库见 [docs/接入自己的Skill仓库.md](docs/接入自己的Skill仓库.md) |
 | `skillpm manifest --check` | 检查自己的 Skill 仓库合不合格（manifest.json 可选） |
 | `skillpm host add\|list\|remove` | 管理宿主目录（认识 52 种常见 Agent） |
-| `skillpm freeze` / `install --from` | 导出／按锁文件复现，让全组装到完全一样的一套 |
+| `skillpm install <名字>` | 点名装要口令的 Skill（口令在终端里手敲） |
 | `skillpm sync` | 重新生成各宿主下的 `AGENTS.md` 索引 |
 | `skillpm self-update` | 更新工具本身（在哪个目录跑都行） |
 

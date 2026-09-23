@@ -79,7 +79,7 @@ def archive_url(repo, ref):
 
 
 def checkout(cache, ref, env=None):
-    """把缓存切到指定 commit。锁文件要真能复现，就必须走这一步——
+    """把缓存切到指定 commit。要装指定提交时走这一步——
     光把 commit 记下来、安装时还拉分支最新，那锁的是个寂寞。"""
     try:
         run_git(["rev-parse", "--verify", f"{ref}^{{commit}}"], cwd=cache)
@@ -184,7 +184,7 @@ def explain_git_error(raw):
 
 
 def fetch(name, repo, quiet=False, ref=None):
-    """把某个仓库拉到本地缓存，返回目录。给了 ref 就切到那个 commit（锁文件复现用）。"""
+    """把某个仓库拉到本地缓存，返回目录。给了 ref 就切到那个 commit。"""
     cache = cache_dir(name)
     cache.parent.mkdir(parents=True, exist_ok=True)
     branch = repo.get("branch", "main")

@@ -2,9 +2,9 @@
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>skillpm 使用手册</title>
-<meta name="description" content="skillpm 命令手册与接入说明，v2.3.0">
-<meta name="skillpm-version" content="2.3.0">
-<meta name="skillpm-source" content="8b3fc84659d0ad42">
+<meta name="description" content="skillpm 命令手册与接入说明，v3.0.0">
+<meta name="skillpm-version" content="3.0.0">
+<meta name="skillpm-source" content="c6a108c62b130735">
 <style>
 :root{--bg:#f7f8fa;--paper:#fff;--ink:#1f2933;--muted:#5b6673;--line:#e3e7ec;--accent:#3e6ddf;
 --accent-soft:#eaf0fd;--code-bg:#0f172a;--code-ink:#e2e8f0;--inline-bg:#eef1f5;--warn:#b05a00;--warn-soft:#fff6e5;
@@ -97,13 +97,13 @@ transform:translateX(-100%);transition:transform .2s}body.menu nav.toc{transform
 <header><div class="bar">
   <button class="icon-btn menu-btn" id="menu" aria-label="目录">☰</button>
   <div class="brand"><span class="logo">sp</span><span class="name">skillpm 使用手册</span>
-  <span class="ver">v2.3.0</span></div>
+  <span class="ver">v3.0.0</span></div>
   <div class="tabs-wrap"><span class="tabs-hint">手册共 3 篇 →</span><div class="tabs"><button data-doc="start"><span class="n">1</span>快速上手</button><button data-doc="manual"><span class="n">2</span>完整命令手册</button><button data-doc="onboard"><span class="n">3</span>接入自己的仓库</button></div></div>
   <div class="sp"></div>
   <button class="icon-btn" id="theme" title="切换深浅色" aria-label="切换深浅色">◐</button>
 </div></header>
 <div class="wrap">
-  <nav class="toc"><input class="search" placeholder="搜目录…" aria-label="搜目录"><ul class="t" data-doc="start"><li class="l2"><a href="#start-1-装工具-只做一次">1. 装工具（只做一次）</a></li><li class="l2"><a href="#start-2-第一次配置-装-skill">2. 第一次配置 + 装 Skill</a></li><li class="l2"><a href="#start-3-看装了什么">3. 看装了什么</a></li><li class="l2"><a href="#start-4-更新">4. 更新</a></li><li class="l2"><a href="#start-5-卸载">5. 卸载</a></li><li class="l2"><a href="#start-6-忘了命令">6. 忘了命令</a></li><li class="l2"><a href="#start-常用命令速查">常用命令速查</a></li><li class="l2"><a href="#start-必须知道的-3-件事">必须知道的 3 件事</a></li><li class="l2"><a href="#start-出问题了">出问题了</a></li></ul><ul class="t" data-doc="manual"><li class="l2"><a href="#manual-一-速查表">一、速查表</a></li><li class="l2"><a href="#manual-二-装-skill-skillpm-install">二、装 Skill：skillpm install</a><ul><li class="l3"><a href="#manual-2-1-全部参数">2.1 全部参数</a></li><li class="l3"><a href="#manual-2-1-1-交互选择时怎么填">2.1.1 交互选择时怎么填</a></li><li class="l3"><a href="#manual-2-2-穷举各种装法">2.2 穷举各种装法</a></li><li class="l3"><a href="#manual-2-3-要口令才能装的-skill">2.3 要口令才能装的 Skill</a></li></ul></li><li class="l2"><a href="#manual-三-看现状-三条各看一层">三、看现状：三条各看一层</a><ul><li class="l3"><a href="#manual-3-1-skillpm-status">3.1 skillpm status</a></li><li class="l3"><a href="#manual-3-2-skillpm-check">3.2 skillpm check</a></li><li class="l3"><a href="#manual-3-3-skillpm-host-list">3.3 skillpm host list</a></li><li class="l3"><a href="#manual-3-4-skillpm-repo-list">3.4 skillpm repo list</a></li></ul></li><li class="l2"><a href="#manual-四-更新">四、更新</a><ul><li class="l3"><a href="#manual-4-1-skillpm-update-更新-skill">4.1 skillpm update —— 更新 Skill</a></li><li class="l3"><a href="#manual-4-2-skillpm-self-update-更新工具自己">4.2 skillpm self-update —— 更新工具自己</a></li><li class="l3"><a href="#manual-4-3-skillpm-sync-重建索引">4.3 skillpm sync —— 重建索引</a></li></ul></li><li class="l2"><a href="#manual-五-删除-两个-别搞混">五、删除（两个，别搞混）</a><ul><li class="l3"><a href="#manual-5-1-skillpm-uninstall-删-skill">5.1 skillpm uninstall —— 删 Skill</a></li><li class="l3"><a href="#manual-5-2-scripts-uninstall-sh-ps1-删工具本身">5.2 scripts/uninstall.sh / .ps1 —— 删工具本身</a></li><li class="l3"><a href="#manual-5-3-完整清理-三步-顺序别反">5.3 完整清理（三步，顺序别反）</a></li></ul></li><li class="l2"><a href="#manual-六-管仓库-skillpm-repo">六、管仓库：skillpm repo</a><ul><li class="l3"><a href="#manual-多个仓库-同名-skill-规则就两条">多个仓库、同名 Skill：规则就两条</a></li></ul></li><li class="l2"><a href="#manual-六-五-检查自己的仓库-skillpm-manifest">六·五、检查自己的仓库：skillpm manifest</a></li><li class="l2"><a href="#manual-七-管宿主-skillpm-host">七、管宿主：skillpm host</a></li><li class="l2"><a href="#manual-八-锁版本-skillpm-freeze-install-from">八、锁版本：skillpm freeze + install --from</a></li><li class="l2"><a href="#manual-九-装-更新工具本身的脚本参数">九、装/更新工具本身的脚本参数</a></li><li class="l2"><a href="#manual-十-环境变量">十、环境变量</a></li><li class="l2"><a href="#manual-十一-退出码">十一、退出码</a></li><li class="l2"><a href="#manual-十二-文件都放在哪">十二、文件都放在哪</a></li><li class="l2"><a href="#manual-附录-一条命令合集">附录：一条命令合集</a></li></ul><ul class="t" data-doc="onboard"><li class="l2"><a href="#onboard-第一步-仓库长这样">第一步：仓库长这样</a><ul><li class="l3"><a href="#onboard-skill-md-格式">SKILL.md 格式</a></li><li class="l3"><a href="#onboard-changelog-md-格式-建议">CHANGELOG.md 格式（建议）</a></li></ul></li><li class="l2"><a href="#onboard-第二步-可选-自检">第二步（可选）：自检</a></li><li class="l2"><a href="#onboard-可选-要口令的-skill-互斥的-skill">可选：要口令的 Skill、互斥的 Skill</a></li><li class="l2"><a href="#onboard-第三步-每个人把仓库加进来">第三步：每个人把仓库加进来</a><ul><li class="l3"><a href="#onboard-第一次用-skillpm-的人">第一次用 skillpm 的人</a></li><li class="l3"><a href="#onboard-私有仓库">私有仓库</a></li><li class="l3"><a href="#onboard-不是-main-分支">不是 main 分支</a></li><li class="l3"><a href="#onboard-和别的仓库有同名的-skill">和别的仓库有同名的 Skill</a></li></ul></li><li class="l2"><a href="#onboard-加不上的时候">加不上的时候</a></li><li class="l2"><a href="#onboard-常用命令速查">常用命令速查</a></li></ul>
+  <nav class="toc"><input class="search" placeholder="搜目录…" aria-label="搜目录"><ul class="t" data-doc="start"><li class="l2"><a href="#start-1-装工具-只做一次">1. 装工具（只做一次）</a></li><li class="l2"><a href="#start-2-第一次配置-装-skill">2. 第一次配置 + 装 Skill</a></li><li class="l2"><a href="#start-3-看装了什么">3. 看装了什么</a></li><li class="l2"><a href="#start-4-更新">4. 更新</a></li><li class="l2"><a href="#start-5-卸载">5. 卸载</a></li><li class="l2"><a href="#start-6-忘了命令">6. 忘了命令</a></li><li class="l2"><a href="#start-常用命令速查">常用命令速查</a></li><li class="l2"><a href="#start-必须知道的-3-件事">必须知道的 3 件事</a></li><li class="l2"><a href="#start-出问题了">出问题了</a></li></ul><ul class="t" data-doc="manual"><li class="l2"><a href="#manual-一-速查表">一、速查表</a></li><li class="l2"><a href="#manual-二-装-skill-skillpm-install">二、装 Skill：skillpm install</a><ul><li class="l3"><a href="#manual-2-1-全部参数">2.1 全部参数</a></li><li class="l3"><a href="#manual-2-1-1-交互选择时怎么填">2.1.1 交互选择时怎么填</a></li><li class="l3"><a href="#manual-2-2-穷举各种装法">2.2 穷举各种装法</a></li><li class="l3"><a href="#manual-2-3-要口令才能装的-skill">2.3 要口令才能装的 Skill</a></li></ul></li><li class="l2"><a href="#manual-三-看现状-三条各看一层">三、看现状：三条各看一层</a><ul><li class="l3"><a href="#manual-3-1-skillpm-status">3.1 skillpm status</a></li><li class="l3"><a href="#manual-3-2-skillpm-check">3.2 skillpm check</a></li><li class="l3"><a href="#manual-3-3-skillpm-host-list">3.3 skillpm host list</a></li><li class="l3"><a href="#manual-3-4-skillpm-repo-list">3.4 skillpm repo list</a></li></ul></li><li class="l2"><a href="#manual-四-更新">四、更新</a><ul><li class="l3"><a href="#manual-4-1-skillpm-update-更新-skill">4.1 skillpm update —— 更新 Skill</a></li><li class="l3"><a href="#manual-4-2-skillpm-self-update-更新工具自己">4.2 skillpm self-update —— 更新工具自己</a></li><li class="l3"><a href="#manual-4-3-skillpm-sync-重建索引">4.3 skillpm sync —— 重建索引</a></li></ul></li><li class="l2"><a href="#manual-五-删除-两个-别搞混">五、删除（两个，别搞混）</a><ul><li class="l3"><a href="#manual-5-1-skillpm-uninstall-删-skill">5.1 skillpm uninstall —— 删 Skill</a></li><li class="l3"><a href="#manual-5-2-scripts-uninstall-sh-ps1-删工具本身">5.2 scripts/uninstall.sh / .ps1 —— 删工具本身</a></li><li class="l3"><a href="#manual-5-3-完整清理-三步-顺序别反">5.3 完整清理（三步，顺序别反）</a></li></ul></li><li class="l2"><a href="#manual-六-管仓库-skillpm-repo">六、管仓库：skillpm repo</a><ul><li class="l3"><a href="#manual-多个仓库-同名-skill-规则就两条">多个仓库、同名 Skill：规则就两条</a></li></ul></li><li class="l2"><a href="#manual-六-五-检查自己的仓库-skillpm-manifest">六·五、检查自己的仓库：skillpm manifest</a></li><li class="l2"><a href="#manual-七-管宿主-skillpm-host">七、管宿主：skillpm host</a></li><li class="l2"><a href="#manual-八-装-更新工具本身的脚本参数">八、装/更新工具本身的脚本参数</a></li><li class="l2"><a href="#manual-九-环境变量">九、环境变量</a></li><li class="l2"><a href="#manual-十-退出码">十、退出码</a></li><li class="l2"><a href="#manual-十一-文件都放在哪">十一、文件都放在哪</a></li><li class="l2"><a href="#manual-附录-一条命令合集">附录：一条命令合集</a></li></ul><ul class="t" data-doc="onboard"><li class="l2"><a href="#onboard-第一步-仓库长这样">第一步：仓库长这样</a><ul><li class="l3"><a href="#onboard-skill-md-格式">SKILL.md 格式</a></li><li class="l3"><a href="#onboard-changelog-md-格式-建议">CHANGELOG.md 格式（建议）</a></li></ul></li><li class="l2"><a href="#onboard-第二步-可选-自检">第二步（可选）：自检</a></li><li class="l2"><a href="#onboard-可选-要口令的-skill-互斥的-skill">可选：要口令的 Skill、互斥的 Skill</a></li><li class="l2"><a href="#onboard-第三步-每个人把仓库加进来">第三步：每个人把仓库加进来</a><ul><li class="l3"><a href="#onboard-第一次用-skillpm-的人">第一次用 skillpm 的人</a></li><li class="l3"><a href="#onboard-私有仓库">私有仓库</a></li><li class="l3"><a href="#onboard-不是-main-分支">不是 main 分支</a></li><li class="l3"><a href="#onboard-和别的仓库有同名的-skill">和别的仓库有同名的 Skill</a></li></ul></li><li class="l2"><a href="#onboard-加不上的时候">加不上的时候</a></li><li class="l2"><a href="#onboard-常用命令速查">常用命令速查</a></li></ul>
   <ul class="t-all"><li class="l2"><a href="#changelog" id="toc-changelog">更新日志</a></li></ul></nav>
   <main><article><section class="doc" id="doc-start"><h1 id="start-快速上手">快速上手</h1>
 <p>skillpm 把 AI Skill 一键装到你用的各个 Agent（WorkBuddy、Claude Code、Codex、Cursor……），并跟着仓库更新。
@@ -221,8 +221,8 @@ skillpm docs        # 在浏览器里打开这份手册
 <td><code>skillpm repo add &lt;名字&gt; &lt;地址&gt;</code></td>
 </tr>
 <tr>
-<td>让全组装到完全一样的版本</td>
-<td><code>skillpm freeze</code>，别人 <code>skillpm install --from &lt;锁文件&gt;</code></td>
+<td>装要口令的 Skill（如某个工具的写权限）</td>
+<td><code>skillpm install &lt;名字&gt;</code>，在终端里手敲口令（找管理员要）</td>
 </tr>
 <tr>
 <td>更新工具本身</td>
@@ -328,10 +328,6 @@ skillpm docs        # 在浏览器里打开这份手册
 <td>管宿主（Agent）目录</td>
 </tr>
 <tr>
-<td><code>skillpm freeze</code></td>
-<td>导出锁文件，让全组装到完全一样的版本</td>
-</tr>
-<tr>
 <td><code>skillpm sync</code></td>
 <td>重新生成各宿主下的 <code>AGENTS.md</code> 索引</td>
 </tr>
@@ -427,11 +423,7 @@ skillpm docs        # 在浏览器里打开这份手册
 </tr>
 <tr>
 <td><code>-p</code> / <code>--project</code></td>
-<td>只装到当前项目（仅编程类 Agent），版本写进锁文件</td>
-</tr>
-<tr>
-<td><code>--from 锁文件</code></td>
-<td>按锁文件复现：每个 Skill 都切到它记的那个 commit</td>
+<td>只装到当前项目（仅编程类 Agent）</td>
 </tr>
 <tr>
 <td><code>--force</code></td>
@@ -521,15 +513,12 @@ skillpm install --force                                      # 上面列出的�
 </blockquote>
 <p><strong>项目级安装</strong>（只有编程类 Agent 支持）</p>
 <pre><code class="language-bash">cd ~/work/my-project
-skillpm install -p                  # 装到 .claude/skills，自动写 skillpm.lock
+skillpm install -p                  # 装到项目里的 .claude/skills，只对这个项目生效
 </code></pre>
 <blockquote class="note">
 <p>在<strong>家目录</strong>里用 <code>-p</code> 会被拦下来——<code>~/.claude/skills</code> 本来就是用户级目录，
-<code>-p</code> 装到的是同一个地方，还会往家目录丢一个 <code>skillpm.lock</code>。</p>
+<code>-p</code> 装到的是同一个地方，没有意义。</p>
 </blockquote>
-<p><strong>按锁文件复现</strong></p>
-<pre><code class="language-bash">skillpm install --from team.lock    # 每个 Skill 切到锁里记的 commit 再装
-</code></pre>
 <p><strong>重新配置</strong></p>
 <pre><code class="language-bash">skillpm install --reconfigure       # 重走首次引导：换仓库地址、换令牌
 </code></pre>
@@ -1068,35 +1057,7 @@ skillpm host remove 我的工具                 # 只删配置，不动目录�
 </tbody>
 </table></div>
 <hr />
-<h2 id="manual-八-锁版本-skillpm-freeze-install-from">八、锁版本：<code>skillpm freeze</code> + <code>install --from</code></h2>
-<p><strong>要解决的问题</strong>：你装的 2.3.1 和我装的 2.3.1，内容不一定一样——「装的时候仓库 HEAD 是什么」一直在动。锁文件记的是 <strong>commit</strong>，所以能真正复现。</p>
-<div class="tw"><table>
-<thead>
-<tr>
-<th><code>freeze</code> 参数</th>
-<th>干什么</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>-o 文件</code> / <code>--out 文件</code></td>
-<td>输出到哪，默认当前项目的 <code>skillpm.lock</code></td>
-</tr>
-<tr>
-<td><code>--host 宿主</code></td>
-<td>只导这个宿主装的</td>
-</tr>
-</tbody>
-</table></div>
-<pre><code class="language-bash">skillpm freeze -o team.lock         # 你（定基线的人）
-skillpm install --from team.lock    # 别人，装回完全一样的一套
-</code></pre>
-<blockquote class="note">
-<p>项目级安装（<code>-p</code>）会<strong>自动</strong>写 <code>skillpm.lock</code>；用户级<strong>不自动写</strong>——
-个人偏好不该污染别人的配置，要共享就显式 <code>freeze</code> 一份。</p>
-</blockquote>
-<hr />
-<h2 id="manual-九-装-更新工具本身的脚本参数">九、装/更新工具本身的脚本参数</h2>
+<h2 id="manual-八-装-更新工具本身的脚本参数">八、装/更新工具本身的脚本参数</h2>
 <p><strong>Mac / Linux —— <code>scripts/install.sh</code></strong></p>
 <div class="tw"><table>
 <thead>
@@ -1158,7 +1119,7 @@ skillpm install --from team.lock    # 别人，装回完全一样的一套
 <code>&amp;</code> 是在当前会话里跑，装完直接就能敲 <code>skillpm</code>。</p>
 </blockquote>
 <hr />
-<h2 id="manual-十-环境变量">十、环境变量</h2>
+<h2 id="manual-九-环境变量">九、环境变量</h2>
 <div class="tw"><table>
 <thead>
 <tr>
@@ -1186,7 +1147,7 @@ skillpm install --from team.lock    # 别人，装回完全一样的一套
 </tbody>
 </table></div>
 <hr />
-<h2 id="manual-十一-退出码">十一、退出码</h2>
+<h2 id="manual-十-退出码">十、退出码</h2>
 <div class="tw"><table>
 <thead>
 <tr>
@@ -1214,7 +1175,7 @@ skillpm install --from team.lock    # 别人，装回完全一样的一套
 </tbody>
 </table></div>
 <hr />
-<h2 id="manual-十二-文件都放在哪">十二、文件都放在哪</h2>
+<h2 id="manual-十一-文件都放在哪">十一、文件都放在哪</h2>
 <pre><code>~/.skillpm-src/            工具源码（写死的位置，self-update 去这儿拉）
 ~/.skillpm/
   ├── config.json           仓库地址、令牌、宿主路径（权限 600）
@@ -1222,7 +1183,6 @@ skillpm install --from team.lock    # 别人，装回完全一样的一套
   ├── keys.json             输对过的口令组口令（权限 600），同组别的 Skill 和 update 时用
   ├── repos/&lt;仓库名&gt;/       各仓库的本地缓存
   └── backup/               更新和覆盖前的旧版，想回退直接拷回去
-&lt;项目根&gt;/skillpm.lock      项目级安装自动写的锁文件
 &lt;宿主目录&gt;/AGENTS.md        装了哪些 Skill 的索引
 </code></pre>
 <p>Windows 对应 <code>%USERPROFILE%\.skillpm-src</code>、<code>%USERPROFILE%\.skillpm</code>。</p>
@@ -1498,7 +1458,13 @@ skillpm repo add 我们团队 git@gitlab.example.com:组/仓库.git
 </tr>
 </tbody>
 </table></div></section></article>
-  <section class="card"><details class="changelog" id="changelog"><summary>更新日志<span class="d">共 14 个版本，点开看每一版改了什么</span></summary><details class="ver-item"><summary><b>2.3.0</b><span class="d">2026-09-23</span><span class="g">一个 Skill 可以配几个口令组</span></summary><div class="ver-body"><ul>
+  <section class="card"><details class="changelog" id="changelog"><summary>更新日志<span class="d">共 15 个版本，点开看每一版改了什么</span></summary><details class="ver-item"><summary><b>3.0.0</b><span class="d">2026-09-23</span><span class="g">去掉锁文件功能</span></summary><div class="ver-body"><p><strong>去掉锁文件功能</strong>：<code>skillpm freeze</code>、<code>skillpm install --from &lt;锁文件&gt;</code>、项目级安装自动写 <code>skillpm.lock</code>，这一套都拿掉了。</p>
+<p>它和口令组（<code>skillpm.repo.json</code> 里的 <code>lock</code>）都叫「锁」，放在一起有歧义；日常跟版本靠 <code>update</code> 就够了。去掉命令属于不兼容改动，所以升主版本。</p>
+<ul>
+<li>项目级安装（<code>-p</code>）照常能用，只是不再写 <code>skillpm.lock</code>；项目里已有的 <code>skillpm.lock</code> 不会再被读取，可以删掉。</li>
+<li>安装记录里照样记着装的时候仓库的 commit。</li>
+<li>文档：命令手册删掉「锁版本」一节，其后章节顺移；详细说明、快速上手、README 补上「要口令的 Skill」怎么装。</li>
+</ul></div></details><details class="ver-item"><summary><b>2.3.0</b><span class="d">2026-09-23</span><span class="g">一个 Skill 可以配几个口令组</span></summary><div class="ver-body"><ul>
 <li>
 <p><strong>一个 Skill 可以配几个口令组</strong>：<code>skillpm.repo.json</code> 里 <code>"lock": ["write", "admin"]</code>，这两个组的口令都能装它。
   有高低的用这个最顺手：拿到 admin 口令的人，write 也能自己装，不用再要一个 write 口令。</p>
@@ -1652,7 +1618,7 @@ skillpm repo add 我们团队 git@gitlab.example.com:组/仓库.git
 <li><strong>图文手册随工具发</strong>：<code>skillpm docs</code> 在浏览器里打开，快速上手每一步都有真实截图。</li>
 <li><strong>零依赖</strong>：只用 Python 3.8+ 标准库；Mac / Windows / Linux 通用，安装脚本默认不碰 PyPI。</li>
 </ul></div></details></details></section>
-  <p class="foot">skillpm v2.3.0 · 生成于 2026-09-23 · 内容来自工具仓库 docs/ 下的 Markdown，改那里再重新生成</p></main>
+  <p class="foot">skillpm v3.0.0 · 生成于 2026-09-23 · 内容来自工具仓库 docs/ 下的 Markdown，改那里再重新生成</p></main>
 </div>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];

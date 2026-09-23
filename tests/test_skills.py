@@ -138,7 +138,7 @@ def test_record_hashes_what_was_written_not_the_manifest(tmp_path):
 
 
 def test_git_clone_disables_eol_conversion():
-    """克隆和更新都要关掉 autocrlf，否则跨平台哈希对不上，锁文件也就失去意义。"""
+    """克隆和更新都要关掉 autocrlf，否则跨平台哈希对不上，「本地改没改过」就判错。"""
     from skillpm.repos import NO_EOL_CONVERT
     assert NO_EOL_CONVERT == ["-c", "core.autocrlf=false", "-c", "core.eol=lf"]
 
