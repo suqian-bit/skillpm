@@ -88,9 +88,70 @@ def scan(root):
             "files": files,
             "bytes": sum((d / rel).stat().st_size for rel in files),
         }
+        tier = _field(front, "tier")
+        if tier:
+            skills[d.name]["tier"] = tier
+    # 要口令的 Skill：仓库里只有 sealed/<名字>.pkg，只读包头、不解密（见 sealed.py）
+    for pkg in sorted((root / "sealed").glob("*.pkg")) if (root / "sealed").is_dir() else []:
+        from skillpm import sealed
+        try:
+            head = sealed.header(pkg)
+        except (ValueError, KeyError, UnicodeDecodeError) as e:
+            errors.append(f"sealed/{pkg.name}：读不了包头（{e}）")
+            continue
+        name = head.get("name")
+        if not name or name in skills:
+            errors.append(f"sealed/{pkg.name}：{'没写名字' if not name else name + ' 在 skills/ 里也有明文，要口令的 Skill 不能放明文'}")
+            continue
+        skills[name] = {"version": head.get("version", "?"), "summary": (head.get("summary") or "")[:120],
+                        "files": head.get("files", {}), "sealed": f"sealed/{pkg.name}",
+                        "lock": head.get("lock", ""), "hint": head.get("hint", ""), "bytes": pkg.stat().st_size}
+    cfg, cfg_errors = repo_config(root)
+    errors += cfg_errors
+    for name, spec in (cfg.get("locked") or {}).items():
+        if name in skills and not skills[name].get("sealed"):
+            errors.append(f"{name}：skillpm.repo.json 说它要口令，可 skills/ 里放的是明文——用 skillpm publish 发版，它会加密")
+        elif name not in skills:
+            warnings.append(f"{name}：skillpm.repo.json 说它要口令，但仓库里还没有它的加密包")
+        elif skills[name].get("lock") != spec.get("lock"):
+            errors.append(f"{name}：配置里的口令组是 {spec.get('lock')}，包里是 {skills[name].get('lock')}——重新 publish")
+    for group, members in (cfg.get("exclusive") or {}).items():
+        for rank, name in enumerate(members):
+            if name not in skills:
+                warnings.append(f"互斥组 {group} 里的 {name} 仓库里没有")
+                continue
+            skills[name]["exclusive"], skills[name]["rank"] = group, rank
     if not skills and not errors:
         errors.append(f"{base} 下一个 Skill 都没有（要有 skills/<名字>/SKILL.md）")
     return skills, errors, warnings
+
+
+CONFIG = "skillpm.repo.json"
+
+
+def repo_config(root):
+    """仓库根目录的 skillpm.repo.json（可选）：哪些 Skill 要口令、用哪个口令组；哪些 Skill 互斥（同一宿主只装一个）。
+
+        {"locked":    {"<Skill>": {"lock": "<口令组>", "hint": "口令找谁要"}},
+         "exclusive": {"<组名>": ["<最低一级>", "<高一级>", "<最高一级>"]}}
+
+    同一口令组的 Skill 共用一个口令。互斥组按从低到高排：默认装最低、不要口令的那个。
+    """
+    p = Path(root) / CONFIG
+    if not p.exists():
+        return {}, []
+    try:
+        cfg = json.loads(p.read_text(encoding="utf-8"))
+    except ValueError as e:
+        return {}, [f"{CONFIG} 解析不了：{e}"]
+    errors = []
+    for name, spec in (cfg.get("locked") or {}).items():
+        if not isinstance(spec, dict) or not spec.get("lock"):
+            errors.append(f"{CONFIG}：locked 里 {name} 要写 lock（口令组名）")
+    for group, members in (cfg.get("exclusive") or {}).items():
+        if not isinstance(members, list) or len(members) < 2:
+            errors.append(f"{CONFIG}：互斥组 {group} 要列两个以上 Skill（从低到高）")
+    return cfg, errors
 
 
 def build(root):

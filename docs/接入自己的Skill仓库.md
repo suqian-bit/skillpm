@@ -90,6 +90,38 @@ skillpm manifest --check
 **仓库权限**：最省事是开**匿名读**（GitLab → 项目设置 → 可见性 → 公开/内部），这样大家不用配 SSH key、不用令牌。
 不方便公开的，见下面「私有仓库」。
 
+## 可选：要口令的 Skill、互斥的 Skill
+
+有的 Skill 不想人人都能装（权限高、只给部分人），在仓库根目录放一个 `skillpm.repo.json`：
+
+```json
+{
+  "locked": {
+    "db-tool-write": {"lock": "write", "hint": "找管理员要"},
+    "db-tool-admin": {"lock": "admin", "hint": "找管理员要"},
+    "some-internal-tool": {"lock": "leads"}
+  },
+  "exclusive": {
+    "db-tool": ["db-tool-read", "db-tool-write", "db-tool-admin"]
+  }
+}
+```
+
+- `locked`：这些 Skill 要口令才能装。`lock` 是**口令组**，同一组共用一个口令（比如给组长们的几个工具放进 `leads`，发一个口令全能装）；`hint` 是装的时候提示口令找谁要。
+- `exclusive`（可选，和口令无关）：几个 Skill 互为替代，同一宿主只装一个，按**从低到高**排；默认装最低、不要口令的那个。
+
+要口令的 Skill **明文不能进仓库**：仓库里只放加密包 `sealed/<名字>.pkg`。明文放在你自己机器上，发版用：
+
+```bash
+skillpm publish <明文 Skill 目录> --repo <仓库本地目录>          # 全发；--only a b 只发这几个
+```
+
+- 配置里列了的加密进 `sealed/`，其余复制到 `skills/`，最后重建 `manifest.json`；只动文件，不替你 git commit。
+- 口令在终端里输（或环境变量 `SKILLPM_LOCK_<口令组>`）。仓库里已经有这个组的包时，先核对口令，**输错了不发**，免得发出一批谁都打不开的包；第一次要输两遍。
+- 内容没变的不重新加密（每次加密结果都不一样，重做会让 git 平白多一条改动）。
+- **换口令**：`--new-password <口令组>`，这个组的 Skill 要一起发（不然一部分新口令、一部分旧口令）。换完把新口令发给该给的人；旧口令打不开新版本，他们 `update` 时会被提示重输。
+- 已经推过明文的，git 历史里还留着：要彻底去掉得改写历史并强制推送，大家要重新拉——这一步想清楚再做。
+
 ## 第三步：每个人把仓库加进来
 
 ```bash

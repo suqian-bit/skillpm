@@ -5,6 +5,7 @@ import os
 import re
 import shutil
 import sys
+import tempfile
 from pathlib import Path
 
 from skillpm import HOMEPAGE, __version__
@@ -13,7 +14,7 @@ from skillpm.config import (backup_dir, cache_dir, config_path, home, load_confi
                              save_config, save_state, state_path)
 from skillpm.console import (BLUE, BOLD, CODE, DIM, GREEN, PATH_C, RED, RESET, YELLOW, Abort,
                               ask, confirm, choose, die, ensure_utf8_stdio, info, md_line, ok, remember_secret, say, warn)
-from skillpm import index, lockfile
+from skillpm import index, lockfile, sealed
 from skillpm.sources import locate, parse as parse_source
 from skillpm.hosts import (CATALOG, confidence, describe, detect, name_for_path, detect_project, project_capable,
                             project_dir, supports_project)
@@ -98,11 +99,15 @@ def project_hosts(root, cfg):
     return {n: str(Path(root) / project_dir(n)) for n, _ in picked}
 
 
-def install_one(catalog, name, dest, host, scope, lock, root, force=False):
-    """装一个 Skill；项目级的同时写进锁文件。"""
+def install_one(catalog, name, dest, host, scope, lock, root, force=False, src=None):
+    """装一个 Skill；项目级的同时写进锁文件。src：加密存放的 Skill 解开后的目录（普通 Skill 不给）。"""
     rname, rdir, meta = catalog[name]
-    rec = install(rdir, name, meta, dest, backup_existing=force)
+    rec = install(src or rdir, name, meta, dest, backup_existing=force)
     rec["repo"], rec["host"], rec["scope"] = rname, host, scope
+    if meta.get("tier"):
+        rec["tier"] = meta["tier"]
+    if meta.get("lock"):
+        rec["lock"] = meta["lock"]
     rec["commit"] = repo_commit(rdir)        # 用户级也记 commit，freeze 时才导得出来
     if scope == "project":
         cfg = load_config()
@@ -113,6 +118,131 @@ def install_one(catalog, name, dest, host, scope, lock, root, force=False):
                         rel_path=str(Path(dest).resolve().relative_to(Path(root).resolve()) / name),
                         files=meta["files"])
     return rec
+
+
+TIER_RANK = {"read": 0, "write": 1, "admin": 2}
+
+
+def excl_group(name, meta):
+    """互斥组（同一宿主只装一个）：以仓库 skillpm.repo.json 的 exclusive 为准；
+    老 manifest 没有这个字段时，退回按「SKILL.md 写了 tier、名字以 -<tier> 结尾」认。不属于任何组返回 None。"""
+    meta = meta or {}
+    if meta.get("exclusive"):
+        return meta["exclusive"]
+    t = meta.get("tier")
+    return name[:-len(t) - 1] if t and name.endswith("-" + t) else None
+
+
+def excl_rank(meta):
+    """组内从低到高的位置：默认装最低、不要口令的那个。"""
+    meta = meta or {}
+    if "rank" in meta:
+        return meta["rank"]
+    return TIER_RANK.get(meta.get("tier"), 50 if meta.get("sealed") else 0)
+
+
+def label_of(name, meta):
+    return (meta or {}).get("tier") or name
+
+
+def _refresh_index(state, key):
+    entry = state["hosts"].get(key, {})
+    path = entry.get("path")
+    if not path:
+        return
+    entries = [{"name": n, "version": r.get("version", "?"), "repo": r.get("repo"), "summary": ""}
+               for n, r in entry.get("skills", {}).items()]
+    if entries:
+        index.write(path, entries, entry.get("scope", "global"))
+    else:
+        f = Path(path) / "AGENTS.md"
+        if f.exists():
+            text = re.sub(index.BLOCK_RE, "", f.read_text(encoding="utf-8")).strip()
+            f.write_text(text + "\n", encoding="utf-8") if text else f.unlink()
+
+
+def _drop(state, key, name):
+    entry = state["hosts"][key]
+    shutil.rmtree(Path(entry["path"]) / name, ignore_errors=True)
+    entry["skills"].pop(name, None)
+
+
+def replace_siblings(state, key, name, members):
+    """同一个宿主上同一组只留一级：装上 name 之后，把同组别的级别卸掉。返回卸掉的名字。"""
+    entry = state["hosts"][key]
+    gone = [n for n in list(entry.get("skills", {})) if n != name and n in members]
+    for n in gone:
+        _drop(state, key, n)
+    return gone
+
+
+def group_members(catalog_or_man, group):
+    """同一组的所有级别：{名字: meta}。catalog 的值是 (仓库, 目录, meta)，manifest 的值是 meta，两种都收。"""
+    out = {}
+    for n, v in catalog_or_man.items():
+        meta = v[2] if isinstance(v, tuple) else v
+        if excl_group(n, meta) == group:
+            out[n] = meta
+    return out
+
+
+def locked_hint(name, why):
+    warn(f"{name} 没装：{why}")
+    if not sealed.interactive():
+        info(f"口令只能你自己在终端里输：请手动运行 skillpm install {name}（口令不要发给 AI）")
+    else:
+        info(f"口令找发放的人要；拿到后重新运行 skillpm install {name}")
+
+
+def migrate_tiers(fetched, state):
+    """互斥组里装了不止一个的（以前会一回车全装上），每个宿主只留一个：
+    要留要口令的那个就输它的口令；直接回车只留组里最低、不要口令的那个。"""
+    changed = False
+    for rname, (rdir, man) in fetched.items():
+        skills = man.get("skills") or {}
+        for g in sorted({excl_group(n, m) for n, m in skills.items()} - {None}):
+            members = group_members(skills, g)
+            hosts = [(k, e) for k, e in (state.get("hosts") or {}).items()
+                     if e.get("scope") != "project" and sum(1 for n in e.get("skills", {}) if n in members) > 1]
+            if not hosts:
+                continue
+            have = sorted({n for _k, e in hosts for n in e["skills"] if n in members}, key=lambda n: excl_rank(members[n]))
+            base = min((n for n in members if not members[n].get("sealed")), key=lambda n: excl_rank(members[n]), default=None)
+            locked = sorted((n for n in have if members[n].get("sealed")), key=lambda n: -excl_rank(members[n]))
+            say()
+            warn(f"{g} 组同时装了 {' / '.join(have)}。同一组每个宿主只保留一个")
+            if locked and not sealed.interactive():
+                info("请在终端里手动跑一次 skillpm update，选择保留哪一个（口令不要发给 AI）")
+                continue
+            keep, src = base, rdir
+            for i in range(3 if locked else 0):
+                pw = sealed.ask(f"要保留 {' 或 '.join(locked)}，输入它的口令；直接回车只保留 {base or '组里最低的那个'}："
+                                if i == 0 else "口令不对，再输一次（直接回车放弃）：")
+                if not pw:
+                    break
+                hit = next(((n, r) for n in locked for r in [sealed.try_open(rname, rdir, n, members[n], pw)] if r), None)
+                if hit:
+                    keep, src = hit
+                    break
+            if not keep:
+                continue
+            for key, entry in hosts:
+                if keep not in entry["skills"]:
+                    rec = install(src, keep, members[keep], entry["path"])
+                    rec.update(repo=rname, host=key.split(":")[-1], scope=entry.get("scope", "global"))
+                    for f in ("tier", "lock"):
+                        if members[keep].get(f):
+                            rec[f] = members[keep][f]
+                    entry["skills"][keep] = rec
+                for f in ("tier", "lock"):             # 以前装的记录里没有这两个，status 要靠它显示权限
+                    if members[keep].get(f):
+                        entry["skills"][keep][f] = members[keep][f]
+                gone = replace_siblings(state, key, keep, members)
+                ok(f"{key.split(':')[-1]}：保留 {BOLD}{keep}{RESET}，已卸掉 {'、'.join(gone)}")
+                _refresh_index(state, key)
+                changed = True
+    if changed:
+        save_state(state)
 
 
 def _confirm_switch(host, name, prev, new_repo, meta):
@@ -381,9 +511,13 @@ def install_from_lock(a, cfg, lock_path, lock=None):
                 key = host
                 entry = state["hosts"].setdefault(key, {"path": path, "skills": {}, "scope": "global"})
                 entry["path"] = path
-                if conflicts.check(host, path, name, entry["skills"].get(name), a.force, rdir):
+                src, why = sealed.open_skill(rname, rdir, name, meta)
+                if src is None:
+                    locked_hint(name, why)
+                    break
+                if conflicts.check(host, path, name, entry["skills"].get(name), a.force, src):
                     continue
-                new = install(rdir, name, meta, path, backup_existing=a.force)
+                new = install(src, name, meta, path, backup_existing=a.force)
                 new["repo"], new["host"], new["scope"], new["commit"] = rname, host, "global", commit
                 entry["skills"][name] = new
                 ok(f"{name}  {meta['version']}  {DIM}{rname}@{str(commit)[:8]}  {host}{RESET}")
@@ -436,6 +570,19 @@ def _do_install(a, cfg, catalog, root, lock, scope):
     names = _pick_names(a, catalog, lock, scope)
     if not names:
         die("一个都没选")
+    # 加密存放的级别：先解开（本机记过口令就不问；没记过、在终端里就当场问）
+    opened = {}
+    for n in list(names):
+        rname, rdir, meta = catalog[n]
+        src, why = sealed.open_skill(rname, rdir, n, meta)
+        if src is None:
+            locked_hint(n, why)
+            names.remove(n)
+        elif meta.get("sealed"):
+            opened[n] = src
+            ok(f"口令正确：{n}")
+    if not names:
+        return 1
 
     conflicts, state = ConflictLog(), load_state()
     switch_skipped = []
@@ -455,7 +602,11 @@ def _do_install(a, cfg, catalog, root, lock, scope):
                 continue
             if conflicts.check(host, path, n, prev, a.force, rdir):
                 continue
-            entry["skills"][n] = install_one(catalog, n, path, host, scope, lock, root, a.force)
+            entry["skills"][n] = install_one(catalog, n, path, host, scope, lock, root, a.force, src=opened.get(n))
+            g = excl_group(n, meta)
+            gone = replace_siblings(state, key, n, group_members(catalog, g)) if g else []
+            if gone:
+                info(f"{host}：{g} 组只保留一个，{'、'.join(gone)} 已换成 {n}")
             ok(f"{n}  {meta['version']}   {DIM}{rname}{RESET}"
                + (f"　{YELLOW}（来源从 {prev['repo']} 换成了 {rname}）{RESET}"
                   if prev and prev.get("repo") and prev["repo"] != rname else ""))
@@ -489,6 +640,14 @@ def _do_install(a, cfg, catalog, root, lock, scope):
     else:
         ok("装完了。")
         info("看装了什么：skillpm status；跟上更新：skillpm update")
+    # 装的是分了权限级别的 Skill 的低级别：告诉人更高级别怎么装（要口令，点名装）
+    for n in names:
+        g = excl_group(n, catalog[n][2])
+        higher = sorted((m for m, meta in group_members(catalog, g).items()
+                         if meta.get("sealed") and excl_rank(meta) > excl_rank(catalog[n][2])),
+                        key=lambda m: excl_rank(catalog[m][2])) if g else []
+        if higher:
+            info(f"{g} 组里还有要口令的：" + "、".join(higher) + f"；要换成它们：skillpm install {higher[0]}")
     code = conflicts.report()
     # 非交互环境下默认没换，要让脚本知道没照要求装上
     return code or (1 if switch_skipped and not _interactive() else 0)
@@ -519,6 +678,7 @@ def pick_repo(cfg, a):
 
 def _pick_names(a, catalog, lock, scope):
     """决定装哪几个。项目级且没点名时，优先照锁文件复现。"""
+    _pick_names.full = catalog
     if a.only:
         # --only 既收光名字，也收「仓库名:Skill名」——后者只在那个仓库里找
         plain = {x for x in a.only if ":" not in x}
@@ -533,14 +693,16 @@ def _pick_names(a, catalog, lock, scope):
             die(f"这些仓库里都没有：{'、'.join(missing)}",
                 "看看有哪些：skillpm status 或 skillpm check")
         return names
+    # 加密存放的高权限级别不进列表、不跟 --all / --repo 一起装：要装就点名，当场输口令
+    catalog = {n: v for n, v in catalog.items() if not v[2].get("sealed")}
     if a.repo:
         names = [n for n in catalog if catalog[n][0] == a.repo]
         if not names:
             die(f"仓库 {a.repo} 里没有 Skill，或者这个仓库名不对", "看看有哪些：skillpm repo list")
         return names
     if scope == "project" and lock.get("skills") and not a.all:
-        locked = [n for n in lock["skills"] if n in catalog]
-        missing = [n for n in lock["skills"] if n not in catalog]
+        locked = [n for n in lock["skills"] if n in _pick_names.full]
+        missing = [n for n in lock["skills"] if n not in _pick_names.full]
         if missing:
             warn(f"锁文件里这几个在仓库里找不到了：{'、'.join(missing)}")
         if locked:
@@ -551,6 +713,9 @@ def _pick_names(a, catalog, lock, scope):
         return list(catalog)
     say()
     say(f"{BOLD}要装哪些 Skill？{RESET}")
+    sealed_names = sorted(n for n, v in _pick_names.full.items() if v[2].get("sealed"))
+    if sealed_names:
+        info(f"要口令的 Skill 不在这个列表里（{'、'.join(sealed_names)}），要装就点名：skillpm install <名字>")
     # 多仓库时按仓库分组排，同一个来源的挨在一起，不容易挑串
     ordered = sorted(catalog, key=lambda n: (catalog[n][0], n))
     multi = len({catalog[n][0] for n in catalog}) > 1
@@ -655,6 +820,7 @@ def cmd_update(a):
     state = load_state()
     if not state.get("hosts"):
         die("本地没有安装记录", "先跑 skillpm install")
+    migrate_tiers(fetched, state)
 
     plans = []
     for host, entry in state["hosts"].items():
@@ -709,14 +875,22 @@ def cmd_update(a):
 
     conflicts, done = ConflictLog(), []
     for host, path, name, rec, meta, rname, rdir in plans:
-        if conflicts.check(host, path, name, rec, a.force, rdir):
+        src, why = sealed.open_skill(rname, rdir, name, meta)
+        if src is None:
+            warn(f"{name} {rec['version']} → {meta['version']} 没更新（{host}）：{why}；旧版先留着，不影响使用")
+            info(f"重新输口令：skillpm install {name}")
+            continue
+        if conflicts.check(host, path, name, rec, a.force, src):
             continue
         b = backup(path, name, rec["version"])          # 干净更新也留一份，方便回退
-        new = install(rdir, name, meta, path, backup_existing=a.force)
+        new = install(src, name, meta, path, backup_existing=a.force)
         new["repo"] = rname
+        for f in ("tier", "lock"):
+            if meta.get(f):
+                new[f] = meta[f]
         state["hosts"][host]["skills"][name] = new
         done.append({"host": host, "name": name, "from": rec["version"],
-                     "to": meta["version"], "backup": b, "dir": rdir})
+                     "to": meta["version"], "backup": b, "dir": src})
     show_update_summary(done)
     save_state(state)
     show_not_installed(fetched, state)
@@ -750,7 +924,7 @@ def show_update_summary(done):
                 info(f"旧版备份：{i['backup']}")
 
 
-def _tier_group(rdir, name, _cache={}):
+def _excl_group(rdir, name, _cache={}):
     """同一个 Skill 分了权限级别的（SKILL.md 里写 `tier: write`，名字以 -write 结尾），返回去掉级别的组名。
 
     这类按权限挑一个装就够：装了其中一个，其余级别不算「没装」。没写 tier 的返回 None。
@@ -780,9 +954,12 @@ def not_installed(fetched, state):
         have = entry.get("skills") or {}
         for rname in sorted({r.get("repo") for r in have.values()} & set(fetched)):
             rdir, man = fetched[rname]
-            groups = {_tier_group(rdir, n) for n in have} - {None}
-            for name, meta in sorted((man.get("skills") or {}).items()):
-                if name in have or _tier_group(rdir, name) in groups:
+            mskills = man.get("skills") or {}
+            groups = {excl_group(n, mskills.get(n)) or _excl_group(rdir, n) for n in have} - {None}
+            for name, meta in sorted(mskills.items()):
+                if meta.get("sealed"):
+                    continue                      # 要口令的级别不提示安装
+                if name in have or (excl_group(name, meta) or _excl_group(rdir, name)) in groups:
                     continue
                 miss.setdefault((rname, name), (meta, []))[1].append(key.split(":")[-1])
     return [(r, n, m, h) for (r, n), (m, h) in miss.items()]
@@ -842,6 +1019,96 @@ def cmd_ignore(a):
     return 0
 
 
+def _lock_password(lock, repo, existing, new_password):
+    """拿这个口令组的口令：环境变量 SKILLPM_LOCK_<组名> 或终端里输。仓库里已经有这个组的包时，先核对口令对不对，
+    免得手滑输错、发出去一批谁都打不开的包；第一次（或 --new-password）要输两遍。"""
+    env = "SKILLPM_LOCK_" + re.sub(r"[^A-Za-z0-9]", "_", lock).upper()
+    pw = os.environ.get(env)
+    if not pw:
+        if not sealed.interactive():
+            die(f"没有 {lock} 组的口令", f"在终端里手动运行（会让你输），或者设环境变量 {env}")
+        pw = sealed.ask(f"{lock} 组的口令：")
+    if not pw:
+        die("口令为空")
+    if existing and not new_password:
+        if not sealed.check_password(existing, pw):
+            die(f"这个口令打不开仓库里现有的 {lock} 组的包（{existing.name}）",
+                "输错了就重来；确实要换口令，加 --new-password（这个组的每个 Skill 都会用新口令重新加密）")
+    elif not os.environ.get(env) and sealed.ask("再输一遍：") != pw:
+        die("两遍不一致，什么都没动")
+    return pw
+
+
+def cmd_publish(a):
+    """发版：把明文 Skill 目录发布进仓库。skillpm.repo.json 里要口令的，加密成 sealed/<名字>.pkg（明文不进仓库）；其余复制到 skills/。
+    最后重建 manifest.json。只动文件，不 git commit。"""
+    from skillpm import manifest as mf
+    src, repo = Path(a.source).expanduser().resolve(), Path(a.repo).expanduser().resolve()
+    cfg, errs = mf.repo_config(repo)
+    if errs:
+        die("；".join(errs))
+    locked = cfg.get("locked") or {}
+    dirs = [src] if (src / "SKILL.md").is_file() else sorted(d for d in src.iterdir() if (d / "SKILL.md").is_file())
+    if a.only:
+        dirs = [d for d in dirs if d.name in a.only]
+        missing = sorted(set(a.only) - {d.name for d in dirs})
+        if missing:
+            die(f"{src} 下没有：{'、'.join(missing)}")
+    if a.new_password:
+        # 换口令：这个组在仓库里的每个 Skill 都得用新口令重新加密，不然一部分新口令、一部分旧口令
+        want = {n for n, s in locked.items() if s.get("lock") in a.new_password}
+        lacking = sorted(want - {d.name for d in dirs})
+        if lacking:
+            die(f"换 {'、'.join(a.new_password)} 组的口令，要把这个组的 Skill 一起发：还缺 {'、'.join(lacking)}")
+    if not dirs:
+        die(f"{src} 下没有 Skill（要有 <名字>/SKILL.md）")
+    (repo / "skills").mkdir(parents=True, exist_ok=True)
+    passwords = {}
+    for d in dirs:
+        name = d.name
+        front = mf._frontmatter((d / "SKILL.md").read_text(encoding="utf-8"))
+        version = mf._field(front, "version") or mf.UNVERSIONED + mf.content_id(sealed.skill_files(d))
+        spec = locked.get(name)
+        if not spec:
+            dst = repo / "skills" / name
+            if dst.exists():
+                shutil.rmtree(dst)
+            shutil.copytree(d, dst, ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store"))
+            ok(f"{name}  {version}   {DIM}明文 → skills/{RESET}")
+            continue
+        lock = spec["lock"]
+        out = repo / "sealed" / f"{name}.pkg"
+        if lock not in passwords:
+            existing = next((p for p in sorted((repo / "sealed").glob("*.pkg"))
+                             if sealed.header(p).get("lock") == lock), None) if (repo / "sealed").is_dir() else None
+            passwords[lock] = _lock_password(lock, repo, existing, lock in (a.new_password or []))
+        if out.exists() and lock not in (a.new_password or []):
+            head = sealed.header(out)
+            if head.get("version") == version and head.get("files") == sealed.skill_files(d):
+                info(f"{name}  {version}   没变，加密包不重做（重做每次都会变，git 里平白多一条改动）")
+                continue
+        log = d / "CHANGELOG.md"
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_bytes(sealed.pack(d, {lock: passwords[lock]}, {
+            "name": name, "version": version, "lock": lock, "hint": spec.get("hint", ""),
+            "summary": (mf._field(front, "description") or "")[:120],
+            "changelog": log.read_text(encoding="utf-8") if log.exists() else ""}))
+        plain = repo / "skills" / name
+        if plain.exists():
+            shutil.rmtree(plain)
+            warn(f"{name}：仓库里原来的明文 skills/{name} 已删掉（要口令的 Skill 不放明文）")
+        ok(f"{name}  {version}   {DIM}加密 → sealed/{name}.pkg（{lock} 组）{RESET}")
+    doc, errors, warnings = mf.build(repo)
+    for w in warnings:
+        warn(w)
+    if errors:
+        die("manifest 生成不了：" + "；".join(errors))
+    (repo / "manifest.json").write_text(json.dumps(doc, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    ok(f"manifest.json 已更新（{len(doc['skills'])} 个 Skill）")
+    info("检查无误后自己 git add / commit / push；明文目录别放进仓库")
+    return 0
+
+
 def cmd_status(a):
     cfg, state = load_config(), load_state()
     say(f"{BOLD}工具{RESET}  skillpm {__version__}   {DIM}{home()}{RESET}")
@@ -889,7 +1156,9 @@ def cmd_status(a):
             else:
                 note = f"{GREEN}最新{RESET}"
             src = f"   {DIM}{rec['repo']}{RESET}" if rec.get("repo") else ""
-            say(f"  {name:<32} {rec['version']:<9} {note}{src}")
+            tier = (f"   {BOLD}权限：{rec['tier']}{RESET}" if rec.get("tier") else
+                    f"   {BOLD}口令组：{rec['lock']}{RESET}" if rec.get("lock") else "")
+            say(f"  {name:<32} {rec['version']:<9} {note}{tier}{src}")
     if not state.get("hosts"):
         warn("还没装到任何宿主")
     elif fetched and want != "project":
@@ -1421,7 +1690,8 @@ HELP_GROUPS = [
     ("维护", [("manifest", "检查自己的 Skill 仓库是否合格（可选：生成 manifest.json）"),
               ("freeze", "导出锁文件，让全组装到完全一样的版本"),
               ("sync", "重新生成各 Agent 目录下的 AGENTS.md 索引"),
-              ("self-update", "更新 skillpm 工具本身")]),
+              ("self-update", "更新 skillpm 工具本身"),
+              ("publish", "发版：要口令的 Skill 加密进仓库，其余照常放（维护仓库的人用）")]),
 ]
 
 EPILOG_ROWS = [
@@ -1683,6 +1953,13 @@ def build_parser():
     p.add_argument("--yes", action="store_true", help="不问直接更新")
     p.add_argument("--force", action="store_true", help="有冲突也覆盖")
     p.set_defaults(fn=cmd_update)
+
+    p = sub.add_parser("publish", help="发版：要口令的加密进 sealed/，其余复制到 skills/，重建 manifest")
+    p.add_argument("source", help="明文 Skill 所在目录（下面是 <名字>/SKILL.md），或单个 Skill 目录")
+    p.add_argument("--repo", required=True, help="Skill 仓库的本地目录（根目录有 skillpm.repo.json）")
+    p.add_argument("--only", nargs="*", metavar="SKILL", help="只发这几个")
+    p.add_argument("--new-password", nargs="*", metavar="口令组", help="换这些口令组的口令（组里的 Skill 要一起发）")
+    p.set_defaults(fn=cmd_publish)
 
     p = sub.add_parser("status", help="看装了什么")
     p.add_argument("-p", "--project", action="store_true", help="只看当前项目级")
