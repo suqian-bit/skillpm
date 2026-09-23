@@ -1585,11 +1585,13 @@ class Parser(argparse.ArgumentParser):
         w2 = max(_cols(c) for c, _d in EPILOG_ROWS) + 2
         out += ["选项", "  -h, --help     显示这份帮助", "  -v, --version  显示版本号", "", "常用写法"]
         out += [f"  {c}{' ' * (w2 - _cols(c))}{d}" for c, d in EPILOG_ROWS]
-        from skillpm.manual import open_command
+        from skillpm.manual import browser_url, open_command
         where = str(home()) + "\\" if sys.platform.startswith("win") else "~/.skillpm/"   # Windows 上 ~ 没意义
         # 手册入口是新人最该看到的一行，命令用加粗正红（和「要装：…」一样，照着敲的都这么标）
-        out += ["", f"{BOLD}图文使用手册（HTML）{RESET}：{BOLD}{RED}skillpm docs{RESET} 在浏览器里打开，快速上手在第一页",
-                f"　　或者复制这条命令打开：{BOLD}{RED}{open_command()}{RESET}",
+        # 给绝对地址：复制到浏览器地址栏就能开，不用先弄明白 ~ 是哪、也不用会敲命令
+        out += ["", f"{BOLD}图文使用手册（HTML）{RESET}：复制下面这行到浏览器地址栏就能打开，快速上手在第一页",
+                f"  {BOLD}{RED}{browser_url()}{RESET}",
+                f"  也可以直接敲 {BOLD}skillpm docs{RESET}，或者在终端里跑：{open_command()}",
                 f"配置和状态放在 {where}（改位置用环境变量 SKILLPM_HOME）。"]
         return "\n".join(out).rstrip() + "\n"
 

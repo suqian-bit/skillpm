@@ -2,9 +2,9 @@
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>skillpm 使用手册</title>
-<meta name="description" content="skillpm 命令手册与接入说明，v2.1.0">
-<meta name="skillpm-version" content="2.1.0">
-<meta name="skillpm-source" content="6e910016d4386395">
+<meta name="description" content="skillpm 命令手册与接入说明，v2.1.1">
+<meta name="skillpm-version" content="2.1.1">
+<meta name="skillpm-source" content="a3ff610ca1b3b051">
 <style>
 :root{--bg:#f7f8fa;--paper:#fff;--ink:#1f2933;--muted:#5b6673;--line:#e3e7ec;--accent:#3e6ddf;
 --accent-soft:#eaf0fd;--code-bg:#0f172a;--code-ink:#e2e8f0;--inline-bg:#eef1f5;--warn:#b05a00;--warn-soft:#fff6e5;
@@ -97,7 +97,7 @@ transform:translateX(-100%);transition:transform .2s}body.menu nav.toc{transform
 <header><div class="bar">
   <button class="icon-btn menu-btn" id="menu" aria-label="目录">☰</button>
   <div class="brand"><span class="logo">sp</span><span class="name">skillpm 使用手册</span>
-  <span class="ver">v2.1.0</span></div>
+  <span class="ver">v2.1.1</span></div>
   <div class="tabs-wrap"><span class="tabs-hint">手册共 3 篇 →</span><div class="tabs"><button data-doc="start"><span class="n">1</span>快速上手</button><button data-doc="manual"><span class="n">2</span>完整命令手册</button><button data-doc="onboard"><span class="n">3</span>接入自己的仓库</button></div></div>
   <div class="sp"></div>
   <button class="icon-btn" id="theme" title="切换深浅色" aria-label="切换深浅色">◐</button>
@@ -1424,7 +1424,10 @@ skillpm repo add 我们团队 git@gitlab.example.com:组/仓库.git
 </tr>
 </tbody>
 </table></div></section></article>
-  <section class="card"><details class="changelog" id="changelog"><summary>更新日志<span class="d">共 9 个版本，点开看每一版改了什么</span></summary><details class="ver-item"><summary><b>2.1.0</b><span class="d">2026-09-23</span><span class="g">没装的 Skill 会提示出来</span></summary><div class="ver-body"><ul>
+  <section class="card"><details class="changelog" id="changelog"><summary>更新日志<span class="d">共 10 个版本，点开看每一版改了什么</span></summary><details class="ver-item"><summary><b>2.1.1</b><span class="d">2026-09-23</span><span class="g">绝对地址</span></summary><div class="ver-body"><ul>
+<li><code>skillpm -h</code> 底部改成给手册的<strong>绝对地址</strong>（<code>file:///Users/你/.skillpm-src/docs/使用手册.html</code>），复制粘到浏览器地址栏就能打开。
+  以前给的是 <code>skillpm docs</code> 和带 <code>~</code> 的 <code>open</code> 命令，都没法直接粘进浏览器。带 <code>file://</code> 前缀是因为 Safari 不认光秃秃的路径。</li>
+</ul></div></details><details class="ver-item"><summary><b>2.1.0</b><span class="d">2026-09-23</span><span class="g">没装的 Skill 会提示出来</span></summary><div class="ver-body"><ul>
 <li>
 <p><strong>没装的 Skill 会提示出来</strong>：以前 <code>update</code> 只管装过的，仓库新加了 Skill 一声不吭——别的 Skill 已经开始依赖它了，本机却根本没装。
   现在 <code>update</code> 和 <code>status</code> 每次都列出「仓库里有、本机还没装」的，给出 <code>skillpm install &lt;名字&gt;</code>，直到装上为止。</p>
@@ -1532,7 +1535,7 @@ skillpm repo add 我们团队 git@gitlab.example.com:组/仓库.git
 <li><strong>图文手册随工具发</strong>：<code>skillpm docs</code> 在浏览器里打开，快速上手每一步都有真实截图。</li>
 <li><strong>零依赖</strong>：只用 Python 3.8+ 标准库；Mac / Windows / Linux 通用，安装脚本默认不碰 PyPI。</li>
 </ul></div></details></details></section>
-  <p class="foot">skillpm v2.1.0 · 生成于 2026-09-23 · 内容来自工具仓库 docs/ 下的 Markdown，改那里再重新生成</p></main>
+  <p class="foot">skillpm v2.1.1 · 生成于 2026-09-23 · 内容来自工具仓库 docs/ 下的 Markdown，改那里再重新生成</p></main>
 </div>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];

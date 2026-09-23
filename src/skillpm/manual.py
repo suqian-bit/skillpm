@@ -33,6 +33,16 @@ def html_path(root=ROOT):
     return Path(root) / HTML
 
 
+def browser_url(root=ROOT):
+    """手册的绝对地址，复制到浏览器地址栏就能打开。
+
+    带 file:// 前缀：Chrome 认光秃秃的 /Users/… 路径，Safari 不认，带上前缀哪个浏览器都行。
+    中文不做百分号编码——地址栏认得，编码了反而没人看得懂。
+    """
+    p = html_path(root).resolve().as_posix()
+    return "file://" + (p if p.startswith("/") else "/" + p)      # Windows：file:///C:/Users/…
+
+
 def open_command(root=ROOT):
     """在终端里打开手册的命令，复制粘贴就能用。
 

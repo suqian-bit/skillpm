@@ -96,3 +96,15 @@ def test_open_command_per_platform(monkeypatch):
     assert open_command().startswith('explorer "')      # start 在 PowerShell 里会报错
     monkeypatch.setattr(sys, "platform", "darwin")
     assert open_command().startswith("open ")
+
+
+def test_help_gives_absolute_url_for_the_browser(capsys):
+    """-h 要给能直接粘进浏览器地址栏的绝对地址——~ 和 skillpm docs 都没法粘进浏览器。"""
+    import pytest
+    from skillpm.manual import browser_url, html_path
+    with pytest.raises(SystemExit):
+        main(["-h"])
+    out = capsys.readouterr().out
+    url = browser_url()
+    assert url in out and url.startswith("file:///") and "~" not in url
+    assert url.endswith(html_path().resolve().as_posix())
