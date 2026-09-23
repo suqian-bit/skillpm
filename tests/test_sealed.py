@@ -267,7 +267,7 @@ def test_missing_skill_hint_never_suggests_locked(env, monkeypatch, capsys):
 # ── 一个 Skill 配多个口令组 ────────────────────────────────────
 
 def test_skill_with_two_locks_opens_with_either(env, monkeypatch, capsys):
-    """kit-pro 配了 pro、max 两组：拿到 max 口令的人不用再要 pro 的（像 DML write 让 admin 口令也能装）。"""
+    """kit-pro 配了 pro、max 两组：拿到 max 口令的人不用再要 pro 的（有高低的工具：高一级的口令也能装低一级）。"""
     typing(monkeypatch, "max-pw")
     assert main(["install", "kit-pro", "--hosts", "H"]) == 0
     assert dirs(env["host"]) == {"kit-pro"}
