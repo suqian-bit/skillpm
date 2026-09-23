@@ -1310,7 +1310,9 @@ def cmd_selfupdate(a):
             say(f"  {md_line(line)}" if line.strip() else "")
     if old_head and _manual_changed(here, old_head):
         say()
-        ok(f"使用手册也更新了：{BOLD}skillpm docs{RESET} 在浏览器里打开看")
+        from skillpm.manual import browser_url
+        ok("使用手册也更新了：复制下面这行到浏览器地址栏就能打开")
+        say(f"  {BOLD}{RED}{browser_url(here)}{RESET}")
     # 启动器是直接指向源码的，pull 完就生效；pip 装的才需要重装
     launcher = home() / ".installed-at"
     if not launcher.exists():
