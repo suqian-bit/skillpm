@@ -39,8 +39,16 @@ def browser_url(root=ROOT):
     带 file:// 前缀：Chrome 认光秃秃的 /Users/… 路径，Safari 不认，带上前缀哪个浏览器都行。
     中文不做百分号编码——地址栏认得，编码了反而没人看得懂。
     """
-    p = html_path(root).resolve().as_posix()
-    return "file://" + (p if p.startswith("/") else "/" + p)      # Windows：file:///C:/Users/…
+    return file_url(html_path(root).resolve().as_posix())
+
+
+def file_url(posix):
+    """macOS：file:///Users/…；Windows：file:///C:/Users/…（反斜杠换成正斜杠，盘符前补一个 /）。
+
+    空格换成 %20：Windows 用户名常带空格，地址里有空格，浏览器可能当成搜索词而不是地址。
+    """
+    posix = posix.replace(" ", "%20")
+    return "file://" + (posix if posix.startswith("/") else "/" + posix)
 
 
 def open_command(root=ROOT):

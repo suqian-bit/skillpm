@@ -108,3 +108,11 @@ def test_help_gives_absolute_url_for_the_browser(capsys):
     url = browser_url()
     assert url in out and url.startswith("file:///") and "~" not in url
     assert url.endswith(html_path().resolve().as_posix())
+
+
+def test_file_url_for_mac_and_windows():
+    from pathlib import PureWindowsPath
+    from skillpm.manual import file_url
+    assert file_url("/Users/wang/.skillpm-src/docs/使用手册.html") == "file:///Users/wang/.skillpm-src/docs/使用手册.html"
+    win = PureWindowsPath(r"C:\Users\Zhang San\.skillpm-src\docs\使用手册.html").as_posix()
+    assert file_url(win) == "file:///C:/Users/Zhang%20San/.skillpm-src/docs/使用手册.html"

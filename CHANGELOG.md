@@ -3,6 +3,11 @@
 版本号语义：主版本＝命令或配置不兼容；次版本＝加功能；修订号＝修 bug，行为不变。
 改了 `src/skillpm/__init__.py` 里的版本号就要在这写一条，`tools/check_release.py` 会检查。
 
+## 2.1.2 — 2026-09-23
+
+- 手册地址里的空格换成 `%20`：Windows 用户名常带空格（`C:\Users\Zhang San\…`），地址里带空格，浏览器可能当成搜索词。
+  macOS 给 `file:///Users/…`，Windows 给 `file:///C:/Users/…`，两边都是复制到浏览器地址栏就能打开。
+
 ## 2.1.1 — 2026-09-23
 
 - `skillpm -h` 底部改成给手册的**绝对地址**（`file:///Users/你/.skillpm-src/docs/使用手册.html`），复制粘到浏览器地址栏就能打开。
