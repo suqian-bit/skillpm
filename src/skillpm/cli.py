@@ -11,7 +11,7 @@ from skillpm import HOMEPAGE, __version__
 from skillpm.changelog import for_skill, sections_since
 from skillpm.config import (backup_dir, cache_dir, config_path, home, load_config, load_state,
                              save_config, save_state, state_path)
-from skillpm.console import (BLUE, BOLD, DIM, GREEN, PATH_C, RED, RESET, YELLOW, Abort,
+from skillpm.console import (BLUE, BOLD, CODE, DIM, GREEN, PATH_C, RED, RESET, YELLOW, Abort,
                               ask, confirm, choose, die, ensure_utf8_stdio, info, md_line, ok, remember_secret, say, warn)
 from skillpm import index, lockfile
 from skillpm.sources import locate, parse as parse_source
@@ -668,9 +668,12 @@ def cmd_update(a):
                 continue                      # 只更新指定仓库来的
             if meta["version"] != rec["version"]:
                 plans.append((host, entry["path"], name, rec, meta, rname, rdir))
+    if getattr(a, "repo", None):
+        fetched = {r: v for r, v in fetched.items() if r == a.repo}
     if not plans:
         scope_note = f"（只看了 {a.repo}）" if getattr(a, "repo", None) else ""
         ok(f"都是最新的，没什么要更新{scope_note}")
+        show_not_installed(fetched, state)
         dirty = []
         for key, entry in state["hosts"].items():
             for name, rec in entry.get("skills", {}).items():
@@ -714,8 +717,9 @@ def cmd_update(a):
         state["hosts"][host]["skills"][name] = new
         done.append({"host": host, "name": name, "from": rec["version"],
                      "to": meta["version"], "backup": b, "dir": rdir})
-    save_state(state)
     show_update_summary(done)
+    save_state(state)
+    show_not_installed(fetched, state)
     # 依赖按「这次实际从哪个仓库更新的」查，不按名字去汇总表里找
     check_python_deps({p[2]: (p[5], p[6], p[4]) for p in plans}, [d["name"] for d in done])
     return conflicts.report()
@@ -744,6 +748,98 @@ def show_update_summary(done):
         for i in items:
             if i["backup"]:
                 info(f"旧版备份：{i['backup']}")
+
+
+def _tier_group(rdir, name, _cache={}):
+    """同一个 Skill 分了权限级别的（SKILL.md 里写 `tier: write`，名字以 -write 结尾），返回去掉级别的组名。
+
+    这类按权限挑一个装就够：装了其中一个，其余级别不算「没装」。没写 tier 的返回 None。
+    """
+    key = (str(rdir), name)
+    if key not in _cache:
+        from skillpm.manifest import _field, _frontmatter
+        try:
+            front = _frontmatter((Path(rdir) / "skills" / name / "SKILL.md").read_text(encoding="utf-8"))
+        except OSError:
+            front = ""
+        tier = _field(front, "tier") if front else None
+        _cache[key] = name[:-len(tier) - 1] if tier and name.endswith("-" + tier) else None
+    return _cache[key]
+
+
+def not_installed(fetched, state):
+    """仓库里有、本机用户级宿主没装的 Skill：[(仓库名, Skill名, info, [宿主…])]。
+
+    只看装过这个仓库东西的宿主——配了仓库却一个都没从它装过，多半是有意不用，别去烦人。
+    项目级安装跟着锁文件走，不在这儿管。
+    """
+    miss = {}
+    for key, entry in (state.get("hosts") or {}).items():
+        if entry.get("scope") == "project":
+            continue
+        have = entry.get("skills") or {}
+        for rname in sorted({r.get("repo") for r in have.values()} & set(fetched)):
+            rdir, man = fetched[rname]
+            groups = {_tier_group(rdir, n) for n in have} - {None}
+            for name, meta in sorted((man.get("skills") or {}).items()):
+                if name in have or _tier_group(rdir, name) in groups:
+                    continue
+                miss.setdefault((rname, name), (meta, []))[1].append(key.split(":")[-1])
+    return [(r, n, m, h) for (r, n), (m, h) in miss.items()]
+
+
+def show_not_installed(fetched, state):
+    """仓库里有、本机没装的 Skill，每次 update / status 都列出来，直到装上或者被 ignore。
+
+    不自动装——按权限分级、只装一个级别的（xx-read / -write / -admin），自动补上就越权了。
+    """
+    ignored = set(state.get("ignored_skills") or [])
+    items = [x for x in not_installed(fetched, state) if x[1] not in ignored]
+    if not items:
+        return
+    say()
+    say(f"{BOLD}仓库里有 {len(items)} 个 Skill 本机还没装{RESET}"
+        f"　{DIM}update 只更新装过的，新加的要自己装{RESET}")
+    width = max(len(n) for _r, n, _m, _h in items)
+    for _rname, name, meta, hosts in items:
+        say(f"  {BLUE}{name:<{width}}{RESET}  {meta.get('version', '?'):<9}{DIM}{'、'.join(hosts)} 没装{RESET}")
+        brief = (meta.get("summary") or "").split("。")[0].split("：")[0]
+        if brief:
+            say(f"  {' ' * width}  {brief[:40]}{'…' if len(brief) > 40 else ''}")
+    names = " ".join(n for _r, n, _m, _h in items)
+    # 这一行是要人照着敲的，用加粗正红，别被淹在说明文字里
+    say(f"  {BOLD}{RED}要装：skillpm install {names}{RESET}")
+    say(f"  不想装、也不想再看到这个提示：{BOLD}skillpm ignore {names}{RESET}")
+
+
+def cmd_ignore(a):
+    """不再提示安装某些 Skill；不写名字就列出忽略了哪些。"""
+    state = load_state()
+    ignored = set(state.get("ignored_skills") or [])
+    if not a.names:
+        if not ignored:
+            ok("没有忽略任何 Skill，没装的都会提示")
+        else:
+            say(f"{BOLD}这些不提示安装{RESET}")
+            for n in sorted(ignored):
+                say(f"  {BLUE}{n}{RESET}")
+            info("想恢复提示：skillpm ignore --undo <名字>")
+        return 0
+    if a.undo:
+        gone = [n for n in a.names if n in ignored]
+        miss = [n for n in a.names if n not in ignored]
+        ignored -= set(gone)
+        if gone:
+            ok(f"恢复提示：{'、'.join(gone)}（没装的话 update / status 会再提醒）")
+        if miss:
+            warn(f"本来就没忽略：{'、'.join(miss)}")
+    else:
+        ignored |= set(a.names)
+        ok(f"以后不再提示安装：{'、'.join(a.names)}")
+        info(f"想恢复提示：skillpm ignore --undo {' '.join(a.names)}；看忽略了哪些：skillpm ignore")
+    state["ignored_skills"] = sorted(ignored)
+    save_state(state)
+    return 0
 
 
 def cmd_status(a):
@@ -796,6 +892,8 @@ def cmd_status(a):
             say(f"  {name:<32} {rec['version']:<9} {note}{src}")
     if not state.get("hosts"):
         warn("还没装到任何宿主")
+    elif fetched and want != "project":
+        show_not_installed(fetched, state)
     return 0
 
 
@@ -1314,6 +1412,7 @@ HELP_GROUPS = [
               ("status", "看装了什么、什么版本、有没有被改过、能不能更新"),
               ("uninstall", "删 Skill（不写名字会列出来让你挑）"),
               ("check", "只看有没有新版本，什么都不动"),
+              ("ignore", "仓库里某个 Skill 不想装，不再提示安装它"),
               ("docs", "在浏览器里打开图文使用手册")]),
     ("配置", [("repo", "Skill 仓库：加 / 看 / 删，可以配多个"),
               ("host", "Agent 目录：加 / 看 / 删，一般自动探到")]),
@@ -1488,8 +1587,9 @@ class Parser(argparse.ArgumentParser):
         out += [f"  {c}{' ' * (w2 - _cols(c))}{d}" for c, d in EPILOG_ROWS]
         from skillpm.manual import open_command
         where = str(home()) + "\\" if sys.platform.startswith("win") else "~/.skillpm/"   # Windows 上 ~ 没意义
-        out += ["", f"图文使用手册（HTML）：skillpm docs 在浏览器里打开，快速上手在第一页",
-                f"　　或者复制这条命令打开：{open_command()}",
+        # 手册入口是新人最该看到的一行，命令用加粗正红（和「要装：…」一样，照着敲的都这么标）
+        out += ["", f"{BOLD}图文使用手册（HTML）{RESET}：{BOLD}{RED}skillpm docs{RESET} 在浏览器里打开，快速上手在第一页",
+                f"　　或者复制这条命令打开：{BOLD}{RED}{open_command()}{RESET}",
                 f"配置和状态放在 {where}（改位置用环境变量 SKILLPM_HOME）。"]
         return "\n".join(out).rstrip() + "\n"
 
@@ -1585,6 +1685,11 @@ def build_parser():
     p.add_argument("-g", "--global", dest="global_", action="store_true", help="只看用户级")
     p.add_argument("--offline", action="store_true", help="不连仓库，只看本地")
     p.set_defaults(fn=cmd_status)
+
+    p = sub.add_parser("ignore", help="不再提示安装某些 Skill（不写名字就列出忽略了哪些）")
+    p.add_argument("names", nargs="*", metavar="SKILL", help="不想装、也不想被提示的 Skill 名，可以写多个")
+    p.add_argument("--undo", action="store_true", help="恢复提示")
+    p.set_defaults(fn=cmd_ignore)
 
     p = sub.add_parser("uninstall", help="移除 Skill（不写名字会列出来让你选）")
     p.add_argument("names", nargs="*", metavar="SKILL", help="要移除的 Skill 名，可以写多个")

@@ -2,9 +2,9 @@
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>skillpm 使用手册</title>
-<meta name="description" content="skillpm 命令手册与接入说明，v2.0.7">
-<meta name="skillpm-version" content="2.0.7">
-<meta name="skillpm-source" content="e66e113035df91e9">
+<meta name="description" content="skillpm 命令手册与接入说明，v2.1.0">
+<meta name="skillpm-version" content="2.1.0">
+<meta name="skillpm-source" content="6e910016d4386395">
 <style>
 :root{--bg:#f7f8fa;--paper:#fff;--ink:#1f2933;--muted:#5b6673;--line:#e3e7ec;--accent:#3e6ddf;
 --accent-soft:#eaf0fd;--code-bg:#0f172a;--code-ink:#e2e8f0;--inline-bg:#eef1f5;--warn:#b05a00;--warn-soft:#fff6e5;
@@ -97,7 +97,7 @@ transform:translateX(-100%);transition:transform .2s}body.menu nav.toc{transform
 <header><div class="bar">
   <button class="icon-btn menu-btn" id="menu" aria-label="目录">☰</button>
   <div class="brand"><span class="logo">sp</span><span class="name">skillpm 使用手册</span>
-  <span class="ver">v2.0.7</span></div>
+  <span class="ver">v2.1.0</span></div>
   <div class="tabs-wrap"><span class="tabs-hint">手册共 3 篇 →</span><div class="tabs"><button data-doc="start"><span class="n">1</span>快速上手</button><button data-doc="manual"><span class="n">2</span>完整命令手册</button><button data-doc="onboard"><span class="n">3</span>接入自己的仓库</button></div></div>
   <div class="sp"></div>
   <button class="icon-btn" id="theme" title="切换深浅色" aria-label="切换深浅色">◐</button>
@@ -298,6 +298,10 @@ skillpm docs        # 在浏览器里打开这份手册
 <tr>
 <td><code>skillpm status</code></td>
 <td>每个宿主装了哪些、什么版本、有没有被改过</td>
+</tr>
+<tr>
+<td><code>skillpm ignore &lt;名字&gt;</code></td>
+<td>这个 Skill 不想装，不再提示安装它（<code>--undo</code> 恢复）</td>
 </tr>
 <tr>
 <td><code>skillpm uninstall</code></td>
@@ -654,6 +658,27 @@ weekly-report  2.6.0 → 2.6.1   WorkBuddy
 <blockquote class="note">
 <p>更新<strong>前</strong>只预告谁要变，完整日志留到更新<strong>成功之后</strong>——没装上的东西不该先把日志给你看。</p>
 </blockquote>
+<p><strong>仓库里有、本机没装的 Skill，<code>update</code> 不会自动装，但每次都会提示，直到装上：</strong></p>
+<pre><code>仓库里有 1 个 Skill 本机还没装　update 只更新装过的，新加的要自己装
+  case-design  1.1.0    WorkBuddy、WorkBuddy-AI 没装
+                        接在需求与用例匹配之后，给「缺口」设计新增用例…
+  要装：skillpm install case-design
+  不想装、也不想再看到这个提示：skillpm ignore case-design
+</code></pre>
+<ul>
+<li><code>skillpm status</code> 最后也会列这一段。</li>
+<li>
+<p>有的 Skill 你就是不打算装，嫌提示烦：<code>skillpm ignore &lt;名字&gt;</code>，之后就不再提示它。
+  <code>skillpm ignore</code> 不写名字，列出忽略了哪些；<code>skillpm ignore --undo &lt;名字&gt;</code> 恢复提示。</p>
+</li>
+<li>
+<p>为什么不自动装：按权限分级、只装一个级别的（SKILL.md 里写了 <code>tier</code>，比如 xx-read / xx-write / xx-admin），装了 <code>-write</code> 的人不该被顺手补上 <code>-admin</code>。
+  同一个 Skill 的其它级别也不算「没装」，不会提示。</p>
+</li>
+<li>
+<p>只看你从这个仓库装过东西的宿主；配了仓库却一个都没装过的，当你是有意不用。</p>
+</li>
+</ul>
 <h3 id="manual-4-2-skillpm-self-update-更新工具自己">4.2 <code>skillpm self-update</code> —— 更新<strong>工具自己</strong></h3>
 <pre><code class="language-bash">skillpm self-update        # 在哪个目录跑都行，不用先 cd
 </code></pre>
@@ -1399,7 +1424,31 @@ skillpm repo add 我们团队 git@gitlab.example.com:组/仓库.git
 </tr>
 </tbody>
 </table></div></section></article>
-  <section class="card"><details class="changelog" id="changelog"><summary>更新日志<span class="d">共 8 个版本，点开看每一版改了什么</span></summary><details class="ver-item"><summary><b>2.0.7</b><span class="d">2026-09-21</span><span class="g">手册顶部的三篇切换更显眼</span></summary><div class="ver-body"><ul>
+  <section class="card"><details class="changelog" id="changelog"><summary>更新日志<span class="d">共 9 个版本，点开看每一版改了什么</span></summary><details class="ver-item"><summary><b>2.1.0</b><span class="d">2026-09-23</span><span class="g">没装的 Skill 会提示出来</span></summary><div class="ver-body"><ul>
+<li>
+<p><strong>没装的 Skill 会提示出来</strong>：以前 <code>update</code> 只管装过的，仓库新加了 Skill 一声不吭——别的 Skill 已经开始依赖它了，本机却根本没装。
+  现在 <code>update</code> 和 <code>status</code> 每次都列出「仓库里有、本机还没装」的，给出 <code>skillpm install &lt;名字&gt;</code>，直到装上为止。</p>
+</li>
+<li>
+<p>只提示，不自动装：按权限分级、只装一个级别的 Skill（SKILL.md 里写了 <code>tier</code>，比如 xx-read / xx-write / xx-admin），
+    自动补上就越权了；同一个 Skill 的其它级别也不算「没装」。</p>
+</li>
+<li>
+<p>只看从这个仓库装过东西的宿主；配了仓库却一个都没装过的，当你是有意不用。</p>
+</li>
+<li>
+<p><strong>新命令 <code>skillpm ignore &lt;名字&gt;</code></strong>：有的 Skill 就是不打算装，忽略它就不再提示。
+  <code>skillpm ignore</code> 列出忽略了哪些，<code>skillpm ignore --undo &lt;名字&gt;</code> 恢复提示。</p>
+</li>
+<li>
+<p><strong>配色换成固定色号，浅色终端上不再发白发虚</strong>：以前用的 91~96「亮色」由终端主题决定颜色，
+  macOS 终端默认白底主题下亮青、亮绿很淡。现在用 256 色里中等亮度的固定色号，白底黑底都读得清；
+  命令和代码单独用紫色，灰色加深一档，要照着敲的命令（「要装：…」、<code>-h</code> 底部的手册入口）用加粗正红。</p>
+</li>
+<li>
+<p>更新日志在终端里更好读：版本标题上色加粗，列表的 <code>-</code> 换成彩色圆点。</p>
+</li>
+</ul></div></details><details class="ver-item"><summary><b>2.0.7</b><span class="d">2026-09-21</span><span class="g">手册顶部的三篇切换更显眼</span></summary><div class="ver-body"><ul>
 <li>
 <p><strong>手册顶部的三篇切换更显眼</strong>：以前「快速上手 / 完整命令手册 / 接入自己的仓库」看着像普通文字，容易以为手册只有一页。
   现在做成一组带边框的按钮，每篇带编号，当前篇蓝底白字，旁边写着「手册共 3 篇 →」。</p>
@@ -1483,7 +1532,7 @@ skillpm repo add 我们团队 git@gitlab.example.com:组/仓库.git
 <li><strong>图文手册随工具发</strong>：<code>skillpm docs</code> 在浏览器里打开，快速上手每一步都有真实截图。</li>
 <li><strong>零依赖</strong>：只用 Python 3.8+ 标准库；Mac / Windows / Linux 通用，安装脚本默认不碰 PyPI。</li>
 </ul></div></details></details></section>
-  <p class="foot">skillpm v2.0.7 · 生成于 2026-09-21 · 内容来自工具仓库 docs/ 下的 Markdown，改那里再重新生成</p></main>
+  <p class="foot">skillpm v2.1.0 · 生成于 2026-09-23 · 内容来自工具仓库 docs/ 下的 Markdown，改那里再重新生成</p></main>
 </div>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];

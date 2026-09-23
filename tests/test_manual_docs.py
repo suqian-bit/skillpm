@@ -86,7 +86,7 @@ def test_help_has_no_escape_codes(capsys, monkeypatch):
     monkeypatch.setattr(sys.stdout, "isatty", lambda: True, raising=False)
     with pytest.raises(SystemExit):
         main(["-h"])
-    assert "\033" not in capsys.readouterr().out
+    assert "\033]8" not in capsys.readouterr().out     # 颜色（SGR）可以有，老式 cmd 下 console 本来就不上色
 
 
 def test_open_command_per_platform(monkeypatch):

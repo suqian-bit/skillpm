@@ -8,18 +8,28 @@ IS_WIN = platform.system() == "Windows"
 _COLOR = not (IS_WIN and not os.environ.get("WT_SESSION")) and sys.stdout.isatty() \
     and not os.environ.get("NO_COLOR")
 
-# 配色原则：黄色在浅色终端上最难读，所以只用来标「要你注意但没出错」，
-# 而且配合前缀符号，不靠颜色单独传信息。主色走青/绿/蓝这一挂。
-#   青  标题、命令、Skill 名        绿  成功、已完成
-#   蓝  路径                        橙  警告（比黄色深，浅背景也看得清）
-#   红  错误                        灰  补充说明
-RESET, BOLD, DIM = ("\033[0m", "\033[1m", "\033[90m") if _COLOR else ("", "", "")
-RED = "\033[91m" if _COLOR else ""
-GREEN = "\033[92m" if _COLOR else ""
-YELLOW = "\033[38;5;208m" if _COLOR else ""      # 橙，替掉原来那个发虚的亮黄
-BLUE = "\033[96m" if _COLOR else ""              # 青，标题和名字
-PATH_C = "\033[94m" if _COLOR else ""            # 蓝，路径
-OKC = "\033[92m" if _COLOR else ""
+# 配色原则：用 256 色里的固定色号，不用 91~96 这些「亮色」。
+# 亮色的实际颜色由终端主题决定：macOS 终端默认白底主题下，亮青、亮绿发白发虚，
+# 加上说明文字全是灰的，满屏看着就是「黑字 + 淡灰」。固定色号选的是中等亮度，
+# 白底和黑底上都读得清（对比度约 4:1 以上）。黄色在浅色终端上最难读，用深橙代替，
+# 而且配合前缀符号，不靠颜色单独传信息。
+#   青蓝  标题、Skill 名          绿  成功、已完成
+#   蓝    路径                    紫  命令、代码（和 Skill 名分开）
+#   橙    警告                    红  错误
+#   灰    补充说明（比原来深一档，不再发虚）
+def _c(n):
+    return f"\033[38;5;{n}m" if _COLOR else ""
+
+
+RESET, BOLD = ("\033[0m", "\033[1m") if _COLOR else ("", "")
+DIM = _c(243)            # 灰 #767676
+RED = _c(196)            # 正红 #ff0000
+GREEN = _c(28)           # 绿 #008700
+YELLOW = _c(166)         # 橙 #d75f00，替掉原来那个发虚的亮黄
+BLUE = _c(31)            # 青蓝 #0087af，标题和名字
+PATH_C = _c(32)          # 蓝 #0087d7，路径
+CODE = _c(133)           # 紫 #af5faf，命令和代码
+OKC = GREEN
 
 _SECRETS = set()
 
@@ -218,11 +228,12 @@ def choose(prompt, options, preselect=None, allow_all=True, paths=None):
 
 def md_line(line):
     """更新日志是 Markdown，在终端里别把 ** 和 ` 原样打出来：
-    `## 版本` 标题加粗，**加粗** 变成真加粗，`代码` 去掉反引号、换成青色。"""
+    `## 版本` 标题加粗上色，**加粗** 变成真加粗，`代码` 去掉反引号、换成紫色，列表的 - 换成圆点。"""
     if line.startswith("## "):
-        return f"{BOLD}{line[3:]}{RESET}"
+        return f"{BOLD}{BLUE}{line[3:]}{RESET}"
     if line.startswith("### "):
         return f"{BOLD}{line[4:]}{RESET}"
     line = re.sub(r"\*\*(.+?)\*\*", lambda m: f"{BOLD}{m.group(1)}{RESET}", line)
-    line = re.sub(r"`([^`]+)`", lambda m: f"{BLUE}{m.group(1)}{RESET}", line)
-    return line
+    line = re.sub(r"`([^`]+)`", lambda m: f"{CODE}{m.group(1)}{RESET}", line)
+    # 列表的「- 」换成彩色圆点，满屏黑字里一眼分得清一条一条
+    return re.sub(r"^(\s*)- ", lambda m: f"{m.group(1)}{BLUE}•{RESET} ", line)
