@@ -97,7 +97,7 @@ skillpm manifest --check
 ```json
 {
   "locked": {
-    "db-tool-write": {"lock": "write", "hint": "找管理员要"},
+    "db-tool-write": {"lock": ["write", "admin"], "hint": "找管理员要"},
     "db-tool-admin": {"lock": "admin", "hint": "找管理员要"},
     "some-internal-tool": {"lock": "leads"}
   },
@@ -107,7 +107,8 @@ skillpm manifest --check
 }
 ```
 
-- `locked`：这些 Skill 要口令才能装。`lock` 是**口令组**，同一组共用一个口令（比如给组长们的几个工具放进 `leads`，发一个口令全能装）；`hint` 是装的时候提示口令找谁要。
+- `locked`：这些 Skill 要口令才能装。`lock` 是**口令组**的名字（不是口令本身），同一组共用一个口令（几个工具都写 `leads`，发一个口令全能装）；`hint` 是装的时候提示口令找谁要。
+- `lock` 也可以写**几个组**：`["write", "admin"]` 表示这两个组的口令都能装它。有高低的用这个最顺手——拿到 admin 口令的人，write 也能自己装，不用再要一个。
 - `exclusive`（可选，和口令无关）：几个 Skill 互为替代，同一宿主只装一个，按**从低到高**排；默认装最低、不要口令的那个。
 
 要口令的 Skill **明文不能进仓库**：仓库里只放加密包 `sealed/<名字>.pkg`。明文放在你自己机器上，发版用：

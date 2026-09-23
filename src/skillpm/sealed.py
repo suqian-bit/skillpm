@@ -9,7 +9,8 @@
 头里有名字、版本、说明、口令组、提示、各文件哈希、更新日志——不解密也能列出来、比版本、显示更新日志。
 
 两层密钥（信封加密）：内容用一把随机的内容密钥加密；内容密钥再用口令派生的密钥加密，放在头的 keys 里，一个口令一份。
-现在每个口令组一个共用口令，keys 里就一份；以后要「每人一个口令、单独撤销某个人」，就是 keys 里放多份，格式不用变。
+一个 Skill 可以配多个口令组（比如 write 包 write、admin 两组的口令都能开），keys 里就放多份，每份标着是哪个组的；
+以后要「每人一个口令、单独撤销某个人」，也是 keys 里放多份，格式不用变。
 只用标准库：PBKDF2-HMAC-SHA256 派生密钥，HMAC-SHA256 计数器模式生成密钥流异或加密，HMAC-SHA256 校验（口令不对、包被改过都解不开）。
 """
 import base64
@@ -84,7 +85,7 @@ def skill_files(skill_dir):
 def pack(skill_dir, passwords, meta):
     """把一个 Skill 目录加密成包的字节。
 
-    passwords：{标签: 口令}，现在就一项 {口令组: 口令}；meta 至少有 name / version / lock，可带 summary / changelog / hint。
+    passwords：{口令组: 口令}，几个组都能开就给几项；meta 至少有 name / version / locks，可带 summary / changelog / hint。
     """
     skill_dir = Path(skill_dir)
     files, buf = skill_files(skill_dir), io.BytesIO()
@@ -113,24 +114,37 @@ def header(path):
     return _split(path)[0]
 
 
-def check_password(path, password):
-    """这个口令能不能打开这个包（发版时核对口令有没有输错用）。"""
+def locks_of(head):
+    """这个包能被哪些口令组打开。"""
+    return [k.get("label") for k in head.get("keys") or []]
+
+
+def check_password(path, password, lock=None):
+    """这个口令能不能打开这个包；给了 lock 就只认这个组那一份（发版核对「write 组的口令」时，输成 admin 的也不算对）。"""
     head, cipher = _split(path)
-    return _content_key(head, cipher, password) is not None
+    return _content_key(head, cipher, password, lock)[0] is not None
 
 
-def _content_key(head, cipher, password):
+def which_lock(path, password):
+    """这个口令是哪个组的（打不开返回 None）。"""
+    head, cipher = _split(path)
+    return _content_key(head, cipher, password)[1]
+
+
+def _content_key(head, cipher, password, lock=None):
     for entry in head.get("keys") or []:
+        if lock is not None and entry.get("label") != lock:
+            continue
         key = _unwrap(entry, password)
         if key and hmac.compare_digest(_mac(key[32:], _canon(head), cipher), head.get("mac", "")):
-            return key
-    return None
+            return key, entry.get("label")
+    return None, None
 
 
 def unpack(path, password, out_root):
     """用口令解开，写到 out_root/skills/<名字>/。口令不对或包被改过抛 WrongPassword。"""
     head, cipher = _split(path)
-    key = _content_key(head, cipher, password)
+    key, _lock = _content_key(head, cipher, password)
     if key is None:
         raise WrongPassword()
     plain = _stream(key[:32], base64.b64decode(head["nonce"]), cipher)
@@ -192,19 +206,27 @@ def pkg_path(repo_dir, meta):
     return Path(repo_dir) / meta["sealed"]
 
 
+def locks_meta(meta):
+    """manifest 里这个 Skill 能被哪些口令组打开（老 manifest 只有一个 lock）。"""
+    return list(meta.get("locks") or ([meta["lock"]] if meta.get("lock") else []))
+
+
 def lock_text(name, meta):
     hint = meta.get("hint") or ""
-    return f"安装 {name} 需要口令（{meta.get('lock', '?')} 组{'，' + hint if hint else ''}），输入时不显示："
+    groups = " 或 ".join(locks_meta(meta)) or "?"
+    return f"安装 {name} 需要口令（{groups} 组的都行{'，' + hint if hint else ''}），输入时不显示：" if len(locks_meta(meta)) > 1 \
+        else f"安装 {name} 需要口令（{groups} 组{'，' + hint if hint else ''}），输入时不显示："
 
 
 def try_open(repo_name, repo_dir, name, meta, password):
-    """用给定口令解开并记下口令；成功返回临时根目录，失败返回 None。"""
-    root = Path(tempfile.mkdtemp(prefix="skillpm-sealed-"))
-    try:
-        unpack(pkg_path(repo_dir, meta), password, root)
-    except WrongPassword:
+    """用给定口令解开并记下口令（记在它实际打开的那个组名下）；成功返回临时根目录，失败返回 None。"""
+    pkg = pkg_path(repo_dir, meta)
+    lock = which_lock(pkg, password)
+    if lock is None:
         return None
-    remember(key_of(repo_name, meta.get("lock", "")), password)
+    root = Path(tempfile.mkdtemp(prefix="skillpm-sealed-"))
+    unpack(pkg, password, root)
+    remember(key_of(repo_name, lock), password)
     _opened[(str(repo_dir), name, meta.get("version"))] = root
     return root
 
@@ -221,13 +243,13 @@ def open_skill(repo_name, repo_dir, name, meta, prompt=True, tries=3):
         return _opened[cache], None
     if not pkg_path(repo_dir, meta).exists():
         return None, f"仓库里找不到加密包 {meta['sealed']}"
-    old = saved(key_of(repo_name, meta.get("lock", "")))
-    if old:
+    olds = [pw for pw in (saved(key_of(repo_name, lk)) for lk in locks_meta(meta)) if pw]
+    for old in olds:                  # 本机记过这几个组里任何一个的口令，都不用再问
         root = try_open(repo_name, repo_dir, name, meta, old)
         if root:
             return root, None
     if not (prompt and interactive()):
-        return None, ("口令已更换，本机记的旧口令打不开新版本" if old else "要口令才能装")
+        return None, ("口令已更换，本机记的旧口令打不开新版本" if olds else "要口令才能装")
     for i in range(tries):
         pw = ask(lock_text(name, meta) if i == 0 else "口令不对，再输一次：")
         if not pw:

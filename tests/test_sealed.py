@@ -15,7 +15,7 @@ from skillpm import sealed
 from skillpm.cli import main
 from skillpm.config import cache_dir, load_config, load_state, save_config, save_state
 
-CONFIG = {"locked": {"kit-pro": {"lock": "pro", "hint": "找组长要"}, "kit-max": {"lock": "max"},
+CONFIG = {"locked": {"kit-pro": {"lock": ["pro", "max"], "hint": "找组长要"}, "kit-max": {"lock": "max"},
                      "secret-tool": {"lock": "leads", "hint": "找组长要"}},
           "exclusive": {"kit": ["kit-basic", "kit-pro", "kit-max"]}}
 PW = {"pro": "pro-pw", "max": "max-pw", "leads": "leads-pw"}
@@ -117,7 +117,7 @@ def test_publish_seals_only_configured_and_keeps_plaintext_out(env):
     assert {p.name for p in (repo / "skills").iterdir()} == {"demo-a", "kit-basic"}
     assert {p.name for p in (repo / "sealed").iterdir()} == {"kit-pro.pkg", "kit-max.pkg", "secret-tool.pkg"}
     man = json.loads((repo / "manifest.json").read_text(encoding="utf-8"))["skills"]
-    assert man["kit-pro"]["lock"] == "pro" and man["kit-pro"]["exclusive"] == "kit" and man["kit-pro"]["rank"] == 1
+    assert man["kit-pro"]["locks"] == ["pro", "max"] and man["kit-pro"]["exclusive"] == "kit" and man["kit-pro"]["rank"] == 1
     assert man["secret-tool"]["lock"] == "leads" and "exclusive" not in man["secret-tool"]
     assert man["kit-basic"]["rank"] == 0 and "sealed" not in man["kit-basic"]
 
@@ -130,7 +130,7 @@ def test_publish_does_not_reseal_unchanged(env, monkeypatch):
 
 def test_publish_refuses_wrong_password_for_existing_group(env, monkeypatch, capsys):
     (env["src"] / "kit-pro" / "SKILL.md").write_text("---\nname: kit-pro\nmetadata:\n  version: 1.1.0\n---\n", encoding="utf-8")
-    assert _publish(monkeypatch, env["src"], env["repo"], "--only", "kit-pro", pw={"pro": "手滑"}) != 0
+    assert _publish(monkeypatch, env["src"], env["repo"], "--only", "kit-pro", pw={"pro": "手滑", "max": "max-pw"}) != 0
     assert "打不开仓库里现有的 pro 组的包" in capsys.readouterr().out
     assert sealed.header(env["repo"] / "sealed" / "kit-pro.pkg")["version"] == "1.0.0", "口令输错不能发出去"
 
@@ -213,7 +213,10 @@ def test_update_uses_saved_password_then_skips_after_password_change(env, monkey
     assert "kit-pro 1.1.0" in (env["host"] / "kit-pro" / "SKILL.md").read_text(encoding="utf-8")
     assert "kit-pro 的 1.1.0" in capsys.readouterr().out, "更新日志照常显示"
     shutil.rmtree(env["src"] / "kit-pro"); _skill(env["src"], "kit-pro", "1.2.0")
-    assert _publish(monkeypatch, env["src"], env["repo"], "--only", "kit-pro", "--new-password", "pro", pw={"pro": "pro-2026"}) == 0
+    assert _publish(monkeypatch, env["src"], env["repo"], "--only", "kit-pro", "--new-password", "pro",
+                    pw={"pro": "pro-2026", "max": "max-2026-不同"}) != 0, "max 组口令没换，输错了也要拦住"
+    assert _publish(monkeypatch, env["src"], env["repo"], "--only", "kit-pro", "--new-password", "pro",
+                    pw={"pro": "pro-2026", "max": "max-pw"}) == 0
     env["sync"]()
     typing(monkeypatch, tty=False)
     main(["update", "--yes"])
@@ -259,3 +262,38 @@ def test_missing_skill_hint_never_suggests_locked(env, monkeypatch, capsys):
     main(["status"])
     out = capsys.readouterr().out
     assert "kit-basic" in out and "kit-pro" not in out and "secret-tool" not in out
+
+
+# ── 一个 Skill 配多个口令组 ────────────────────────────────────
+
+def test_skill_with_two_locks_opens_with_either(env, monkeypatch, capsys):
+    """kit-pro 配了 pro、max 两组：拿到 max 口令的人不用再要 pro 的（像 DML write 让 admin 口令也能装）。"""
+    typing(monkeypatch, "max-pw")
+    assert main(["install", "kit-pro", "--hosts", "H"]) == 0
+    assert dirs(env["host"]) == {"kit-pro"}
+    assert sealed.saved("local/max") == "max-pw", "记在它实际打开的那个组名下"
+    main(["status", "--offline"])
+    assert "口令组：pro/max" in capsys.readouterr().out
+
+
+def test_password_saved_for_one_skill_opens_the_other(env, monkeypatch):
+    typing(monkeypatch, "max-pw")
+    main(["install", "kit-max", "--hosts", "H"])
+    typing(monkeypatch)                              # 装 kit-pro 不该再问：本机记过 max 的口令
+    assert main(["install", "kit-pro", "--hosts", "H"]) == 0
+    assert dirs(env["host"]) == {"kit-pro"}
+
+
+def test_prompt_says_which_groups_work(env, monkeypatch):
+    asked = []
+    monkeypatch.setattr(sealed, "interactive", lambda: True)
+    monkeypatch.setattr(sealed, "ask", lambda p: (asked.append(p), "pro-pw")[1])
+    main(["install", "kit-pro", "--hosts", "H"])
+    assert "pro 或 max 组的都行" in asked[0] and "找组长要" in asked[0]
+
+
+def test_publish_checks_each_group_against_its_own_key(env, monkeypatch, capsys):
+    """问 pro 组口令时输成 max 的：它也能打开 kit-pro 的包，但不是 pro 组的——要拦住，不然 pro 那份就被悄悄换成了 max 的口令。"""
+    (env["src"] / "kit-pro" / "SKILL.md").write_text("---\nname: kit-pro\nmetadata:\n  version: 1.1.0\n---\n", encoding="utf-8")
+    assert _publish(monkeypatch, env["src"], env["repo"], "--only", "kit-pro", pw={"pro": "max-pw", "max": "max-pw"}) != 0
+    assert "打不开仓库里现有的 pro 组的包" in capsys.readouterr().out

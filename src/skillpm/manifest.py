@@ -105,7 +105,8 @@ def scan(root):
             continue
         skills[name] = {"version": head.get("version", "?"), "summary": (head.get("summary") or "")[:120],
                         "files": head.get("files", {}), "sealed": f"sealed/{pkg.name}",
-                        "lock": head.get("lock", ""), "hint": head.get("hint", ""), "bytes": pkg.stat().st_size}
+                        "locks": sealed.locks_of(head), "lock": "/".join(sealed.locks_of(head)),
+                        "hint": head.get("hint", ""), "bytes": pkg.stat().st_size}
     cfg, cfg_errors = repo_config(root)
     errors += cfg_errors
     for name, spec in (cfg.get("locked") or {}).items():
@@ -113,8 +114,8 @@ def scan(root):
             errors.append(f"{name}：skillpm.repo.json 说它要口令，可 skills/ 里放的是明文——用 skillpm publish 发版，它会加密")
         elif name not in skills:
             warnings.append(f"{name}：skillpm.repo.json 说它要口令，但仓库里还没有它的加密包")
-        elif skills[name].get("lock") != spec.get("lock"):
-            errors.append(f"{name}：配置里的口令组是 {spec.get('lock')}，包里是 {skills[name].get('lock')}——重新 publish")
+        elif set(skills[name].get("locks") or []) != set(locks_in(spec)):
+            errors.append(f"{name}：配置里的口令组是 {'/'.join(locks_in(spec))}，包里是 {skills[name].get('lock')}——重新 publish")
     for group, members in (cfg.get("exclusive") or {}).items():
         for rank, name in enumerate(members):
             if name not in skills:
@@ -129,13 +130,22 @@ def scan(root):
 CONFIG = "skillpm.repo.json"
 
 
+def locks_in(spec):
+    """配置里的 lock 可以写一个组名，也可以写几个组名的列表。"""
+    lk = (spec or {}).get("lock") if isinstance(spec, dict) else None
+    if isinstance(lk, str):
+        return [lk] if lk else []
+    return [x for x in lk if isinstance(x, str) and x] if isinstance(lk, list) else []
+
+
 def repo_config(root):
     """仓库根目录的 skillpm.repo.json（可选）：哪些 Skill 要口令、用哪个口令组；哪些 Skill 互斥（同一宿主只装一个）。
 
-        {"locked":    {"<Skill>": {"lock": "<口令组>", "hint": "口令找谁要"}},
+        {"locked":    {"<Skill>": {"lock": "<口令组>" 或 ["<口令组>", "<口令组>"], "hint": "口令找谁要"}},
          "exclusive": {"<组名>": ["<最低一级>", "<高一级>", "<最高一级>"]}}
 
-    同一口令组的 Skill 共用一个口令。互斥组按从低到高排：默认装最低、不要口令的那个。
+    同一口令组的 Skill 共用一个口令；一个 Skill 写了几个组，这几个组的口令都能装它（比如 write 写 ["write", "admin"]，
+    拿到 admin 口令的人不用再要 write 的）。互斥组按从低到高排：默认装最低、不要口令的那个。
     """
     p = Path(root) / CONFIG
     if not p.exists():
@@ -146,8 +156,8 @@ def repo_config(root):
         return {}, [f"{CONFIG} 解析不了：{e}"]
     errors = []
     for name, spec in (cfg.get("locked") or {}).items():
-        if not isinstance(spec, dict) or not spec.get("lock"):
-            errors.append(f"{CONFIG}：locked 里 {name} 要写 lock（口令组名）")
+        if not isinstance(spec, dict) or not locks_in(spec):
+            errors.append(f"{CONFIG}：locked 里 {name} 要写 lock（口令组名，或几个组名的列表）")
     for group, members in (cfg.get("exclusive") or {}).items():
         if not isinstance(members, list) or len(members) < 2:
             errors.append(f"{CONFIG}：互斥组 {group} 要列两个以上 Skill（从低到高）")

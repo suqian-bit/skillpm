@@ -1031,7 +1031,7 @@ def _lock_password(lock, repo, existing, new_password):
     if not pw:
         die("口令为空")
     if existing and not new_password:
-        if not sealed.check_password(existing, pw):
+        if not sealed.check_password(existing, pw, lock):
             die(f"这个口令打不开仓库里现有的 {lock} 组的包（{existing.name}）",
                 "输错了就重来；确实要换口令，加 --new-password（这个组的每个 Skill 都会用新口令重新加密）")
     elif not os.environ.get(env) and sealed.ask("再输一遍：") != pw:
@@ -1056,7 +1056,7 @@ def cmd_publish(a):
             die(f"{src} 下没有：{'、'.join(missing)}")
     if a.new_password:
         # 换口令：这个组在仓库里的每个 Skill 都得用新口令重新加密，不然一部分新口令、一部分旧口令
-        want = {n for n, s in locked.items() if s.get("lock") in a.new_password}
+        want = {n for n, s in locked.items() if set(mf.locks_in(s)) & set(a.new_password)}
         lacking = sorted(want - {d.name for d in dirs})
         if lacking:
             die(f"换 {'、'.join(a.new_password)} 组的口令，要把这个组的 Skill 一起发：还缺 {'、'.join(lacking)}")
@@ -1076,28 +1076,32 @@ def cmd_publish(a):
             shutil.copytree(d, dst, ignore=shutil.ignore_patterns("__pycache__", "*.pyc", ".DS_Store"))
             ok(f"{name}  {version}   {DIM}明文 → skills/{RESET}")
             continue
-        lock = spec["lock"]
+        locks = mf.locks_in(spec)
         out = repo / "sealed" / f"{name}.pkg"
-        if lock not in passwords:
-            existing = next((p for p in sorted((repo / "sealed").glob("*.pkg"))
-                             if sealed.header(p).get("lock") == lock), None) if (repo / "sealed").is_dir() else None
-            passwords[lock] = _lock_password(lock, repo, existing, lock in (a.new_password or []))
-        if out.exists() and lock not in (a.new_password or []):
+        for lk in locks:
+            if lk not in passwords:
+                existing = next((p for p in sorted((repo / "sealed").glob("*.pkg"))
+                                 if lk in sealed.locks_of(sealed.header(p))), None) if (repo / "sealed").is_dir() else None
+                passwords[lk] = _lock_password(lk, repo, existing, lk in (a.new_password or []))
+        renew = set(locks) & set(a.new_password or [])
+        if out.exists() and not renew:
             head = sealed.header(out)
-            if head.get("version") == version and head.get("files") == sealed.skill_files(d):
+            if head.get("version") == version and head.get("files") == sealed.skill_files(d) \
+                    and set(sealed.locks_of(head)) == set(locks):
                 info(f"{name}  {version}   没变，加密包不重做（重做每次都会变，git 里平白多一条改动）")
                 continue
         log = d / "CHANGELOG.md"
         out.parent.mkdir(parents=True, exist_ok=True)
-        out.write_bytes(sealed.pack(d, {lock: passwords[lock]}, {
-            "name": name, "version": version, "lock": lock, "hint": spec.get("hint", ""),
+        out.write_bytes(sealed.pack(d, {lk: passwords[lk] for lk in locks}, {
+            "name": name, "version": version, "hint": spec.get("hint", ""),
             "summary": (mf._field(front, "description") or "")[:120],
             "changelog": log.read_text(encoding="utf-8") if log.exists() else ""}))
         plain = repo / "skills" / name
         if plain.exists():
             shutil.rmtree(plain)
             warn(f"{name}：仓库里原来的明文 skills/{name} 已删掉（要口令的 Skill 不放明文）")
-        ok(f"{name}  {version}   {DIM}加密 → sealed/{name}.pkg（{lock} 组）{RESET}")
+        lock = " / ".join(locks)
+        ok(f"{name}  {version}   {DIM}加密 → sealed/{name}.pkg（{lock} 组的口令都能开）{RESET}")
     doc, errors, warnings = mf.build(repo)
     for w in warnings:
         warn(w)

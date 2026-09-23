@@ -2,9 +2,9 @@
 <html lang="zh-CN"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>skillpm 使用手册</title>
-<meta name="description" content="skillpm 命令手册与接入说明，v2.2.0">
-<meta name="skillpm-version" content="2.2.0">
-<meta name="skillpm-source" content="153f4f8fb1c8b123">
+<meta name="description" content="skillpm 命令手册与接入说明，v2.3.0">
+<meta name="skillpm-version" content="2.3.0">
+<meta name="skillpm-source" content="8b3fc84659d0ad42">
 <style>
 :root{--bg:#f7f8fa;--paper:#fff;--ink:#1f2933;--muted:#5b6673;--line:#e3e7ec;--accent:#3e6ddf;
 --accent-soft:#eaf0fd;--code-bg:#0f172a;--code-ink:#e2e8f0;--inline-bg:#eef1f5;--warn:#b05a00;--warn-soft:#fff6e5;
@@ -97,7 +97,7 @@ transform:translateX(-100%);transition:transform .2s}body.menu nav.toc{transform
 <header><div class="bar">
   <button class="icon-btn menu-btn" id="menu" aria-label="目录">☰</button>
   <div class="brand"><span class="logo">sp</span><span class="name">skillpm 使用手册</span>
-  <span class="ver">v2.2.0</span></div>
+  <span class="ver">v2.3.0</span></div>
   <div class="tabs-wrap"><span class="tabs-hint">手册共 3 篇 →</span><div class="tabs"><button data-doc="start"><span class="n">1</span>快速上手</button><button data-doc="manual"><span class="n">2</span>完整命令手册</button><button data-doc="onboard"><span class="n">3</span>接入自己的仓库</button></div></div>
   <div class="sp"></div>
   <button class="icon-btn" id="theme" title="切换深浅色" aria-label="切换深浅色">◐</button>
@@ -552,6 +552,7 @@ $ skillpm install db-tool-write    # 这时才问口令
 <li>
 <p><strong>同一口令组共用一个口令</strong>：输对一次记在本机（<code>~/.skillpm/keys.json</code>，权限 600），同组别的 Skill、以后的 <code>update</code> 都不用再输。</p>
 </li>
+<li>一个 Skill 可以配几个口令组，提示里会写「write 或 admin 组的都行」，输哪个都能装；本机记过其中任何一个就不再问。</li>
 <li>输错 3 次就不装，原来装的不动。口令被更换后，<code>update</code> 跳过这一项、旧版留着能用，提示重新 <code>skillpm install &lt;名字&gt;</code>。</li>
 <li>
 <p><strong>互斥组同一宿主只留一个</strong>：装了高的会把低的换掉；降回去（装不要口令的那个）不用口令。
@@ -1336,7 +1337,7 @@ version: 1.0.0
 <p>有的 Skill 不想人人都能装（权限高、只给部分人），在仓库根目录放一个 <code>skillpm.repo.json</code>：</p>
 <pre><code class="language-json">{
   &quot;locked&quot;: {
-    &quot;db-tool-write&quot;: {&quot;lock&quot;: &quot;write&quot;, &quot;hint&quot;: &quot;找管理员要&quot;},
+    &quot;db-tool-write&quot;: {&quot;lock&quot;: [&quot;write&quot;, &quot;admin&quot;], &quot;hint&quot;: &quot;找管理员要&quot;},
     &quot;db-tool-admin&quot;: {&quot;lock&quot;: &quot;admin&quot;, &quot;hint&quot;: &quot;找管理员要&quot;},
     &quot;some-internal-tool&quot;: {&quot;lock&quot;: &quot;leads&quot;}
   },
@@ -1346,7 +1347,8 @@ version: 1.0.0
 }
 </code></pre>
 <ul>
-<li><code>locked</code>：这些 Skill 要口令才能装。<code>lock</code> 是<strong>口令组</strong>，同一组共用一个口令（比如给组长们的几个工具放进 <code>leads</code>，发一个口令全能装）；<code>hint</code> 是装的时候提示口令找谁要。</li>
+<li><code>locked</code>：这些 Skill 要口令才能装。<code>lock</code> 是<strong>口令组</strong>的名字（不是口令本身），同一组共用一个口令（几个工具都写 <code>leads</code>，发一个口令全能装）；<code>hint</code> 是装的时候提示口令找谁要。</li>
+<li><code>lock</code> 也可以写<strong>几个组</strong>：<code>["write", "admin"]</code> 表示这两个组的口令都能装它。有高低的用这个最顺手——拿到 admin 口令的人，write 也能自己装，不用再要一个。</li>
 <li><code>exclusive</code>（可选，和口令无关）：几个 Skill 互为替代，同一宿主只装一个，按<strong>从低到高</strong>排；默认装最低、不要口令的那个。</li>
 </ul>
 <p>要口令的 Skill <strong>明文不能进仓库</strong>：仓库里只放加密包 <code>sealed/&lt;名字&gt;.pkg</code>。明文放在你自己机器上，发版用：</p>
@@ -1496,7 +1498,18 @@ skillpm repo add 我们团队 git@gitlab.example.com:组/仓库.git
 </tr>
 </tbody>
 </table></div></section></article>
-  <section class="card"><details class="changelog" id="changelog"><summary>更新日志<span class="d">共 13 个版本，点开看每一版改了什么</span></summary><details class="ver-item"><summary><b>2.2.0</b><span class="d">2026-09-23</span><span class="g">仓库里的 Skill 可以设成要口令才能装；几个 Skill 可以设成互斥（同一宿主只装一个）。</span></summary><div class="ver-body"><p><strong>仓库里的 Skill 可以设成要口令才能装；几个 Skill 可以设成互斥（同一宿主只装一个）。</strong></p>
+  <section class="card"><details class="changelog" id="changelog"><summary>更新日志<span class="d">共 14 个版本，点开看每一版改了什么</span></summary><details class="ver-item"><summary><b>2.3.0</b><span class="d">2026-09-23</span><span class="g">一个 Skill 可以配几个口令组</span></summary><div class="ver-body"><ul>
+<li>
+<p><strong>一个 Skill 可以配几个口令组</strong>：<code>skillpm.repo.json</code> 里 <code>"lock": ["write", "admin"]</code>，这两个组的口令都能装它。
+  有高低的用这个最顺手：拿到 admin 口令的人，write 也能自己装，不用再要一个 write 口令。</p>
+</li>
+<li>
+<p>装的时候提示「write 或 admin 组的都行」；本机记过其中任何一个组的口令就不再问，输对的口令记在它实际打开的那个组名下。</p>
+</li>
+<li><code>publish</code> 按组分别核对：问 write 组的口令时输成 admin 的，哪怕它也能打开这个包，也拦下来——不然 write 那份会被悄悄换成 admin 的口令。</li>
+<li><code>--new-password &lt;组&gt;</code> 换口令时，配了这个组的 Skill 都要一起发。</li>
+<li>包格式没变；只写一个组名的配置照旧能用。</li>
+</ul></div></details><details class="ver-item"><summary><b>2.2.0</b><span class="d">2026-09-23</span><span class="g">仓库里的 Skill 可以设成要口令才能装；几个 Skill 可以设成互斥（同一宿主只装一个）。</span></summary><div class="ver-body"><p><strong>仓库里的 Skill 可以设成要口令才能装；几个 Skill 可以设成互斥（同一宿主只装一个）。</strong></p>
 <p>起因：同一个工具分了只读 / 读写 / 管理三个版本，可 <code>install</code> 的列表默认全选，一回车三个全装上，分级起不到管控作用。
 哪个 Skill 要口令、用哪个口令组、哪些互斥，都由仓库根目录的 <code>skillpm.repo.json</code> 决定，不写死在工具里。</p>
 <ul>
@@ -1639,7 +1652,7 @@ skillpm repo add 我们团队 git@gitlab.example.com:组/仓库.git
 <li><strong>图文手册随工具发</strong>：<code>skillpm docs</code> 在浏览器里打开，快速上手每一步都有真实截图。</li>
 <li><strong>零依赖</strong>：只用 Python 3.8+ 标准库；Mac / Windows / Linux 通用，安装脚本默认不碰 PyPI。</li>
 </ul></div></details></details></section>
-  <p class="foot">skillpm v2.2.0 · 生成于 2026-09-23 · 内容来自工具仓库 docs/ 下的 Markdown，改那里再重新生成</p></main>
+  <p class="foot">skillpm v2.3.0 · 生成于 2026-09-23 · 内容来自工具仓库 docs/ 下的 Markdown，改那里再重新生成</p></main>
 </div>
 <script>
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
