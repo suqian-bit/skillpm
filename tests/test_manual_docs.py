@@ -116,3 +116,34 @@ def test_file_url_for_mac_and_windows():
     assert file_url("/Users/wang/.skillpm-src/docs/使用手册.html") == "file:///Users/wang/.skillpm-src/docs/使用手册.html"
     win = PureWindowsPath(r"C:\Users\Zhang San\.skillpm-src\docs\使用手册.html").as_posix()
     assert file_url(win) == "file:///C:/Users/Zhang%20San/.skillpm-src/docs/使用手册.html"
+
+
+def test_help_tells_how_to_uninstall_the_tool_per_platform(monkeypatch, capsys):
+    """-h 最后要给卸载工具本身的命令：Windows 给 .cmd（不能是 .sh——Windows 不认，只会把脚本打开），其它给 .sh。"""
+    import sys
+    import pytest
+    from skillpm.cli import self_uninstall_command
+    with pytest.raises(SystemExit):
+        main(["-h"])
+    assert self_uninstall_command() in capsys.readouterr().out
+    monkeypatch.setattr(sys, "platform", "win32")
+    assert self_uninstall_command().endswith("uninstall.cmd") or self_uninstall_command().endswith('uninstall.cmd"')
+    monkeypatch.setattr(sys, "platform", "darwin")
+    assert self_uninstall_command().endswith("scripts/uninstall.sh")
+
+
+def test_windows_uninstall_wrapper_calls_ps1_with_bypass():
+    """uninstall.cmd 要自带执行策略参数、调同目录的 uninstall.ps1、把参数和退出码传过去；文件是 CRLF。"""
+    from pathlib import Path
+    raw = (Path(__file__).resolve().parents[1] / "scripts" / "uninstall.cmd").read_bytes()
+    text = raw.decode("ascii")                       # 批处理里别放中文：cmd 按本地代码页读
+    assert "-ExecutionPolicy Bypass" in text and '"%~dp0uninstall.ps1" %*' in text and "exit /b %errorlevel%" in text
+    assert b"\r\n" in raw and raw.count(b"\n") == raw.count(b"\r\n")
+
+
+def test_quickstart_uninstall_covers_windows():
+    """快速上手的卸载一节要有 Windows 的写法（2.0.1 前只有 uninstall.sh，Windows 用户照抄卸不掉）。"""
+    from pathlib import Path
+    qs = (Path(__file__).resolve().parents[1] / "docs" / "快速上手.md").read_text(encoding="utf-8")
+    sec = qs[qs.index("## 5. 卸载"):qs.index("## 6.")]
+    assert "uninstall.sh" in sec and "uninstall.cmd" in sec

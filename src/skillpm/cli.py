@@ -1395,6 +1395,23 @@ def cmd_docs(a):
     return 0
 
 
+def self_uninstall_command():
+    """卸载工具本身的命令，照着敲就行（给绝对路径，按系统给对脚本）。
+
+    Windows 给 uninstall.cmd：它自己带执行策略参数去调 uninstall.ps1，cmd 和 PowerShell 里都能直接跑。
+    不能让人去跑 uninstall.sh——Windows 不认 .sh，只会用关联的程序把脚本打开（实测踩过）。
+    """
+    here = Path(__file__).resolve().parents[2] / "scripts"
+    if sys.platform.startswith("win"):
+        p = str(here / "uninstall.cmd")
+        return f'& "{p}"' if " " in p else p            # 路径带空格：PowerShell 要 & "…"
+    p = here / "uninstall.sh"
+    try:
+        return "~/" + p.relative_to(Path.home()).as_posix()
+    except ValueError:
+        return str(p)
+
+
 def cmd_selfupdate(a):
     """更新工具自己。在哪个目录跑都行——它知道自己的源码在哪。"""
     here = Path(__file__).resolve().parents[2]
@@ -1717,7 +1734,8 @@ class Parser(argparse.ArgumentParser):
         out += ["", f"{BOLD}图文使用手册（HTML）{RESET}：复制下面这行到浏览器地址栏就能打开，快速上手在第一页",
                 f"  {BOLD}{RED}{browser_url()}{RESET}",
                 f"  也可以直接敲 {BOLD}skillpm docs{RESET}，或者在终端里跑：{open_command()}",
-                f"配置和状态放在 {where}（改位置用环境变量 SKILLPM_HOME）。"]
+                f"配置和状态放在 {where}（改位置用环境变量 SKILLPM_HOME）。",
+                f"卸载工具本身：{BOLD}{self_uninstall_command()}{RESET}（已装的 Skill 不动；要先清 Skill：skillpm uninstall --all）"]
         return "\n".join(out).rstrip() + "\n"
 
     def error(self, message):

@@ -67,6 +67,8 @@ skillpm update     # 跟上最新，并告诉你每个 Skill 改了什么
 ~/.skillpm-src/scripts/uninstall.sh --all     # 连 ~/.skillpm 一起删
 ```
 
+Windows（cmd、PowerShell 都能直接跑）：`~\.skillpm-src\scripts\uninstall.cmd`，加 `-All` 连配置一起删。别跑 `.sh`，Windows 不认。
+
 想连 Skill 一起清，**先清 Skill 再卸工具**：`skillpm uninstall --all --yes`，然后再卸。
 反过来不行——工具没了就没人知道哪些 Skill 是它装的。
 

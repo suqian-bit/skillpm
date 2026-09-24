@@ -3,6 +3,15 @@
 版本号语义：主版本＝命令或配置不兼容；次版本＝加功能；修订号＝修 bug，行为不变。
 改了 `src/skillpm/__init__.py` 里的版本号就要在这写一条，`tools/check_release.py` 会检查。
 
+## 3.0.1 — 2026-09-24
+
+**修：Windows 上照着手册卸不掉工具。** 快速上手的「卸载」只写了 `uninstall.sh`，Windows 用户在 PowerShell 里跑它，
+Windows 不认 `.sh`，只是用关联的程序把脚本打开了，什么都没卸。
+
+- 新增 `scripts/uninstall.cmd`：自己带执行策略参数去调 `uninstall.ps1`，cmd 和 PowerShell 里都能直接跑，不用先改执行策略。
+- `skillpm -h` 最后加一行「卸载工具本身」，按系统给出本机可以直接复制的绝对路径命令（Windows 给 `.cmd`，Mac/Linux 给 `.sh`）。
+- 文档：快速上手、命令手册、详细说明、README 的卸载部分都分开写 Mac/Linux 和 Windows，并注明 Windows 别跑 `.sh`。
+
 ## 3.0.0 — 2026-09-23
 
 **去掉锁文件功能**：`skillpm freeze`、`skillpm install --from <锁文件>`、项目级安装自动写 `skillpm.lock`，这一套都拿掉了。

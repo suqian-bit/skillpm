@@ -1,0 +1,2 @@
+# Windows 批处理必须是 CRLF，不然 cmd 可能把行拆错
+*.cmd text eol=crlf
